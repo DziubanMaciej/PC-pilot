@@ -18,6 +18,9 @@ add_sources  (
 	${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt
 	${CMAKE_CURRENT_SOURCE_DIR}/macros.cmake
 )
+add_subdirectories (
+	InputSimulator
+)
 
 # Project setup
 get_sources (SOURCES)
