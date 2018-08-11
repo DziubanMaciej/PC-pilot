@@ -20,6 +20,7 @@ add_sources  (
 )
 add_subdirectories (
 	InputSimulator
+	Utils
 )
 
 # Project setup
