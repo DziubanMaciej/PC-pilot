@@ -4,3 +4,4 @@ add_sources (
 	${CMAKE_CURRENT_SOURCE_DIR}/InetAddress.h
 	${CMAKE_CURRENT_SOURCE_DIR}/SocketContext.h
 )
+add_subdirectory("windows")
