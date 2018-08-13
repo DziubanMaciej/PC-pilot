@@ -45,7 +45,7 @@ void WsaInetSocket::connect(InetAddress & address) {
 }
 
 void WsaInetSocket::send(const std::string & message) {
-	if (!isConnected()) throw std::exception("Not connected");
+	if (!isConnected()) ApplicationError::exception("Socket not connected");
 
 	auto result = ::send(getSocket(), message.c_str(), message.size(), 0);
 	if (result == SOCKET_ERROR) {
@@ -55,7 +55,7 @@ void WsaInetSocket::send(const std::string & message) {
 }
 
 std::string WsaInetSocket::receive(size_t bufferSize) {
-	if (!isConnected()) throw std::exception("Not connected");
+	if (!isConnected()) ApplicationError::exception("Socket not connected");
 
 	auto buffer = std::make_unique<char[]>(bufferSize);
 	auto result = ::recv(this->connectedSocket, buffer.get(), bufferSize, 0);
