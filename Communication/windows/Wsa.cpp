@@ -31,11 +31,6 @@ std::unique_ptr<ConnectionOrientedSocket> Wsa::getInetSocket(const InetAddress &
 	return std::make_unique<WsaInetSocket>(address, reusable);
 }
 
-void Wsa::error(const std::string & message) {
-	std::cout << message << ": " << WSAGetLastError() << std::endl;
-	throw std::exception(message.c_str());
-}
-
 sockaddr_in Wsa::convertInetAddress(const InetAddress & address) {
 	sockaddr_in result;
 	std::memset(&result, 0, sizeof(sockaddr_in));

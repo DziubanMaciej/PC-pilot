@@ -1,12 +1,14 @@
 #include "Communication/windows/WsaSocket.h"
 #include "Communication/windows/Wsa.h"
+#include "Utils/ApplicationError.h"
 
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
 WsaSocket::WsaSocket(int addressFamily, int type, int protocol) : socket(::socket(addressFamily, type, protocol)) {
 	if (getSocket() == INVALID_SOCKET) {
-		Wsa::error("Socket constructor");
+		auto errorCode = WSAGetLastError();
+		ApplicationError::unrecoverable("Socket constructing", errorCode);
 	}
 }
 
