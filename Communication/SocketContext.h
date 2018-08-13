@@ -14,5 +14,5 @@ public:
 	virtual std::unique_ptr<InetAddress> getInetAddressAny(short port) = 0;
 	virtual std::unique_ptr<InetAddress> getInetAddressLoopback(short port) = 0;
 	virtual std::unique_ptr<InetAddress> getInetAddress(uint32_t address, short port) = 0;
-	virtual std::unique_ptr<ConnectionOrientedSocket> getInetSocket(const InetAddress &address) = 0;
+	virtual std::unique_ptr<ConnectionOrientedSocket> getInetSocket(const InetAddress &address, bool reusable) = 0;
 };

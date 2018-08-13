@@ -4,7 +4,9 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
-WsaInetSocket::WsaInetSocket(const InetAddress & address) : WsaSocket(AF_INET, SOCK_STREAM, 0), connected(false) {
+WsaInetSocket::WsaInetSocket(const InetAddress & address, bool reusable) : WsaSocket(AF_INET, SOCK_STREAM, 0), connected(false) {
+	::setsockopt(getSocket(), SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<char*>(&reusable), 1);
+
 	auto addressStruct = Wsa::convertInetAddress(address);
 	auto result = ::bind(getSocket(), reinterpret_cast<sockaddr*>(&addressStruct), sizeof(addressStruct));
 	if (result == SOCKET_ERROR) Wsa::error("Binding");

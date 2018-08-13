@@ -27,8 +27,8 @@ std::unique_ptr<InetAddress> Wsa::getInetAddress(uint32_t address, short port) {
 	return std::make_unique<InetAddress>(address, port);
 }
 
-std::unique_ptr<ConnectionOrientedSocket> Wsa::getInetSocket(const InetAddress &address) {
-	return std::make_unique<WsaInetSocket>(address);
+std::unique_ptr<ConnectionOrientedSocket> Wsa::getInetSocket(const InetAddress &address, bool reusable) {
+	return std::make_unique<WsaInetSocket>(address, reusable);
 }
 
 void Wsa::error(const std::string & message) {

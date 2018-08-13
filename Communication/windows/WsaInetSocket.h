@@ -7,7 +7,7 @@
 
 class WsaInetSocket : public WsaSocket {
 public:
-	WsaInetSocket(const InetAddress &address);
+	WsaInetSocket(const InetAddress &address, bool reusable);
 	bool isConnected() const override;
 
 	void listen() override;
