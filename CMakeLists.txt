@@ -23,11 +23,11 @@ add_subdirectories (
 	InputSimulator
 	Utils
 )
+get_sources (SOURCES)
 
 # Project setup
-get_sources (SOURCES)
 project (${SOLUTION_NAME})
 source_group (TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES})
 add_executable (${PROJECT_NAME} ${SOURCES})
-target_link_libraries(${PROJECT_NAME} WS2_32.lib)
+handle_library_dependencies()
 include_directories(.)
