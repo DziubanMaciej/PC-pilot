@@ -2,7 +2,7 @@
 
 #include <string>
 
-class InetAddress;
+struct InetAddress;
 
 class ConnectionOrientedSocket {
 public:

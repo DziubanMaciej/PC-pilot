@@ -35,7 +35,7 @@ sockaddr_in Wsa::convertInetAddress(const InetAddress & address) {
 	sockaddr_in result;
 	std::memset(&result, 0, sizeof(sockaddr_in));
 	result.sin_family = AF_INET;
-	result.sin_addr.s_addr = address.getAddress();
-	result.sin_port = htons(address.getPort());
+	result.sin_addr.s_addr = address.address;
+	result.sin_port = htons(address.port);
 	return result;
 }
