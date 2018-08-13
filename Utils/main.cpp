@@ -26,14 +26,15 @@ int main() {
 		auto mySocket = context->getInetSocket(*myAddress, false);
 		mySocket->listen();
 		mySocket->accept();
+		std::cout << mySocket->receive(10);
 	}
 	else if (c == '2') {
 		std::unique_ptr<SocketContext> context = std::make_unique<Wsa>();
 		auto myAddress = context->getInetAddress(ipAddress, 9999);
 		auto theirAddress = context->getInetAddress(ipAddress, 8888);
-
 		auto mySocket = context->getInetSocket(*myAddress, false);
 		mySocket->connect(*theirAddress);
+		mySocket->send(":)");
 	}
 	else {
 		std::cout << "Unknown input\n";

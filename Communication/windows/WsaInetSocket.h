@@ -15,7 +15,7 @@ public:
 	void connect(InetAddress &address) override;
 
 	void send(const std::string &message) override;
-	std::string receive() override;
+	std::string receive(size_t bufferSize) override;
 
 private:
 	bool connected;

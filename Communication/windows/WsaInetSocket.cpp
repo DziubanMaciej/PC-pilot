@@ -46,10 +46,22 @@ void WsaInetSocket::connect(InetAddress & address) {
 
 void WsaInetSocket::send(const std::string & message) {
 	if (!isConnected()) throw std::exception("Not connected");
-	::send(getSocket(), message.c_str(), message.size(), 0);
+
+	auto result = ::send(getSocket(), message.c_str(), message.size(), 0);
+	if (result == SOCKET_ERROR) {
+		auto errorCode = WSAGetLastError();
+		ApplicationError::unrecoverable("Socket receiving", errorCode);
+	}
 }
 
-std::string WsaInetSocket::receive()
-{
-	return std::string();
+std::string WsaInetSocket::receive(size_t bufferSize) {
+	if (!isConnected()) throw std::exception("Not connected");
+
+	auto buffer = std::make_unique<char[]>(bufferSize);
+	auto result = ::recv(this->connectedSocket, buffer.get(), bufferSize, 0);
+	if (result == SOCKET_ERROR) {
+		auto errorCode = WSAGetLastError();
+		ApplicationError::unrecoverable("Socket receiving", errorCode);
+	}
+	return std::string(buffer.get());
 }

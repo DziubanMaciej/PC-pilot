@@ -16,5 +16,5 @@ public:
 	virtual void connect(InetAddress &address) = 0;
 
 	virtual void send(const std::string &message) = 0;
-	virtual std::string receive() = 0;
+	virtual std::string receive(size_t bufferSize) = 0;
 };
