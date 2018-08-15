@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <exception>
+#include <thread>
 
 bool WindowsInputSimulator::sendInput(tagINPUT &input) {
   auto inputsProcessed = SendInput(1, &input, sizeof(input));
@@ -50,7 +51,7 @@ bool WindowsInputSimulator::sendMouseButtonEvent(
 }
 
 void WindowsInputSimulator::sleepMs(unsigned int ms) {
-  Sleep(static_cast<DWORD>(ms));
+  std::this_thread::sleep_for(std::chrono::milliseconds(500));
 }
 
 bool WindowsInputSimulator::click() {

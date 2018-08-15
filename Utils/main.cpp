@@ -6,10 +6,12 @@
 #include <thread>
 
 #include "Communication/windows/Wsa.h"
+#include "InputSimulator/WindowsInputSimulator.h"
 #include "Communication/InetAddress.h"
 #include "Communication/ConnectionOrientedSocket.h"
 
 std::unique_ptr<SocketContext> context = std::make_unique<Wsa>();
+std::unique_ptr<InputSimulator> inputSimulator = std::make_unique<WindowsInputSimulator>();
 
 void receiver(const std::string &address) {
 	auto myAddress = context->getInetAddress(address, 8888);
@@ -17,7 +19,7 @@ void receiver(const std::string &address) {
 
 	mySocket->listen();
 	mySocket->accept();
-	std::this_thread::sleep_for(std::chrono::milliseconds(500));
+	inputSimulator->sleepMs(500);
 	std::cout << "RECEIVER: received \"" << mySocket->receive(10) << "\"\n";
 }
 

@@ -1,6 +1,8 @@
 #pragma once
 
-class InputSimulator {
+#include "Utils/InstanceLimited.h"
+
+class InputSimulator : public OneInstanced<InputSimulator> {
 public:
 	enum class MouseButtonEventType { LeftPress, LeftRelease, MiddlePress, MiddleRelease, RightPress, RightRelease };
 
