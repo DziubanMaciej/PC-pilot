@@ -3,37 +3,43 @@
 #include <memory>
 #include <exception>
 #include <string>
+#include <thread>
 
 #include "Communication/windows/Wsa.h"
 #include "Communication/InetAddress.h"
 #include "Communication/ConnectionOrientedSocket.h"
 
+std::unique_ptr<SocketContext> context = std::make_unique<Wsa>();
+
+void receiver(const std::string &address) {
+	auto myAddress = context->getInetAddress(address, 8888);
+	auto mySocket = context->getInetSocket(*myAddress, false);
+
+	mySocket->listen();
+	mySocket->accept();
+	std::this_thread::sleep_for(std::chrono::milliseconds(500));
+	std::cout << "RECEIVER: received \"" << mySocket->receive(10) << "\"\n";
+}
+
+void sender(const std::string &address) {
+	auto myAddress = context->getInetAddress(address, 9999);
+	auto theirAddress = context->getInetAddress(address, 8888);
+	auto mySocket = context->getInetSocket(*myAddress, false);
+
+	mySocket->connect(*theirAddress);
+	mySocket->send(":)");
+	std::cout << "SENDER: sent\n";
+}
+
 int main() {
-	std::cout << "1. Receive\n2.Send\n: ";
-	char c = (char) std::cin.get();
 	const std::string address = "192.168.0.60";
-	if (c == '1') {
-		std::unique_ptr<SocketContext> context = std::make_unique<Wsa>();
-		auto myAddress = context->getInetAddress(address, 8888);
-		auto mySocket = context->getInetSocket(*myAddress, false);
-		mySocket->listen();
-		mySocket->accept();
-		std::cout << mySocket->receive(10);
-	}
-	else if (c == '2') {
-		std::unique_ptr<SocketContext> context = std::make_unique<Wsa>();
-		auto myAddress = context->getInetAddress(address, 9999);
-		auto theirAddress = context->getInetAddress(address, 8888);
-		auto mySocket = context->getInetSocket(*myAddress, false);
-		mySocket->connect(*theirAddress);
-		mySocket->send(":)");
-	}
-	else {
-		std::cout << "Unknown input\n";
-	}
 
+	std::thread receiverThread(receiver, address);
+	std::thread senderThread(sender, address);
 
-	std::cout << "End\n";
+	receiverThread.join();
+	senderThread.join();
+
 	system("pause");
 }
 
