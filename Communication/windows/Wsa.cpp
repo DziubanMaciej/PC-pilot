@@ -1,6 +1,7 @@
 #include "Communication/windows/Wsa.h"
 #include "Communication/windows/WsaInetSocket.h"
 #include "Communication/InetAddress.h"
+#include "Utils/ApplicationError.h"
 
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -25,6 +26,13 @@ std::unique_ptr<InetAddress> Wsa::getInetAddressLoopback(short port) {
 
 std::unique_ptr<InetAddress> Wsa::getInetAddress(uint32_t address, short port) {
 	return std::make_unique<InetAddress>(address, port);
+}
+
+std::unique_ptr<InetAddress> Wsa::getInetAddress(const std::string & address, short port) {
+	uint32_t ip;
+	auto result = InetPton(AF_INET, address.c_str(), &ip);
+	if (result != 1) ApplicationError::exception("InetAddress parse");
+	return getInetAddress(ip, port);
 }
 
 std::unique_ptr<ConnectionOrientedSocket> Wsa::getInetSocket(const InetAddress &address, bool reusable) {

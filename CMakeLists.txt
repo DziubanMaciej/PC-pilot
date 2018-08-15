@@ -1,7 +1,7 @@
 # Cmake vars
 cmake_minimum_required (VERSION 3.8)
 set (CMAKE_BUILD_TYPE Debug)
-set (CMAKE_SUPPRESS_REGENERATION false)
+set (CMAKE_SUPPRESS_REGENERATION true)
 set_property (GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Own vars
