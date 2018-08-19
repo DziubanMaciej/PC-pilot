@@ -4,6 +4,8 @@
 #include "Communication/ConnectionOrientedSocket.h"
 
 #include <memory>
+#include <vector>
+#include <string>
 
 class SocketContext : public OneInstanced<SocketContext> {
 public:
@@ -16,4 +18,6 @@ public:
 	virtual std::unique_ptr<InetAddress> getInetAddress(uint32_t address, short port) = 0;
 	virtual std::unique_ptr<InetAddress> getInetAddress(const std::string &address, short port) = 0;
 	virtual std::unique_ptr<ConnectionOrientedSocket> getInetSocket(const InetAddress &address, bool reusable) = 0;
+
+	virtual std::vector<std::string> getInetAddresses(bool ipv4, bool ipv6, bool loopback) = 0;
 };

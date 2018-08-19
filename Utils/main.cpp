@@ -34,7 +34,8 @@ void sender(const std::string &address) {
 }
 
 int main() {
-	const std::string address = "192.168.0.60";
+	const auto addresses = context->getInetAddresses(true, false, false);
+	const auto address = addresses[0];
 
 	std::thread receiverThread(receiver, address);
 	std::thread senderThread(sender, address);

@@ -22,7 +22,7 @@ endmacro()
 
 macro(handle_library_dependencies)
 	if (WIN32)
-		target_link_libraries(${PROJECT_NAME} WS2_32.lib)
+		target_link_libraries(${PROJECT_NAME} WS2_32.lib Iphlpapi.lib)
 	else()
 		message(FATAL_ERROR "Not supported OS")
 	endif()
