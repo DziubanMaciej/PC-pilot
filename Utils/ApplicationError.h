@@ -8,6 +8,10 @@ class ApplicationError : public std::logic_error {
 public:
 	ApplicationError(const std::string& message) : std::logic_error(message) {}
 
+	static void exception(const std::string &message, int errorCode) {
+		exception(appendErrorCode(message, errorCode));
+	}
+
 	static void exception(const std::string &message) {
 		throw ApplicationError(message);
 	}
