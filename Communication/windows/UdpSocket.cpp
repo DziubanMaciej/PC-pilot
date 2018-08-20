@@ -27,7 +27,7 @@ void UdpSocket::bind(const InetAddress & address, bool reusable) {
 
 void UdpSocket::send(const std::string & message, const InetAddress &address) {
 	sockaddr_in destination = Wsa::convertInetAddress(address);
-	auto result = ::sendto(this->socket, message.c_str, message.size(), 0, reinterpret_cast<sockaddr*>(&destination), sizeof(destination));
+	auto result = ::sendto(this->socket, message.c_str(), message.size(), 0, reinterpret_cast<sockaddr*>(&destination), sizeof(destination));
 	if (result == SOCKET_ERROR) {
 		auto errorCode = WSAGetLastError();
 		ApplicationError::exception("Sending", errorCode);

@@ -1,6 +1,6 @@
 #include "Communication/windows/Wsa.h"
-#include "Communication/windows/WsaInetSocket.h"
 #include "Communication/InetAddress.h"
+#include "Communication/windows/UdpSocket.h"
 #include "Utils/ApplicationError.h"
 
 #include <winsock2.h>
@@ -36,8 +36,8 @@ std::unique_ptr<InetAddress> Wsa::getInetAddress(const std::string & address, sh
 	return getInetAddress(ip, port);
 }
 
-std::unique_ptr<ConnectionOrientedSocket> Wsa::getInetSocket(const InetAddress &address, bool reusable) {
-	return std::make_unique<WsaInetSocket>(address, reusable);
+std::unique_ptr<ConnectionlessSocket> Wsa::getInetSocket(const InetAddress &address, bool reusable) {
+	return std::make_unique<UdpSocket>(address, reusable);
 }
 
 std::unique_ptr<Wsa::Adapter[]> Wsa::getAdapters() {

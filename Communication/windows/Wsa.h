@@ -14,7 +14,7 @@ public:
 	std::unique_ptr<InetAddress> getInetAddressLoopback(short port) override;
 	std::unique_ptr<InetAddress> getInetAddress(uint32_t address, short port) override;
 	std::unique_ptr<InetAddress> getInetAddress(const std::string &address, short port) override;
-	std::unique_ptr<ConnectionOrientedSocket> getInetSocket(const InetAddress &address, bool reusable) override;
+	std::unique_ptr<ConnectionlessSocket> getInetSocket(const InetAddress &address, bool reusable) override;
 
 	std::vector<std::string> getInetAddresses(bool ipv4, bool ipv6, bool loopback) override;
 
