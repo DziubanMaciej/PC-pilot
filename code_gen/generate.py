@@ -13,6 +13,9 @@ def generate(template_filename, output_dir, output_filename, data):
         file.write(template.render(**data).replace('\r\n', '\n'))
 
 if __name__ == "__main__":
+    cpp_output_dir = os.path.join('..', 'server', 'Communication')
+    kt_output_dir = os.path.join('..', 'client', 'app', 'src', 'main', 'kotlin', 'com', 'paijan', 'pcpilot', 'communication')
+
     data = { 'message_classes' : messages.message_classes}
-    generate('messages.h.mako', 'out', 'messages.h', data)
-    generate('messages.kt.mako', 'out', 'messages.kt', data)
+    generate('messages.h.mako', cpp_output_dir, 'Messages.h', data)
+    generate('messages.kt.mako', kt_output_dir, 'Messages.kt', data)
