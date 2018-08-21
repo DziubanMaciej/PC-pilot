@@ -9,6 +9,22 @@ def get_args_list_cpp(fields):
             result += "{} {}{}".format(field.type, field.name, separator)
     return result
 
+def get_args_list_kt(fields):
+    result = ""
+    for i, field in enumerate(fields):
+        if not is_type_field(field):
+            separator = ", " if i != len(fields) - 1 else ""
+            result += "{}: {}{}".format(field.name, translate_type_name_kt(field.type), separator)
+    return result
+
+def get_put_call_kt(type_name, value):
+    method_name = 'put' if type_name == 'Byte' else 'put{}'.format(type_name.capitalize())
+    return ".{}({})".format(method_name, value)
+
+def translate_type_name_kt(type_name):
+    return type_name.capitalize()
+
+
 def get_largest_message_size(message_class):
     sizes = (sum((field.size for field in message.fields)) for message in message_class.messages)
     try:

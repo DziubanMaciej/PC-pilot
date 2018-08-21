@@ -15,3 +15,4 @@ def generate(template_filename, output_dir, output_filename, data):
 if __name__ == "__main__":
     data = { 'message_classes' : messages.message_classes}
     generate('messages.h.mako', 'out', 'messages.h', data)
+    generate('messages.kt.mako', 'out', 'messages.kt', data)
