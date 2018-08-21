@@ -28,9 +28,7 @@ abstract class Message protected constructor(private val bytes: ByteArray) {
     }
 }
 
-
-
-class ServerMessage private constructor(bytes : ByteArray) : Message(bytes) {
+class ServerMessage private constructor(bytes: ByteArray) : Message(bytes) {
     enum class Type {
         MoveCursor,
         LeftPress,
@@ -42,7 +40,7 @@ class ServerMessage private constructor(bytes : ByteArray) : Message(bytes) {
     companion object {
         private const val SIZE = 9
 
-        fun createMessageMoveCursor(x: Float, y: Float) : ServerMessage {
+        fun createMessageMoveCursor(x: Float, y: Float): ServerMessage {
             val bytes = ByteBuffer.allocate(SIZE)
                 .put(Type.MoveCursor.byteValue())
                 .putFloat(x)
@@ -50,24 +48,32 @@ class ServerMessage private constructor(bytes : ByteArray) : Message(bytes) {
                 .array()
             return ServerMessage(bytes)
         }
-        fun createMessageLeftPress() : ServerMessage {
+
+        fun createMessageLeftPress(): ServerMessage {
             val bytes = ByteBuffer.allocate(SIZE)
                 .put(Type.LeftPress.byteValue())
                 .array()
             return ServerMessage(bytes)
         }
-        fun createMessageLeftRelease() : ServerMessage {
+
+        fun createMessageLeftRelease(): ServerMessage {
             val bytes = ByteBuffer.allocate(SIZE)
                 .put(Type.LeftRelease.byteValue())
                 .array()
             return ServerMessage(bytes)
         }
     }
+
+    fun getMessageMoveCursorX(): Float {
+        return getFloat(1)
+    }
+
+    fun getMessageMoveCursorY(): Float {
+        return getFloat(5)
+    }
 }
 
-
-
-class ClientMessage private constructor(bytes : ByteArray) : Message(bytes) {
+class ClientMessage private constructor(bytes: ByteArray) : Message(bytes) {
     enum class Type {
         Connect;
 
@@ -77,7 +83,7 @@ class ClientMessage private constructor(bytes : ByteArray) : Message(bytes) {
     companion object {
         private const val SIZE = 1
 
-        fun createMessageConnect() : ClientMessage {
+        fun createMessageConnect(): ClientMessage {
             val bytes = ByteBuffer.allocate(SIZE)
                 .put(Type.Connect.byteValue())
                 .array()
@@ -85,4 +91,3 @@ class ClientMessage private constructor(bytes : ByteArray) : Message(bytes) {
         }
     }
 }
-

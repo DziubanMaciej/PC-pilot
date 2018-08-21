@@ -28,11 +28,9 @@ abstract class Message protected constructor(private val bytes: ByteArray) {
         return InetAddress.getByAddress(address)
     }
 }
-
 %for message_class in message_classes:
 
-
-class ${message_class.name} private constructor(bytes : ByteArray) : Message(bytes) {
+class ${message_class.name} private constructor(bytes: ByteArray) : Message(bytes) {
     enum class Type {
     % for message in message_class.messages:
         ${message.name}${utils.trailing_sign(loop.last, ',', ';')}
@@ -43,9 +41,9 @@ class ${message_class.name} private constructor(bytes : ByteArray) : Message(byt
 
     companion object {
         private const val SIZE = ${utils.get_largest_message_size(message_class)}
-
         % for message in message_class.messages:
-        fun createMessage${message.name}(${utils.get_args_list_kt(message.fields)}) : ${message_class.name} {
+
+        fun createMessage${message.name}(${utils.get_args_list_kt(message.fields)}): ${message_class.name} {
             val bytes = ByteBuffer.allocate(SIZE)
                 ${utils.get_put_call_kt('Byte', 'Type.{}.byteValue()'.format(message.name))}
                 % for field in message.fields:
@@ -58,6 +56,15 @@ class ${message_class.name} private constructor(bytes : ByteArray) : Message(byt
         }
         % endfor
     }
-}
+    % for message in message_class.messages:
+    % for field in message.fields:
+    % if not utils.is_type_field(field):
 
+    fun getMessage${message.name}${field.name.title()}(): ${utils.translate_type_name_kt(field.type)} {
+        return get${utils.translate_type_name_kt(field.type)}(${field.offset})
+    }
+    % endif
+    % endfor
+    % endfor
+}
 %endfor
