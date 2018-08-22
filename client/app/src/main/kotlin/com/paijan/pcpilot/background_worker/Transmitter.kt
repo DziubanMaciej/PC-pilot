@@ -9,22 +9,10 @@ import java.util.concurrent.BlockingQueue
 class Transmitter(
         private val socket: DatagramSocket,
         private val toSendMessages: BlockingQueue<ServerMessage>
-) : Runnable {
-
-    override fun run() {
-        Log.i("Transmitter", "start")
-        try {
-            while (true) {
-                runBody()
-            }
-        } catch (e: InterruptedException) {
-            Log.e("Transmitter", "Thread interrupted")
-        }
-        Log.i("Transmitter", "end")
-    }
+) : RunnableAdapter("Transmitter") {
 
     @Throws(InterruptedException::class, IllegalStateException::class)
-    private fun runBody() {
+    override fun runBody() {
         val maxMessageSize = 128 // TODO extract to some shared constant
 
         val messages = mutableListOf<ServerMessage>()
