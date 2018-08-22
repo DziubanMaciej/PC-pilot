@@ -6,7 +6,7 @@ import java.net.InetAddress
 import java.nio.ByteBuffer
 import java.util.Arrays
 
-abstract class Message protected constructor(private val bytes: ByteArray) {
+abstract class Message protected constructor(protected val bytes: ByteArray) {
     protected fun getFloat(index: Int): Float {
         return ByteBuffer.wrap(bytes).getFloat(index)
     }
@@ -55,6 +55,18 @@ class ServerMessage private constructor(bytes: ByteArray) : Message(bytes) {
                 } else {
                     Log.w("Message", "Unknown message, ignoring")
                 }
+            }
+            return result
+        }
+
+        fun toBytes(messages: List<ServerMessage>): ByteArray {
+            val totalSize = messages.size * SIZE
+            val result = ByteArray(totalSize)
+
+            var index = 0
+            for (message in messages) {
+                System.arraycopy(message.bytes, 0, result, index, SIZE)
+                index += SIZE
             }
             return result
         }
@@ -120,6 +132,18 @@ class ClientMessage private constructor(bytes: ByteArray) : Message(bytes) {
                 } else {
                     Log.w("Message", "Unknown message, ignoring")
                 }
+            }
+            return result
+        }
+
+        fun toBytes(messages: List<ClientMessage>): ByteArray {
+            val totalSize = messages.size * SIZE
+            val result = ByteArray(totalSize)
+
+            var index = 0
+            for (message in messages) {
+                System.arraycopy(message.bytes, 0, result, index, SIZE)
+                index += SIZE
             }
             return result
         }
