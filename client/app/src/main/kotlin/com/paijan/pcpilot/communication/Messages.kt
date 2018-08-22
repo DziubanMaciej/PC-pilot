@@ -43,7 +43,7 @@ class ServerMessage private constructor(bytes: ByteArray) : Message(bytes) {
     }
 
     companion object {
-        private const val SIZE = 9
+        const val SIZE = 9
 
         fun fromBytes(bytes: ByteArray, length: Int): List<ServerMessage> {
             val result = mutableListOf<ServerMessage>()
@@ -108,7 +108,7 @@ class ClientMessage private constructor(bytes: ByteArray) : Message(bytes) {
     }
 
     companion object {
-        private const val SIZE = 1
+        const val SIZE = 1
 
         fun fromBytes(bytes: ByteArray, length: Int): List<ClientMessage> {
             val result = mutableListOf<ClientMessage>()

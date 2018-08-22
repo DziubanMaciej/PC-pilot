@@ -45,7 +45,7 @@ class ${message_class.name} private constructor(bytes: ByteArray) : Message(byte
     }
 
     companion object {
-        private const val SIZE = ${utils.get_largest_message_size(message_class)}
+        const val SIZE = ${utils.get_largest_message_size(message_class)}
 
         fun fromBytes(bytes: ByteArray, length: Int): List<${message_class.name}> {
             val result = mutableListOf<${message_class.name}>()
