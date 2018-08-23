@@ -2,6 +2,9 @@ from utils.definitions import Message, Field, MessageClass
 
 
 serverMessage = MessageClass("ServerMessage",
+    Message('ConnectionRequest'),
+    Message('KeepAlive'),
+
     Message('MoveCursor',
         Field('x', 'float'),
         Field('y', 'float'),
@@ -11,7 +14,8 @@ serverMessage = MessageClass("ServerMessage",
 )
 
 clientMessage = MessageClass("ClientMessage",
-    Message('Connect'),
+    Message('ConnectionAccept'),
+    Message('KeepAlive'),
 )
 
 message_classes = [

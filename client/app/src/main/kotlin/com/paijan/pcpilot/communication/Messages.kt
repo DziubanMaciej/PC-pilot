@@ -31,9 +31,11 @@ abstract class Message protected constructor(protected val bytes: ByteArray) {
 
 class ServerMessage private constructor(bytes: ByteArray) : Message(bytes) {
     enum class Type(val value: Byte) {
-        MoveCursor(0),
-        LeftPress(1),
-        LeftRelease(2);
+        ConnectionRequest(0),
+        KeepAlive(1),
+        MoveCursor(2),
+        LeftPress(3),
+        LeftRelease(4);
 
         companion object {
             fun fromValue(value: Byte): Type? {
@@ -69,6 +71,20 @@ class ServerMessage private constructor(bytes: ByteArray) : Message(bytes) {
                 index += SIZE
             }
             return result
+        }
+
+        fun createMessageConnectionRequest(): ServerMessage {
+            val bytes = ByteBuffer.allocate(SIZE)
+                .put(Type.ConnectionRequest.value)
+                .array()
+            return ServerMessage(bytes)
+        }
+
+        fun createMessageKeepAlive(): ServerMessage {
+            val bytes = ByteBuffer.allocate(SIZE)
+                .put(Type.KeepAlive.value)
+                .array()
+            return ServerMessage(bytes)
         }
 
         fun createMessageMoveCursor(x: Float, y: Float): ServerMessage {
@@ -110,7 +126,8 @@ class ServerMessage private constructor(bytes: ByteArray) : Message(bytes) {
 
 class ClientMessage private constructor(bytes: ByteArray) : Message(bytes) {
     enum class Type(val value: Byte) {
-        Connect(0);
+        ConnectionAccept(0),
+        KeepAlive(1);
 
         companion object {
             fun fromValue(value: Byte): Type? {
@@ -148,9 +165,16 @@ class ClientMessage private constructor(bytes: ByteArray) : Message(bytes) {
             return result
         }
 
-        fun createMessageConnect(): ClientMessage {
+        fun createMessageConnectionAccept(): ClientMessage {
             val bytes = ByteBuffer.allocate(SIZE)
-                .put(Type.Connect.value)
+                .put(Type.ConnectionAccept.value)
+                .array()
+            return ClientMessage(bytes)
+        }
+
+        fun createMessageKeepAlive(): ClientMessage {
+            val bytes = ByteBuffer.allocate(SIZE)
+                .put(Type.KeepAlive.value)
                 .array()
             return ClientMessage(bytes)
         }

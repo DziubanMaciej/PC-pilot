@@ -33,13 +33,27 @@ protected:
 class ServerMessage : public Message<ServerMessage, 9> {
 public:
     enum class Type : Byte {
-        MoveCursor = 0,
-        LeftPress = 1,
-        LeftRelease = 2
+        ConnectionRequest = 0,
+        KeepAlive = 1,
+        MoveCursor = 2,
+        LeftPress = 3,
+        LeftRelease = 4
     };
 
     Type getType() {
         return static_cast<Type>(getField<Byte, 0>());
+    }
+
+    // --- --- --- ConnectionRequest
+    static ServerMessage createMessageConnectionRequest() {
+        return ServerMessage()
+            .setField<Byte, 0>(static_cast<Byte>(Type::ConnectionRequest));
+    }
+
+    // --- --- --- KeepAlive
+    static ServerMessage createMessageKeepAlive() {
+        return ServerMessage()
+            .setField<Byte, 0>(static_cast<Byte>(Type::KeepAlive));
     }
 
     // --- --- --- MoveCursor
@@ -74,17 +88,24 @@ public:
 class ClientMessage : public Message<ClientMessage, 1> {
 public:
     enum class Type : Byte {
-        Connect = 0
+        ConnectionAccept = 0,
+        KeepAlive = 1
     };
 
     Type getType() {
         return static_cast<Type>(getField<Byte, 0>());
     }
 
-    // --- --- --- Connect
-    static ClientMessage createMessageConnect() {
+    // --- --- --- ConnectionAccept
+    static ClientMessage createMessageConnectionAccept() {
         return ClientMessage()
-            .setField<Byte, 0>(static_cast<Byte>(Type::Connect));
+            .setField<Byte, 0>(static_cast<Byte>(Type::ConnectionAccept));
+    }
+
+    // --- --- --- KeepAlive
+    static ClientMessage createMessageKeepAlive() {
+        return ClientMessage()
+            .setField<Byte, 0>(static_cast<Byte>(Type::KeepAlive));
     }
 };
 
