@@ -1,6 +1,5 @@
 package com.paijan.pcpilot.background_worker
 
-import android.util.Log
 import com.paijan.pcpilot.communication.ClientMessage
 import java.net.DatagramPacket
 import java.net.DatagramSocket

@@ -10,7 +10,7 @@ abstract class RunnableAdapter(private val messageTag: String) : Runnable {
                 runBody()
             }
         } catch (e: InterruptedException) {
-            Log.e(messageTag, "Thread interrupted")
+            Log.i(messageTag, "Thread interrupted")
         }
         Log.i(messageTag, "end")
     }

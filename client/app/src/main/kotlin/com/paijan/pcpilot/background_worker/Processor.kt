@@ -6,8 +6,8 @@ import com.paijan.pcpilot.communication.ServerMessage
 import java.util.concurrent.BlockingQueue
 
 class Processor(
-        private val receivedMessages: BlockingQueue<ServerMessage>,
-        private val toSendMessages: BlockingQueue<ClientMessage>
+        private val receivedMessages: BlockingQueue<ClientMessage>,
+        private val toSendMessages: BlockingQueue<ServerMessage>
 ) : RunnableAdapter("Processor") {
 
     @Throws(InterruptedException::class)
