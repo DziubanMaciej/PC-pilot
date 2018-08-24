@@ -14,9 +14,7 @@ class Processor(
     override fun runBody() {
         val message = receivedMessages.take() // blocks
         when (message.getType()) {
-            ClientMessage.Type.Connect -> {
 
-            }
             else -> {
                 Log.w("Processor", "Unknown message, ignoring")
             }
