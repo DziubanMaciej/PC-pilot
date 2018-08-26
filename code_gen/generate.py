@@ -17,8 +17,5 @@ if __name__ == "__main__":
     kt_output_dir = os.path.join('..', 'client', 'app', 'src', 'main', 'kotlin', 'com', 'paijan', 'pcpilot', 'communication')
 
     data = { 'message_classes' : messages.message_classes}
-
-    data['endpoint'] = 'server'
     generate('messages.h.mako', cpp_output_dir, 'Messages.h', data)
-    data['endpoint'] = 'client'
     generate('messages.kt.mako', kt_output_dir, 'Messages.kt', data)

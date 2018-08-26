@@ -19,7 +19,7 @@ class Processor(
         when (message.getType()) {
             ClientMessage.Type.KeepAlive -> {
                 // TODO validate client IP
-                connectionManager.notifyKeepAlive(message.senderAddress!!)
+                connectionManager.notifyKeepAlive(message.address!!)
             }
             else -> {
                 Log.w("Processor", "Unknown message, ignoring")

@@ -39,11 +39,10 @@ protected:
 
 
 class ServerMessage : public Message<ServerMessage, 16> {
-private:
-    InetAddress senderAddress;
-    ServerMessage() : ServerMessage({ 0, 0 }) {}
-    ServerMessage(const InetAddress &senderAddress) : senderAddress(senderAddress) {}
+    ServerMessage(const InetAddress &address) : address(address) {}
 public:
+    const InetAddress address;
+
     enum class Type : Byte {
         ConnectionRequest = 0,
         KeepAlive = 1,
@@ -57,22 +56,22 @@ public:
     }
 
     // --- --- --- ConnectionRequest
-    static ServerMessage createMessageConnectionRequest() {
-        return ServerMessage()
+    static ServerMessage createMessageConnectionRequest(const InetAddress &address) {
+        return ServerMessage(address)
             .setPreamble()
             .setField<Byte, 7>(static_cast<Byte>(Type::ConnectionRequest));
     }
 
     // --- --- --- KeepAlive
-    static ServerMessage createMessageKeepAlive() {
-        return ServerMessage()
+    static ServerMessage createMessageKeepAlive(const InetAddress &address) {
+        return ServerMessage(address)
             .setPreamble()
             .setField<Byte, 7>(static_cast<Byte>(Type::KeepAlive));
     }
 
     // --- --- --- MoveCursor
-    static ServerMessage createMessageMoveCursor(float x, float y) {
-        return ServerMessage()
+    static ServerMessage createMessageMoveCursor(const InetAddress &address, float x, float y) {
+        return ServerMessage(address)
             .setPreamble()
             .setField<Byte, 7>(static_cast<Byte>(Type::MoveCursor))
             .setField<float, 8>(x)
@@ -86,15 +85,15 @@ public:
     }
 
     // --- --- --- LeftPress
-    static ServerMessage createMessageLeftPress() {
-        return ServerMessage()
+    static ServerMessage createMessageLeftPress(const InetAddress &address) {
+        return ServerMessage(address)
             .setPreamble()
             .setField<Byte, 7>(static_cast<Byte>(Type::LeftPress));
     }
 
     // --- --- --- LeftRelease
-    static ServerMessage createMessageLeftRelease() {
-        return ServerMessage()
+    static ServerMessage createMessageLeftRelease(const InetAddress &address) {
+        return ServerMessage(address)
             .setPreamble()
             .setField<Byte, 7>(static_cast<Byte>(Type::LeftRelease));
     }
@@ -103,7 +102,10 @@ public:
 
 
 class ClientMessage : public Message<ClientMessage, 8> {
+    ClientMessage(const InetAddress &address) : address(address) {}
 public:
+    const InetAddress address;
+
     enum class Type : Byte {
         ConnectionAccept = 0,
         KeepAlive = 1
@@ -114,15 +116,15 @@ public:
     }
 
     // --- --- --- ConnectionAccept
-    static ClientMessage createMessageConnectionAccept() {
-        return ClientMessage()
+    static ClientMessage createMessageConnectionAccept(const InetAddress &address) {
+        return ClientMessage(address)
             .setPreamble()
             .setField<Byte, 7>(static_cast<Byte>(Type::ConnectionAccept));
     }
 
     // --- --- --- KeepAlive
-    static ClientMessage createMessageKeepAlive() {
-        return ClientMessage()
+    static ClientMessage createMessageKeepAlive(const InetAddress &address) {
+        return ClientMessage(address)
             .setPreamble()
             .setField<Byte, 7>(static_cast<Byte>(Type::KeepAlive));
     }

@@ -2,7 +2,7 @@ def trailing_sign(is_last, between, ending):
     return ending if bool(is_last) else between
 
 def get_args_list_cpp(fields):
-    result = ""
+    result = "const InetAddress &address" + trailing_sign(len(fields) == 2, ', ', '')
     for i, field in enumerate(fields):
         if not is_fixed_field(field):
             separator = ", " if i != len(fields) - 1 else ""
@@ -10,7 +10,7 @@ def get_args_list_cpp(fields):
     return result
 
 def get_args_list_kt(fields):
-    result = ""
+    result = 'address: InetSocketAddress' + trailing_sign(len(fields) == 2, ', ', '')
     for i, field in enumerate(fields):
         if not is_fixed_field(field):
             separator = ", " if i != len(fields) - 1 else ""
@@ -37,27 +37,3 @@ def get_largest_message_size(message_class):
 
 def is_fixed_field(field):
     return field.name in ['type', 'Preamble']
-
-def is_received_message(message_class, endpoint):
-    # endpoint should be either 'client' or 'server'
-    return endpoint.lower() in message_class.name.lower()
-
-def is_sent_message(message_class, endpoint):
-    return not is_received_message(message_class, endpoint)
-
-def get_sender_address_ctor_field_kt(message_class, endpoint):
-    if is_received_message(message_class, endpoint):
-        return ', val senderAddress: InetSocketAddress?'
-    return ''
-
-def get_sender_address_method_field_kt(message_class, endpoint):
-    if is_received_message(message_class, endpoint):
-        return ', senderAddress: InetSocketAddress?'
-    return ''
-
-def get_sender_address_value(message_class, endpoint, value):
-    if is_received_message(message_class, endpoint):
-        if value is None:
-            value = 'null'
-        return ', {}'.format(value)
-    return ''

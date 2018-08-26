@@ -42,13 +42,10 @@ protected:
 %for message_class in message_classes:
 
 class ${message_class.name} : public Message<${message_class.name}, ${utils.get_largest_message_size(message_class)}> {
-% if utils.is_received_message(message_class, endpoint):
-private:
-    InetAddress senderAddress;
-    ${message_class.name}() : ${message_class.name}({ 0, 0 }) {}
-    ${message_class.name}(const InetAddress &senderAddress) : senderAddress(senderAddress) {}
-% endif
+    ${message_class.name}(const InetAddress &address) : address(address) {}
 public:
+    const InetAddress address;
+
     enum class Type : Byte {
     % for index, message in enumerate(message_class.messages):
         ${message.name} = ${index}${utils.trailing_sign(index + 1 == len(message_class.messages), ',', '')}
@@ -62,7 +59,7 @@ public:
 
     // --- --- --- ${message.name}
     static ${message_class.name} createMessage${message.name}(${utils.get_args_list_cpp(message.fields)}) {
-        return ${message_class.name}()
+        return ${message_class.name}(address)
             .setPreamble()
             .setField<Byte, ${len(definitions.preamble_value)}>(static_cast<Byte>(Type::${message.name}))${';' if len(message.fields) == 2 else ''}
         % for field in message.fields:

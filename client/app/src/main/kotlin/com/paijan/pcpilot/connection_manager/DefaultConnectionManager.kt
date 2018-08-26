@@ -39,7 +39,7 @@ class DefaultConnectionManager(
         val message = messages.take() as? ConnectionManagerSendConnectionRequestMessage
         message ?: return false
 
-        toSendMessages.add(ServerMessage.createMessageConnectionRequest())
+        toSendMessages.add(ServerMessage.createMessageConnectionRequest(message.address))
 
         val responseMessage = messages.poll(1000, TimeUnit.MILLISECONDS) // TODO constant
         if (responseMessage != null && (responseMessage is ConnectionManagerKeepAliveMessage) && message.address == responseMessage.address) {

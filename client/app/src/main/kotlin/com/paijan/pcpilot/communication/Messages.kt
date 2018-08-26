@@ -41,7 +41,7 @@ abstract class Message protected constructor(protected val bytes: ByteArray) {
     }
 }
 
-class ServerMessage private constructor(bytes: ByteArray) : Message(bytes) {
+class ServerMessage private constructor(bytes: ByteArray, val address: InetSocketAddress) : Message(bytes) {
     enum class Type(val value: Byte) {
         ConnectionRequest(0),
         KeepAlive(1),
@@ -59,13 +59,13 @@ class ServerMessage private constructor(bytes: ByteArray) : Message(bytes) {
     companion object {
         const val SIZE = 16
 
-        fun fromBytes(bytes: ByteArray, length: Int): List<ServerMessage> {
+        fun fromBytes(bytes: ByteArray, length: Int, address: InetSocketAddress): List<ServerMessage> {
             val result = mutableListOf<ServerMessage>()
             for (i in 0 until length step SIZE) {
                 val messageBytes = Arrays.copyOfRange(bytes, i, i + SIZE)
                 if (!validatePreamble(messageBytes)) continue
 
-                val message = ServerMessage(messageBytes)
+                val message = ServerMessage(messageBytes, address)
                 if (message.getType() != null) {
                     result.add(message)
                 } else {
@@ -97,46 +97,46 @@ class ServerMessage private constructor(bytes: ByteArray) : Message(bytes) {
             return result
         }
 
-        fun createMessageConnectionRequest(): ServerMessage {
+        fun createMessageConnectionRequest(address: InetSocketAddress): ServerMessage {
             val bytes = ByteBuffer.allocate(SIZE)
                 .putPreamble()
                 .put(Type.ConnectionRequest.value)
                 .array()
-            return ServerMessage(bytes)
+            return ServerMessage(bytes, address)
         }
 
-        fun createMessageKeepAlive(): ServerMessage {
+        fun createMessageKeepAlive(address: InetSocketAddress): ServerMessage {
             val bytes = ByteBuffer.allocate(SIZE)
                 .putPreamble()
                 .put(Type.KeepAlive.value)
                 .array()
-            return ServerMessage(bytes)
+            return ServerMessage(bytes, address)
         }
 
-        fun createMessageMoveCursor(x: Float, y: Float): ServerMessage {
+        fun createMessageMoveCursor(address: InetSocketAddress, x: Float, y: Float): ServerMessage {
             val bytes = ByteBuffer.allocate(SIZE)
                 .putPreamble()
                 .put(Type.MoveCursor.value)
                 .putFloat(x)
                 .putFloat(y)
                 .array()
-            return ServerMessage(bytes)
+            return ServerMessage(bytes, address)
         }
 
-        fun createMessageLeftPress(): ServerMessage {
+        fun createMessageLeftPress(address: InetSocketAddress): ServerMessage {
             val bytes = ByteBuffer.allocate(SIZE)
                 .putPreamble()
                 .put(Type.LeftPress.value)
                 .array()
-            return ServerMessage(bytes)
+            return ServerMessage(bytes, address)
         }
 
-        fun createMessageLeftRelease(): ServerMessage {
+        fun createMessageLeftRelease(address: InetSocketAddress): ServerMessage {
             val bytes = ByteBuffer.allocate(SIZE)
                 .putPreamble()
                 .put(Type.LeftRelease.value)
                 .array()
-            return ServerMessage(bytes)
+            return ServerMessage(bytes, address)
         }
     }
 
@@ -153,7 +153,7 @@ class ServerMessage private constructor(bytes: ByteArray) : Message(bytes) {
     }
 }
 
-class ClientMessage private constructor(bytes: ByteArray, val senderAddress: InetSocketAddress?) : Message(bytes) {
+class ClientMessage private constructor(bytes: ByteArray, val address: InetSocketAddress) : Message(bytes) {
     enum class Type(val value: Byte) {
         ConnectionAccept(0),
         KeepAlive(1);
@@ -168,13 +168,13 @@ class ClientMessage private constructor(bytes: ByteArray, val senderAddress: Ine
     companion object {
         const val SIZE = 8
 
-        fun fromBytes(bytes: ByteArray, length: Int, senderAddress: InetSocketAddress?): List<ClientMessage> {
+        fun fromBytes(bytes: ByteArray, length: Int, address: InetSocketAddress): List<ClientMessage> {
             val result = mutableListOf<ClientMessage>()
             for (i in 0 until length step SIZE) {
                 val messageBytes = Arrays.copyOfRange(bytes, i, i + SIZE)
                 if (!validatePreamble(messageBytes)) continue
 
-                val message = ClientMessage(messageBytes, senderAddress)
+                val message = ClientMessage(messageBytes, address)
                 if (message.getType() != null) {
                     result.add(message)
                 } else {
@@ -206,20 +206,20 @@ class ClientMessage private constructor(bytes: ByteArray, val senderAddress: Ine
             return result
         }
 
-        fun createMessageConnectionAccept(): ClientMessage {
+        fun createMessageConnectionAccept(address: InetSocketAddress): ClientMessage {
             val bytes = ByteBuffer.allocate(SIZE)
                 .putPreamble()
                 .put(Type.ConnectionAccept.value)
                 .array()
-            return ClientMessage(bytes, null)
+            return ClientMessage(bytes, address)
         }
 
-        fun createMessageKeepAlive(): ClientMessage {
+        fun createMessageKeepAlive(address: InetSocketAddress): ClientMessage {
             val bytes = ByteBuffer.allocate(SIZE)
                 .putPreamble()
                 .put(Type.KeepAlive.value)
                 .array()
-            return ClientMessage(bytes, null)
+            return ClientMessage(bytes, address)
         }
     }
 
