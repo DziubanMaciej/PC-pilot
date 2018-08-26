@@ -4,7 +4,7 @@ def trailing_sign(is_last, between, ending):
 def get_args_list_cpp(fields):
     result = ""
     for i, field in enumerate(fields):
-        if not is_type_field(field):
+        if not is_fixed_field(field):
             separator = ", " if i != len(fields) - 1 else ""
             result += "{} {}{}".format(field.type, field.name, separator)
     return result
@@ -12,12 +12,15 @@ def get_args_list_cpp(fields):
 def get_args_list_kt(fields):
     result = ""
     for i, field in enumerate(fields):
-        if not is_type_field(field):
+        if not is_fixed_field(field):
             separator = ", " if i != len(fields) - 1 else ""
             result += "{}: {}{}".format(field.name, translate_type_name_kt(field.type), separator)
     return result
 
 def get_put_call_kt(type_name, value):
+    if type_name == 'Preamble':
+        return ".putPreamble()"
+
     method_name = 'put' if type_name == 'Byte' else 'put{}'.format(type_name.capitalize())
     return ".{}({})".format(method_name, value)
 
@@ -32,6 +35,5 @@ def get_largest_message_size(message_class):
     except ValueError:
         raise RuntimeError("message class with no messages")
 
-def is_type_field(field):
-    r = field.name == 'type'
-    return field.name == 'type'
+def is_fixed_field(field):
+    return field.name in ['type', 'Preamble']

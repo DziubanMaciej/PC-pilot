@@ -6,6 +6,17 @@ import java.net.InetAddress
 import java.nio.ByteBuffer
 import java.util.Arrays
 
+fun ByteBuffer.putPreamble(): ByteBuffer {
+    return this
+            .put('P'.toByte())
+            .put('C'.toByte())
+            .put('P'.toByte())
+            .put('I'.toByte())
+            .put('L'.toByte())
+            .put('O'.toByte())
+            .put('T'.toByte())
+}
+
 abstract class Message protected constructor(protected val bytes: ByteArray) {
     protected fun getFloat(index: Int): Float {
         return ByteBuffer.wrap(bytes).getFloat(index)
@@ -45,12 +56,14 @@ class ServerMessage private constructor(bytes: ByteArray) : Message(bytes) {
     }
 
     companion object {
-        const val SIZE = 9
+        const val SIZE = 16
 
         fun fromBytes(bytes: ByteArray, length: Int): List<ServerMessage> {
             val result = mutableListOf<ServerMessage>()
             for (i in 0 until length step SIZE) {
                 val messageBytes = Arrays.copyOfRange(bytes, i, i + SIZE)
+                if (!validatePreamble(messageBytes)) continue
+
                 val message = ServerMessage(messageBytes)
                 if (message.getType() != null) {
                     result.add(message)
@@ -59,6 +72,16 @@ class ServerMessage private constructor(bytes: ByteArray) : Message(bytes) {
                 }
             }
             return result
+        }
+
+        private fun validatePreamble(bytes: ByteArray): Boolean {
+            return bytes[0] == 'P'.toByte()
+                && bytes[1] == 'C'.toByte()
+                && bytes[2] == 'P'.toByte()
+                && bytes[3] == 'I'.toByte()
+                && bytes[4] == 'L'.toByte()
+                && bytes[5] == 'O'.toByte()
+                && bytes[6] == 'T'.toByte()
         }
 
         fun toBytes(messages: List<ServerMessage>): ByteArray {
@@ -75,6 +98,7 @@ class ServerMessage private constructor(bytes: ByteArray) : Message(bytes) {
 
         fun createMessageConnectionRequest(): ServerMessage {
             val bytes = ByteBuffer.allocate(SIZE)
+                .putPreamble()
                 .put(Type.ConnectionRequest.value)
                 .array()
             return ServerMessage(bytes)
@@ -82,6 +106,7 @@ class ServerMessage private constructor(bytes: ByteArray) : Message(bytes) {
 
         fun createMessageKeepAlive(): ServerMessage {
             val bytes = ByteBuffer.allocate(SIZE)
+                .putPreamble()
                 .put(Type.KeepAlive.value)
                 .array()
             return ServerMessage(bytes)
@@ -89,6 +114,7 @@ class ServerMessage private constructor(bytes: ByteArray) : Message(bytes) {
 
         fun createMessageMoveCursor(x: Float, y: Float): ServerMessage {
             val bytes = ByteBuffer.allocate(SIZE)
+                .putPreamble()
                 .put(Type.MoveCursor.value)
                 .putFloat(x)
                 .putFloat(y)
@@ -98,6 +124,7 @@ class ServerMessage private constructor(bytes: ByteArray) : Message(bytes) {
 
         fun createMessageLeftPress(): ServerMessage {
             val bytes = ByteBuffer.allocate(SIZE)
+                .putPreamble()
                 .put(Type.LeftPress.value)
                 .array()
             return ServerMessage(bytes)
@@ -105,6 +132,7 @@ class ServerMessage private constructor(bytes: ByteArray) : Message(bytes) {
 
         fun createMessageLeftRelease(): ServerMessage {
             val bytes = ByteBuffer.allocate(SIZE)
+                .putPreamble()
                 .put(Type.LeftRelease.value)
                 .array()
             return ServerMessage(bytes)
@@ -112,15 +140,15 @@ class ServerMessage private constructor(bytes: ByteArray) : Message(bytes) {
     }
 
     fun getType(): Type? {
-        return Type.fromValue(getByte(0))
+        return Type.fromValue(getByte(7))
     }
 
     fun getMessageMoveCursorX(): Float {
-        return getFloat(1)
+        return getFloat(8)
     }
 
     fun getMessageMoveCursorY(): Float {
-        return getFloat(5)
+        return getFloat(12)
     }
 }
 
@@ -137,12 +165,14 @@ class ClientMessage private constructor(bytes: ByteArray) : Message(bytes) {
     }
 
     companion object {
-        const val SIZE = 1
+        const val SIZE = 8
 
         fun fromBytes(bytes: ByteArray, length: Int): List<ClientMessage> {
             val result = mutableListOf<ClientMessage>()
             for (i in 0 until length step SIZE) {
                 val messageBytes = Arrays.copyOfRange(bytes, i, i + SIZE)
+                if (!validatePreamble(messageBytes)) continue
+
                 val message = ClientMessage(messageBytes)
                 if (message.getType() != null) {
                     result.add(message)
@@ -151,6 +181,16 @@ class ClientMessage private constructor(bytes: ByteArray) : Message(bytes) {
                 }
             }
             return result
+        }
+
+        private fun validatePreamble(bytes: ByteArray): Boolean {
+            return bytes[0] == 'P'.toByte()
+                && bytes[1] == 'C'.toByte()
+                && bytes[2] == 'P'.toByte()
+                && bytes[3] == 'I'.toByte()
+                && bytes[4] == 'L'.toByte()
+                && bytes[5] == 'O'.toByte()
+                && bytes[6] == 'T'.toByte()
         }
 
         fun toBytes(messages: List<ClientMessage>): ByteArray {
@@ -167,6 +207,7 @@ class ClientMessage private constructor(bytes: ByteArray) : Message(bytes) {
 
         fun createMessageConnectionAccept(): ClientMessage {
             val bytes = ByteBuffer.allocate(SIZE)
+                .putPreamble()
                 .put(Type.ConnectionAccept.value)
                 .array()
             return ClientMessage(bytes)
@@ -174,6 +215,7 @@ class ClientMessage private constructor(bytes: ByteArray) : Message(bytes) {
 
         fun createMessageKeepAlive(): ClientMessage {
             val bytes = ByteBuffer.allocate(SIZE)
+                .putPreamble()
                 .put(Type.KeepAlive.value)
                 .array()
             return ClientMessage(bytes)
@@ -181,6 +223,6 @@ class ClientMessage private constructor(bytes: ByteArray) : Message(bytes) {
     }
 
     fun getType(): Type? {
-        return Type.fromValue(getByte(0))
+        return Type.fromValue(getByte(7))
     }
 }

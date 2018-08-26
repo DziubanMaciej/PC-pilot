@@ -27,10 +27,16 @@ protected:
         std::memcpy(this->bytes + offset, &field, sizeof(T));
         return *static_cast<DerivingClass*>(this);
     }
+
+    DerivingClass& setPreamble() {
+        static constexpr std::string field = "PCPILOT";
+        std::memcpy(this->bytes + 0, &field.front(), 7);
+        return *static_cast<DerivingClass*>(this);
+    }
 };
 
 
-class ServerMessage : public Message<ServerMessage, 9> {
+class ServerMessage : public Message<ServerMessage, 16> {
 public:
     enum class Type : Byte {
         ConnectionRequest = 0,
@@ -47,45 +53,50 @@ public:
     // --- --- --- ConnectionRequest
     static ServerMessage createMessageConnectionRequest() {
         return ServerMessage()
-            .setField<Byte, 0>(static_cast<Byte>(Type::ConnectionRequest));
+            .setPreamble()
+            .setField<Byte, 7>(static_cast<Byte>(Type::ConnectionRequest));
     }
 
     // --- --- --- KeepAlive
     static ServerMessage createMessageKeepAlive() {
         return ServerMessage()
-            .setField<Byte, 0>(static_cast<Byte>(Type::KeepAlive));
+            .setPreamble()
+            .setField<Byte, 7>(static_cast<Byte>(Type::KeepAlive));
     }
 
     // --- --- --- MoveCursor
     static ServerMessage createMessageMoveCursor(float x, float y) {
         return ServerMessage()
-            .setField<Byte, 0>(static_cast<Byte>(Type::MoveCursor))
-            .setField<float, 1>(x)
-            .setField<float, 5>(y);
+            .setPreamble()
+            .setField<Byte, 7>(static_cast<Byte>(Type::MoveCursor))
+            .setField<float, 8>(x)
+            .setField<float, 12>(y);
     }
     float getMessageMoveCursorX() {
-        return getField<float, 1>();
+        return getField<float, 8>();
     }
     float getMessageMoveCursorY() {
-        return getField<float, 5>();
+        return getField<float, 12>();
     }
 
     // --- --- --- LeftPress
     static ServerMessage createMessageLeftPress() {
         return ServerMessage()
-            .setField<Byte, 0>(static_cast<Byte>(Type::LeftPress));
+            .setPreamble()
+            .setField<Byte, 7>(static_cast<Byte>(Type::LeftPress));
     }
 
     // --- --- --- LeftRelease
     static ServerMessage createMessageLeftRelease() {
         return ServerMessage()
-            .setField<Byte, 0>(static_cast<Byte>(Type::LeftRelease));
+            .setPreamble()
+            .setField<Byte, 7>(static_cast<Byte>(Type::LeftRelease));
     }
 };
 
 
 
-class ClientMessage : public Message<ClientMessage, 1> {
+class ClientMessage : public Message<ClientMessage, 8> {
 public:
     enum class Type : Byte {
         ConnectionAccept = 0,
@@ -99,13 +110,15 @@ public:
     // --- --- --- ConnectionAccept
     static ClientMessage createMessageConnectionAccept() {
         return ClientMessage()
-            .setField<Byte, 0>(static_cast<Byte>(Type::ConnectionAccept));
+            .setPreamble()
+            .setField<Byte, 7>(static_cast<Byte>(Type::ConnectionAccept));
     }
 
     // --- --- --- KeepAlive
     static ClientMessage createMessageKeepAlive() {
         return ClientMessage()
-            .setField<Byte, 0>(static_cast<Byte>(Type::KeepAlive));
+            .setPreamble()
+            .setField<Byte, 7>(static_cast<Byte>(Type::KeepAlive));
     }
 };
 

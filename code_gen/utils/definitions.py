@@ -1,9 +1,12 @@
+preamble_value = "PCPILOT"
+
 types = [
     ('int', 4),
     ('float', 4),
     ('bool', 1),
     ('char', 1),
     ('Byte', 1),
+    ('Preamble', len(preamble_value)),
 ]
 
 def get_type_size(type_name):
@@ -22,11 +25,15 @@ class Field:
 class Message:
     def __init__(self, name, *fields):
         fields = list(fields)
-        fields.insert(0, Field('type', 'Byte'))
-
         self.name = name
         self.fields = fields
+        self.insert_fixed_fields()
         self.set_offsets()
+
+
+    def insert_fixed_fields(self):
+        self.fields.insert(0, Field('type', 'Byte'))
+        self.fields.insert(1, Field('Preamble', 'Preamble'))
 
     def set_offsets(self):
         offset = 0
