@@ -3,6 +3,7 @@ package com.paijan.pcpilot.background_worker
 import com.paijan.pcpilot.communication.ClientMessage
 import java.net.DatagramPacket
 import java.net.DatagramSocket
+import java.net.InetSocketAddress
 import java.util.concurrent.BlockingQueue
 
 class Receiver(
@@ -17,7 +18,7 @@ class Receiver(
         if (Thread.interrupted()) throw InterruptedException()
 
         socket.receive(packet) // TODO validate client IP
-        for (message in ClientMessage.fromBytes(packet.data, packet.length)) {
+        for (message in ClientMessage.fromBytes(packet.data, packet.length, packet.socketAddress as InetSocketAddress)) { // TODO should address be copied?
             receivedMessages.add(message) // may throw
         }
     }

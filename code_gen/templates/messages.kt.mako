@@ -5,6 +5,7 @@ package com.paijan.pcpilot.communication
 
 import android.util.Log
 import java.net.InetAddress
+import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import java.util.Arrays
 
@@ -39,7 +40,7 @@ abstract class Message protected constructor(protected val bytes: ByteArray) {
 }
 %for message_class in message_classes:
 
-class ${message_class.name} private constructor(bytes: ByteArray) : Message(bytes) {
+class ${message_class.name} private constructor(bytes: ByteArray${utils.get_sender_address_field(message_class, endpoint)}) : Message(bytes) {
     enum class Type(val value: Byte) {
     % for index, message in enumerate(message_class.messages):
         ${message.name}(${index})${utils.trailing_sign(index + 1 == len(message_class.messages), ',', ';')}
@@ -55,13 +56,13 @@ class ${message_class.name} private constructor(bytes: ByteArray) : Message(byte
     companion object {
         const val SIZE = ${utils.get_largest_message_size(message_class)}
 
-        fun fromBytes(bytes: ByteArray, length: Int): List<${message_class.name}> {
+        fun fromBytes(bytes: ByteArray, length: Int${utils.get_sender_address_field(message_class, endpoint)}): List<${message_class.name}> {
             val result = mutableListOf<${message_class.name}>()
             for (i in 0 until length step SIZE) {
                 val messageBytes = Arrays.copyOfRange(bytes, i, i + SIZE)
                 if (!validatePreamble(messageBytes)) continue
 
-                val message = ${message_class.name}(messageBytes)
+                val message = ${message_class.name}(messageBytes${utils.get_sender_address_value(message_class, endpoint, 'senderAddress')})
                 if (message.getType() != null) {
                     result.add(message)
                 } else {
@@ -101,7 +102,7 @@ class ${message_class.name} private constructor(bytes: ByteArray) : Message(byte
                 % endif
                 % endfor
                 .array()
-            return ${message_class.name}(bytes)
+            return ${message_class.name}(bytes${utils.get_sender_address_value(message_class, endpoint, None)})
         }
         % endfor
     }

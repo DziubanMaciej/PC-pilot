@@ -3,6 +3,7 @@ package com.paijan.pcpilot.communication
 
 import android.util.Log
 import java.net.InetAddress
+import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import java.util.Arrays
 
@@ -152,7 +153,7 @@ class ServerMessage private constructor(bytes: ByteArray) : Message(bytes) {
     }
 }
 
-class ClientMessage private constructor(bytes: ByteArray) : Message(bytes) {
+class ClientMessage private constructor(bytes: ByteArray, senderAddress: InetSocketAddress?) : Message(bytes) {
     enum class Type(val value: Byte) {
         ConnectionAccept(0),
         KeepAlive(1);
@@ -167,13 +168,13 @@ class ClientMessage private constructor(bytes: ByteArray) : Message(bytes) {
     companion object {
         const val SIZE = 8
 
-        fun fromBytes(bytes: ByteArray, length: Int): List<ClientMessage> {
+        fun fromBytes(bytes: ByteArray, length: Int, senderAddress: InetSocketAddress?): List<ClientMessage> {
             val result = mutableListOf<ClientMessage>()
             for (i in 0 until length step SIZE) {
                 val messageBytes = Arrays.copyOfRange(bytes, i, i + SIZE)
                 if (!validatePreamble(messageBytes)) continue
 
-                val message = ClientMessage(messageBytes)
+                val message = ClientMessage(messageBytes, senderAddress)
                 if (message.getType() != null) {
                     result.add(message)
                 } else {
@@ -210,7 +211,7 @@ class ClientMessage private constructor(bytes: ByteArray) : Message(bytes) {
                 .putPreamble()
                 .put(Type.ConnectionAccept.value)
                 .array()
-            return ClientMessage(bytes)
+            return ClientMessage(bytes, null)
         }
 
         fun createMessageKeepAlive(): ClientMessage {
@@ -218,7 +219,7 @@ class ClientMessage private constructor(bytes: ByteArray) : Message(bytes) {
                 .putPreamble()
                 .put(Type.KeepAlive.value)
                 .array()
-            return ClientMessage(bytes)
+            return ClientMessage(bytes, null)
         }
     }
 

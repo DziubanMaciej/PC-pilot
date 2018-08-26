@@ -37,3 +37,22 @@ def get_largest_message_size(message_class):
 
 def is_fixed_field(field):
     return field.name in ['type', 'Preamble']
+
+def is_received_message(message_class, endpoint):
+    # endpoint should be either 'client' or 'server'
+    return endpoint.lower() in message_class.name.lower()
+
+def is_sent_message(message_class, endpoint):
+    return not is_received_message(message_class, endpoint)
+
+def get_sender_address_field(message_class, endpoint):
+    if is_received_message(message_class, endpoint):
+        return ', senderAddress: InetSocketAddress?'
+    return ''
+
+def get_sender_address_value(message_class, endpoint, value):
+    if is_received_message(message_class, endpoint):
+        if value is None:
+            value = 'null'
+        return ', {}'.format(value)
+    return ''
