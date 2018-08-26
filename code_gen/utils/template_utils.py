@@ -45,7 +45,12 @@ def is_received_message(message_class, endpoint):
 def is_sent_message(message_class, endpoint):
     return not is_received_message(message_class, endpoint)
 
-def get_sender_address_field(message_class, endpoint):
+def get_sender_address_ctor_field_kt(message_class, endpoint):
+    if is_received_message(message_class, endpoint):
+        return ', val senderAddress: InetSocketAddress?'
+    return ''
+
+def get_sender_address_method_field_kt(message_class, endpoint):
     if is_received_message(message_class, endpoint):
         return ', senderAddress: InetSocketAddress?'
     return ''

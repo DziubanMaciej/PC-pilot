@@ -3,9 +3,11 @@ package com.paijan.pcpilot.background_worker
 import android.util.Log
 import com.paijan.pcpilot.communication.ClientMessage
 import com.paijan.pcpilot.communication.ServerMessage
+import com.paijan.pcpilot.connection_manager.ConnectionManager
 import java.util.concurrent.BlockingQueue
 
 class Processor(
+        private val connectionManager: ConnectionManager,
         private val receivedMessages: BlockingQueue<ClientMessage>,
         private val toSendMessages: BlockingQueue<ServerMessage>
 ) : RunnableAdapter("Processor") {
@@ -13,8 +15,12 @@ class Processor(
     @Throws(InterruptedException::class)
     override fun runBody() {
         val message = receivedMessages.take() // blocks
-        when (message.getType()) {
 
+        when (message.getType()) {
+            ClientMessage.Type.KeepAlive -> {
+                // TODO validate client IP
+                connectionManager.notifyKeepAlive(message.senderAddress!!)
+            }
             else -> {
                 Log.w("Processor", "Unknown message, ignoring")
             }

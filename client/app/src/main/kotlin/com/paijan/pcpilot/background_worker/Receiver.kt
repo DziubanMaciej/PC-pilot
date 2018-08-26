@@ -17,8 +17,8 @@ class Receiver(
     override fun runBody() {
         if (Thread.interrupted()) throw InterruptedException()
 
-        socket.receive(packet) // TODO validate client IP
-        for (message in ClientMessage.fromBytes(packet.data, packet.length, packet.socketAddress as InetSocketAddress)) { // TODO should address be copied?
+        socket.receive(packet)
+        for (message in ClientMessage.fromBytes(packet.data, packet.length, packet.socketAddress as InetSocketAddress)) {
             receivedMessages.add(message) // may throw
         }
     }

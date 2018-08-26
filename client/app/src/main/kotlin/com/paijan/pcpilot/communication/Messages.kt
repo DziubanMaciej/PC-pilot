@@ -153,7 +153,7 @@ class ServerMessage private constructor(bytes: ByteArray) : Message(bytes) {
     }
 }
 
-class ClientMessage private constructor(bytes: ByteArray, senderAddress: InetSocketAddress?) : Message(bytes) {
+class ClientMessage private constructor(bytes: ByteArray, val senderAddress: InetSocketAddress?) : Message(bytes) {
     enum class Type(val value: Byte) {
         ConnectionAccept(0),
         KeepAlive(1);

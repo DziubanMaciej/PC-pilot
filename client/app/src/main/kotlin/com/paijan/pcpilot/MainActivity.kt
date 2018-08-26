@@ -38,7 +38,7 @@ class MainActivity : Activity() {
 
         connectionManager = DefaultConnectionManager({ }, {}, toSendMessages)
         receiver = Thread(Receiver(sockets.receiver, receivedMessages))
-        processor = Thread(Processor(receivedMessages, toSendMessages))
+        processor = Thread(Processor(connectionManager!!, receivedMessages, toSendMessages))
         transmitter = Thread(Transmitter(sockets.receiver, toSendMessages))
 
         connectionManager?.run()
