@@ -1,4 +1,5 @@
 from mako.template import Template
+from utils.template_utils import UtilsCpp, UtilsKt
 import messages
 import os
 
@@ -17,5 +18,8 @@ if __name__ == "__main__":
     kt_output_dir = os.path.join('..', 'client', 'app', 'src', 'main', 'kotlin', 'com', 'paijan', 'pcpilot', 'communication')
 
     data = { 'message_classes' : messages.message_classes}
+
+    data['utils'] = UtilsCpp()
     generate('messages.h.mako', cpp_output_dir, 'Messages.h', data)
+    data['utils'] = UtilsKt()
     generate('messages.kt.mako', kt_output_dir, 'Messages.kt', data)
