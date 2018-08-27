@@ -1,6 +1,5 @@
 package com.paijan.pcpilot.background_worker
 
-import android.util.Log
 import com.paijan.pcpilot.communication.ServerMessage
 import java.net.DatagramPacket
 import java.net.DatagramSocket
@@ -22,11 +21,9 @@ class Transmitter(
             messages.add(message)
         }
 
+        // TODO code below assumes all messages have the same destination address
         val data = ServerMessage.toBytes(messages)
-        val packet = DatagramPacket(data, data.size)
-        // TODO actually send
-        // packet.address =
-        // packet.port =
-        // socket.send(packet)
+        val packet = DatagramPacket(data, data.size, messages[0].address)
+        socket.send(packet)
     }
 }
