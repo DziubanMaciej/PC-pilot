@@ -1,4 +1,4 @@
-from utils.definitions import Message, Field, MessageClass
+from utils.definitions import Message, Field, MessageClass, Types
 
 
 serverMessage = MessageClass("ServerMessage",
@@ -6,8 +6,8 @@ serverMessage = MessageClass("ServerMessage",
     Message('KeepAlive'),
 
     Message('MoveCursor',
-        Field('x', 'float'),
-        Field('y', 'float'),
+        Field('x', Types.Float),
+        Field('y', Types.Float),
     ),
     Message('LeftPress'),
     Message('LeftRelease'),

@@ -114,8 +114,8 @@ class ${message_class.name} private constructor(bytes: ByteArray, val address: I
     % for field in message.fields:
     % if not utils.is_fixed_field(field):
 
-    fun getMessage${message.name}${field.name.title()}(): ${utils.translate_type_name_kt(field.type)} {
-        return get${utils.translate_type_name_kt(field.type)}(${field.offset})
+    fun getMessage${message.name}${field.name.title()}(): ${field.type.name_kt} {
+        return get${field.type.name_kt}(${field.offset})
     }
     % endif
     % endfor

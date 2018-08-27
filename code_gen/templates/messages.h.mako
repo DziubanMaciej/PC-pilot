@@ -61,17 +61,17 @@ public:
     static ${message_class.name} createMessage${message.name}(${utils.get_args_list_cpp(message.fields)}) {
         return ${message_class.name}(address)
             .setPreamble()
-            .setField<Byte, ${len(definitions.preamble_value)}>(static_cast<Byte>(Type::${message.name}))${';' if len(message.fields) == 2 else ''}
+            .setField<Byte, ${len(definitions.preamble_value)}>(static_cast<Byte>(Type::${message.name}))${utils.trailing_sign(utils.has_additional_fields(message), '', ';')}
         % for field in message.fields:
         % if not utils.is_fixed_field(field):
-            .setField<${field.type}, ${field.offset}>(${field.name})${utils.trailing_sign(loop.last, '', ';')}
+            .setField<${field.type.name_cpp}, ${field.offset}>(${field.name})${utils.trailing_sign(loop.last, '', ';')}
         % endif
         % endfor
     }
     %for field in message.fields:
     % if not utils.is_fixed_field(field):
-    ${field.type} getMessage${message.name}${field.name.title()}() {
-        return getField<${field.type}, ${field.offset}>();
+    ${field.type.name_cpp} getMessage${message.name}${field.name.title()}() {
+        return getField<${field.type.name_cpp}, ${field.offset}>();
     }
     % endif
     % endfor
