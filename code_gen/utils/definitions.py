@@ -47,3 +47,10 @@ class MessageClass:
     def __init__(self, name, *messages):
         self.name = name
         self.messages = list(messages)
+
+
+class Constant:
+    def __init__(self, name, constant_type, value):
+        self.name = name
+        self.type = constant_type
+        self.value = value
