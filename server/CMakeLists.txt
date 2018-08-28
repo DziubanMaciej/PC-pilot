@@ -19,6 +19,7 @@ add_sources  (
 	${CMAKE_CURRENT_SOURCE_DIR}/macros.cmake
 )
 add_subdirectories (
+	BackgroundWorker
 	Communication
 	InputSimulator
 	Utils
