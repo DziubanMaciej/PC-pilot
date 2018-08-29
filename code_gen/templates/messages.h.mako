@@ -3,16 +3,41 @@
 #pragma once
 
 #include "Communication/InetAddress.h"
+#include <vector>
+
+using Byte = unsigned char;
 
 template <typename DerivingClass, unsigned int SIZE>
 class Message {
 public:
-    using Byte = unsigned char;
+    static void fromBytes(const std::vector<Byte> &bytes, const InetAddress &address, std::vector<DerivingClass> &result) {
+        result.clear();
+
+        for (auto i = 0u; i < bytes.size() - SIZE + 1; i += SIZE) {
+            if (!validatePreamble(bytes.data(), i)) continue;
+
+            DerivingClass message{ address, bytes.data() + i };
+            if (message.validateType()) {
+                result.push_back(std::move(message));
+            }
+        }
+    }
+
+    static void toBytes(const std::vector<DerivingClass> &messages, std::vector<Byte> &result) {
+        const auto totalSize = messages.size() * SIZE;
+        result.resize(totalSize);
+
+        auto index = 0u;
+        for (const auto &message : messages) {
+            std::memcpy(result.data() + index, message.bytes, SIZE);
+            index += SIZE;
+        }
+    }
 
 protected:
     Byte bytes[SIZE];
     Message() {}
-    Message(Byte *bytes) {
+    Message(const Byte *bytes) {
         std::memcpy(this->bytes, bytes, SIZE);
     }
 
@@ -36,23 +61,35 @@ protected:
         std::memcpy(this->bytes + 0, &field.front(), 7);
         return *static_cast<DerivingClass*>(this);
     }
+
+    static bool validatePreamble(const Byte* bytes, size_t offset) {
+        static const char* PREAMBLE = "${definitions.preamble_value}";
+        return std::memcmp(bytes, PREAMBLE, ${len(definitions.preamble_value)}) == 0;
+    }
 };
 
 %for message_class in message_classes:
 
 class ${message_class.name} : public Message<${message_class.name}, ${utils.get_largest_message_size(message_class)}> {
+    friend class Message<${message_class.name}, ${utils.get_largest_message_size(message_class)}>;
     ${message_class.name}(const InetAddress &address) : address(address) {}
+    ${message_class.name}(const InetAddress &address, const Byte* bytes) : Message(bytes), address(address) {}
 public:
     const InetAddress address;
 
     enum class Type : Byte {
     % for index, message in enumerate(message_class.messages):
-        ${message.name} = ${index}${utils.trailing_sign(index + 1 == len(message_class.messages), ',', '')}
+        ${message.name} = ${index},
     % endfor
+        ErrorType = ${len(message_class.messages)}
     };
 
     Type getType() {
-        return static_cast<Type>(getField<Byte, 0>());
+        return static_cast<Type>(getField<Byte, ${len(definitions.preamble_value)}>());
+    }
+
+    bool validateType() {
+        return getType() < Type::ErrorType;
     }
     % for message in message_class.messages:
 
