@@ -20,7 +20,8 @@ void receiver(const std::string &address) {
 	std::cout << "RECEIVER: receiving...\n";
 
 	std::vector<unsigned char> result;
-	if (mySocket->receive(result, Constants::MAX_MESSAGE_SIZE, 100)) {
+	InetAddress sender{ 0,0 };
+	if (mySocket->receive(result, sender, Constants::MAX_MESSAGE_SIZE, 1000)) {
 		std::string str{ (char*)result.data() };
 		std::cout << "RECEIVER: received \"" << str << "\"\n";
 	}

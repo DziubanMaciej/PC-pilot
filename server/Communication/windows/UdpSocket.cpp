@@ -1,5 +1,6 @@
 #include "UdpSocket.h"
 
+#include "Communication/InetAddress.h"
 #include "Communication/windows/Wsa.h"
 #include "Utils/ApplicationError.h"
 
@@ -34,12 +35,15 @@ void UdpSocket::send(const std::string & message, const InetAddress &address) {
 	}
 }
 
-bool UdpSocket::receive(std::vector<unsigned char> &result, size_t bufferSize, uint32_t timeoutMs) {
+bool UdpSocket::receive(std::vector<unsigned char> &result, InetAddress& senderAddress, size_t bufferSize, uint32_t timeoutMs) {
 	result.clear();
 	result.resize(bufferSize);
 
+	sockaddr_in addr;
+	int addrSize = sizeof(addr);
+
 	::setsockopt(this->socket, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<char*>(&timeoutMs), sizeof(timeoutMs));
-	auto retVal = ::recvfrom(this->socket, reinterpret_cast<char*>(result.data()), bufferSize, 0, nullptr, 0);
+	auto retVal = ::recvfrom(this->socket, reinterpret_cast<char*>(result.data()), bufferSize, 0, reinterpret_cast<sockaddr*>(&addr), &addrSize);
 	if (retVal == SOCKET_ERROR) {
 		auto errorCode = WSAGetLastError();
 		if (errorCode == WSAETIMEDOUT) {
@@ -48,5 +52,6 @@ bool UdpSocket::receive(std::vector<unsigned char> &result, size_t bufferSize, u
 		ApplicationError::exception("Receiving", errorCode);
 	}
 	result.resize(retVal);
+	senderAddress = { addr.sin_addr.S_un.S_addr, addr.sin_port };
 	return true;
 }

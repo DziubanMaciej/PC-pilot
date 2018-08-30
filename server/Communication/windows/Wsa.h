@@ -4,6 +4,7 @@
 
 struct sockaddr_in;
 struct _IP_ADAPTER_ADDRESSES_LH;
+struct InetAddress;
 
 class Wsa : public SocketContext {
 public:
@@ -24,4 +25,5 @@ private:
 	using Adapter = _IP_ADAPTER_ADDRESSES_LH;
 	static std::unique_ptr<Adapter[]> getAdapters();
 	static std::string ipToString(int addressFamily, void *address);
+	static std::string ipToString(InetAddress &address);
 };

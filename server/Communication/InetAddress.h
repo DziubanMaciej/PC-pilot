@@ -3,7 +3,9 @@
 #include <memory>
 
 struct InetAddress {
-	InetAddress(uint32_t address, short port) : address(address), port(port) {}
-	const uint32_t address;
-	const short port;
+	InetAddress() : InetAddress(0, 0) {}
+	InetAddress(uint32_t address, unsigned short port) : address(address), port(port) {}
+
+	uint32_t address;
+	unsigned short port;
 };

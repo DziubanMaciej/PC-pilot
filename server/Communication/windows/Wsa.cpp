@@ -62,6 +62,10 @@ std::string Wsa::ipToString(int addressFamily, void *address) {
 	return std::string{ buffer };
 }
 
+std::string Wsa::ipToString(InetAddress & address) {
+	return ipToString(AF_INET, &address.address);
+}
+
 std::vector<std::string> Wsa::getInetAddresses(bool ipv4, bool ipv6, bool loopback) {
 	auto adapters = getAdapters();
 
