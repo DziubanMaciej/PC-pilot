@@ -33,12 +33,16 @@ public:
         }
     }
 
+    Message(Message&&) = default;
+    Message& operator=(Message&&) = default;
 protected:
     Byte bytes[SIZE];
     Message() {}
     Message(const Byte *bytes) {
         std::memcpy(this->bytes, bytes, SIZE);
     }
+    Message(Message&) = delete;
+    Message& operator=(Message&) = delete;
 
     template <typename T, int offset>
     T getField() {
@@ -68,12 +72,17 @@ protected:
 };
 
 
+
 class ServerMessage : public Message<ServerMessage, 16> {
     friend class Message<ServerMessage, 16>;
     ServerMessage(const InetAddress &address) : address(address) {}
     ServerMessage(const InetAddress &address, const Byte* bytes) : Message(bytes), address(address) {}
 public:
-    const InetAddress address;
+    ServerMessage() = default;
+    ServerMessage(ServerMessage&&) = default;
+    ServerMessage& operator=(ServerMessage&&) = default;
+
+    InetAddress address;
 
     enum class Type : Byte {
         ConnectionRequest = 0,
@@ -94,25 +103,28 @@ public:
 
     // --- --- --- ConnectionRequest
     static ServerMessage createMessageConnectionRequest(const InetAddress &address) {
-        return ServerMessage(address)
+        return std::move(ServerMessage(address)
             .setPreamble()
-            .setField<Byte, 7>(static_cast<Byte>(Type::ConnectionRequest));
+            .setField<Byte, 7>(static_cast<Byte>(Type::ConnectionRequest))
+        );
     }
 
     // --- --- --- KeepAlive
     static ServerMessage createMessageKeepAlive(const InetAddress &address) {
-        return ServerMessage(address)
+        return std::move(ServerMessage(address)
             .setPreamble()
-            .setField<Byte, 7>(static_cast<Byte>(Type::KeepAlive));
+            .setField<Byte, 7>(static_cast<Byte>(Type::KeepAlive))
+        );
     }
 
     // --- --- --- MoveCursor
     static ServerMessage createMessageMoveCursor(const InetAddress &address, float x, float y) {
-        return ServerMessage(address)
+        return std::move(ServerMessage(address)
             .setPreamble()
             .setField<Byte, 7>(static_cast<Byte>(Type::MoveCursor))
             .setField<float, 8>(x)
-            .setField<float, 12>(y);
+            .setField<float, 12>(y)
+        );
     }
     float getMessageMoveCursorX() {
         return getField<float, 8>();
@@ -123,16 +135,18 @@ public:
 
     // --- --- --- LeftPress
     static ServerMessage createMessageLeftPress(const InetAddress &address) {
-        return ServerMessage(address)
+        return std::move(ServerMessage(address)
             .setPreamble()
-            .setField<Byte, 7>(static_cast<Byte>(Type::LeftPress));
+            .setField<Byte, 7>(static_cast<Byte>(Type::LeftPress))
+        );
     }
 
     // --- --- --- LeftRelease
     static ServerMessage createMessageLeftRelease(const InetAddress &address) {
-        return ServerMessage(address)
+        return std::move(ServerMessage(address)
             .setPreamble()
-            .setField<Byte, 7>(static_cast<Byte>(Type::LeftRelease));
+            .setField<Byte, 7>(static_cast<Byte>(Type::LeftRelease))
+        );
     }
 };
 
@@ -143,7 +157,11 @@ class ClientMessage : public Message<ClientMessage, 8> {
     ClientMessage(const InetAddress &address) : address(address) {}
     ClientMessage(const InetAddress &address, const Byte* bytes) : Message(bytes), address(address) {}
 public:
-    const InetAddress address;
+    ClientMessage() = default;
+    ClientMessage(ClientMessage&&) = default;
+    ClientMessage& operator=(ClientMessage&&) = default;
+
+    InetAddress address;
 
     enum class Type : Byte {
         ConnectionAccept = 0,
@@ -161,17 +179,17 @@ public:
 
     // --- --- --- ConnectionAccept
     static ClientMessage createMessageConnectionAccept(const InetAddress &address) {
-        return ClientMessage(address)
+        return std::move(ClientMessage(address)
             .setPreamble()
-            .setField<Byte, 7>(static_cast<Byte>(Type::ConnectionAccept));
+            .setField<Byte, 7>(static_cast<Byte>(Type::ConnectionAccept))
+        );
     }
 
     // --- --- --- KeepAlive
     static ClientMessage createMessageKeepAlive(const InetAddress &address) {
-        return ClientMessage(address)
+        return std::move(ClientMessage(address)
             .setPreamble()
-            .setField<Byte, 7>(static_cast<Byte>(Type::KeepAlive));
+            .setField<Byte, 7>(static_cast<Byte>(Type::KeepAlive))
+        );
     }
 };
-
-

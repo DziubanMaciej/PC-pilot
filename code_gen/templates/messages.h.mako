@@ -34,12 +34,16 @@ public:
         }
     }
 
+    Message(Message&&) = default;
+    Message& operator=(Message&&) = default;
 protected:
     Byte bytes[SIZE];
     Message() {}
     Message(const Byte *bytes) {
         std::memcpy(this->bytes, bytes, SIZE);
     }
+    Message(Message&) = delete;
+    Message& operator=(Message&) = delete;
 
     template <typename T, int offset>
     T getField() {
@@ -67,15 +71,20 @@ protected:
         return std::memcmp(bytes, PREAMBLE, ${len(definitions.preamble_value)}) == 0;
     }
 };
-
 %for message_class in message_classes:
+
+
 
 class ${message_class.name} : public Message<${message_class.name}, ${utils.get_largest_message_size(message_class)}> {
     friend class Message<${message_class.name}, ${utils.get_largest_message_size(message_class)}>;
     ${message_class.name}(const InetAddress &address) : address(address) {}
     ${message_class.name}(const InetAddress &address, const Byte* bytes) : Message(bytes), address(address) {}
 public:
-    const InetAddress address;
+    ${message_class.name}() = default;
+    ${message_class.name}(${message_class.name}&&) = default;
+    ${message_class.name}& operator=(${message_class.name}&&) = default;
+
+    InetAddress address;
 
     enum class Type : Byte {
     % for index, message in enumerate(message_class.messages):
@@ -95,14 +104,15 @@ public:
 
     // --- --- --- ${message.name}
     static ${message_class.name} createMessage${message.name}(${utils.get_args_list(message.fields)}) {
-        return ${message_class.name}(address)
+        return std::move(${message_class.name}(address)
             .setPreamble()
-            .setField<Byte, ${len(definitions.preamble_value)}>(static_cast<Byte>(Type::${message.name}))${utils.trailing_sign(utils.has_additional_fields(message), '', ';')}
+            .setField<Byte, ${len(definitions.preamble_value)}>(static_cast<Byte>(Type::${message.name}))
         % for field in message.fields:
         % if not utils.is_fixed_field(field):
-            .setField<${field.type.name_cpp}, ${field.offset}>(${field.name})${utils.trailing_sign(loop.last, '', ';')}
+            .setField<${field.type.name_cpp}, ${field.offset}>(${field.name})
         % endif
         % endfor
+        );
     }
     %for field in message.fields:
     % if not utils.is_fixed_field(field):
@@ -113,6 +123,4 @@ public:
     % endfor
     % endfor
 };
-
-
 %endfor

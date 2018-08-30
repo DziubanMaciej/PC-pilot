@@ -8,10 +8,6 @@ class Utils:
         return field.name in ['type', 'Preamble']
 
     @classmethod
-    def has_additional_fields(cls, message):
-        return len(message.fields) == message.fixed_fields_count
-
-    @classmethod
     def get_largest_message_size(cls, message_class):
         sizes = (sum((field.type.size for field in message.fields)) for message in message_class.messages)
         try:
