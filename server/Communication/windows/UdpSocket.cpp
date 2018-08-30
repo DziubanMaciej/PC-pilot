@@ -34,13 +34,19 @@ void UdpSocket::send(const std::string & message, const InetAddress &address) {
 	}
 }
 
-std::string UdpSocket::receive(size_t bufferSize) {
-	auto buffer = std::make_unique<char[]>(bufferSize);
+bool UdpSocket::receive(std::vector<unsigned char> &result, size_t bufferSize, uint32_t timeoutMs) {
+	result.clear();
+	result.resize(bufferSize);
 
-	auto result = ::recvfrom(this->socket, buffer.get(), bufferSize, 0, nullptr, 0);
-	if (result == SOCKET_ERROR) {
+	::setsockopt(this->socket, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<char*>(&timeoutMs), sizeof(timeoutMs));
+	auto retVal = ::recvfrom(this->socket, reinterpret_cast<char*>(result.data()), bufferSize, 0, nullptr, 0);
+	if (retVal == SOCKET_ERROR) {
 		auto errorCode = WSAGetLastError();
+		if (errorCode == WSAETIMEDOUT) {
+			return false;
+		}
 		ApplicationError::exception("Receiving", errorCode);
 	}
-	return std::string(buffer.get());
+	result.resize(retVal);
+	return true;
 }
