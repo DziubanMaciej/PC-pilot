@@ -35,7 +35,9 @@ void sender(const std::string &address) {
 	auto theirAddress = context->getInetAddress(address, 8888);
 	auto mySocket = context->getInetSocket(*myAddress, false);
 	inputSimulator->sleepMs(500);
-	mySocket->send(":)", *theirAddress);
+
+	std::vector<unsigned char> data = { ':', ')' };
+	mySocket->send(data, *theirAddress);
 	std::cout << "SENDER: sent\n";
 }
 
