@@ -14,43 +14,36 @@
 std::unique_ptr<SocketContext> context = std::make_unique<Wsa>();
 std::unique_ptr<InputSimulator> inputSimulator = std::make_unique<WindowsInputSimulator>();
 
-void receiver(const std::string &address) {
-	auto myAddress = context->getInetAddress(address, 8888);
-	auto mySocket = context->getInetSocket(*myAddress, false);
-	std::cout << "RECEIVER: receiving...\n";
-
-	std::vector<unsigned char> result;
-	InetAddress sender{ 0,0 };
-	if (mySocket->receive(result, sender, Constants::MAX_MESSAGE_SIZE, 1000)) {
-		std::string str{ (char*)result.data() };
-		std::cout << "RECEIVER: received \"" << str << "\"\n";
-	}
-	else {
-		std::cout << "RECEIVER: timeout\n";
-	}
-}
-
-void sender(const std::string &address) {
-	auto myAddress = context->getInetAddress(address, 9999);
-	auto theirAddress = context->getInetAddress(address, 8888);
-	auto mySocket = context->getInetSocket(*myAddress, false);
-	inputSimulator->sleepMs(500);
-
-	std::vector<unsigned char> data = { ':', ')' };
-	mySocket->send(data, *theirAddress);
-	std::cout << "SENDER: sent\n";
-}
+#include "BackgroundWorker/Transmitter.h"
+#include "BackgroundWorker/Processor.h"
+#include "BackgroundWorker/Receiver.h"
+#include "BackgroundWorker/ConnectionManager.h"
 
 int main() {
-	const auto addresses = context->getInetAddresses(true, false, false);
-	const auto address = addresses[0];
+	BlockingQueue<ServerMessage> receivedMessages;
+	BlockingQueue<ClientMessage> toSendMessages;
 
-	std::thread receiverThread(receiver, address);
-	std::thread senderThread(sender, address);
+	ConnectionManager connectionManager;
+	Receiver receiver;
+	Processor processor;
+	Transmitter transmitter;
 
-	receiverThread.join();
-	senderThread.join();
+	const auto address = context->getInetAddress(context->getInetAddresses(true, false, false)[0], 9999);
+	auto receiveSocket = context->getInetSocket(*address, true);
+	auto transmitSocket = context->getInetSocket(*address, true);
 
+	receiver.start(receivedMessages, *receiveSocket);
+	processor.start(receivedMessages, toSendMessages, connectionManager, *inputSimulator);
+	transmitter.start(toSendMessages, *transmitSocket);
+
+	inputSimulator->sleepMs(2000);
+	receiver.interrupt();
+	processor.interrupt();
+	transmitter.interrupt();
+
+	receiver.join();
+	processor.join();
+	transmitter.join();
 	system("pause");
 }
 

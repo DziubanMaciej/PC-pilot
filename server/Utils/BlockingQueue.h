@@ -35,11 +35,6 @@ public:
 		return noTimeout;
 	}
 
-	bool popAndGet(T& result) {
-		auto infinity = std::numeric_limits<double>::infinity();
-		return popAndGet(result, std::chrono::duration<double>{infinity});
-	}
-
 	bool empty() {
 		return queue.empty();
 	}

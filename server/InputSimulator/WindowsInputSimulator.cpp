@@ -51,7 +51,7 @@ bool WindowsInputSimulator::sendMouseButtonEvent(
 }
 
 void WindowsInputSimulator::sleepMs(unsigned int ms) {
-  std::this_thread::sleep_for(std::chrono::milliseconds(500));
+  std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 }
 
 bool WindowsInputSimulator::click() {
