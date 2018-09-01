@@ -2,7 +2,8 @@
 package com.paijan.pcpilot
 
 object Constants {
-    const val KEEP_ALIVE_SEND_RATE_MS : Float = 500.0f
-    const val KEEP_ALIVE_TIMEOUT_MS : Float = KEEP_ALIVE_SEND_RATE_MS * 4
+    const val KEEP_ALIVE_SEND_RATE_MS : Long = 500
+    const val KEEP_ALIVE_TIMEOUT_MS : Long = KEEP_ALIVE_SEND_RATE_MS * 4
+    const val MANUAL_LOOP_BACK_RATE_MS : Long = 100
     const val MAX_MESSAGE_SIZE : Int = 128
 }

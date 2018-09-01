@@ -1,6 +1,7 @@
 package com.paijan.pcpilot.connection_manager
 
 import android.util.Log
+import com.paijan.pcpilot.Constants
 import com.paijan.pcpilot.communication.ServerMessage
 import java.net.InetSocketAddress
 import java.util.concurrent.BlockingQueue
@@ -43,7 +44,7 @@ class DefaultConnectionManager(
 
         toSendMessages.add(ServerMessage.createMessageConnectionRequest(message.address))
 
-        val responseMessage = messages.poll(3000, TimeUnit.MILLISECONDS) // TODO constant
+        val responseMessage = messages.poll(Constants.KEEP_ALIVE_TIMEOUT_MS, TimeUnit.MILLISECONDS)
         if (responseMessage != null && (responseMessage is ConnectionManagerKeepAliveMessage) && message.address == responseMessage.address) {
             _connectedAddress = message.address
             onConnectListener(message.address)
@@ -58,7 +59,7 @@ class DefaultConnectionManager(
 
     private fun processMessageConnected(): Boolean {
         // TODO not so good implementation
-        val message = messages.poll(3000, TimeUnit.MILLISECONDS) as? ConnectionManagerKeepAliveMessage // TODO constant
+        val message = messages.poll(Constants.KEEP_ALIVE_TIMEOUT_MS, TimeUnit.MILLISECONDS) as? ConnectionManagerKeepAliveMessage
         if (message == null) {
             onDisconnectListener(_connectedAddress!!)
             _connectedAddress = null

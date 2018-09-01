@@ -11,6 +11,7 @@ class Type:
 
 class Types:
     Int = Type('int', 4)
+    Long = Type('long', -1)
     Float = Type('float', 4)
     Byte = Type('Byte', 1)
     Preamble = Type('Preamble', len(preamble_value))
@@ -18,6 +19,9 @@ class Types:
 
 class Field:
     def __init__(self, field_name, field_type):
+        if field_type.size <= 0:
+            raise Exception("Type is not meant to be used in Field")
+
         self.name = field_name
         self.type = field_type
         self.offset = -1

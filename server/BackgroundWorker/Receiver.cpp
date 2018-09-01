@@ -2,8 +2,7 @@
 #include "Utils/Constants.h"
 
 void Receiver::onUpdate(BlockingQueue<ServerMessage> &receivedMessages, ConnectionlessSocket &socket) {
-	// TODO constant
-	if (!socket.receive(this->byteBuffer, this->addressBuffer, Constants::MAX_MESSAGE_SIZE, 1000)) {
+	if (!socket.receive(this->byteBuffer, this->addressBuffer, Constants::MAX_MESSAGE_SIZE, Constants::MANUAL_LOOP_BACK_RATE_MS)) {
 		return;
 	}
 

@@ -1,5 +1,6 @@
 #include "ConnectionManager.h"
 #include "Utils/ApplicationError.h"
+#include "Utils/Constants.h"
 #include "Utils/Logger.h"
 
 void ConnectionManager::KeepAliveSender::onUpdate(ConnectionManager &connectionManager) {
@@ -8,12 +9,12 @@ void ConnectionManager::KeepAliveSender::onUpdate(ConnectionManager &connectionM
 		return;
 	}
 	connectionManager.toSendMessages.push(ClientMessage::createMessageKeepAlive(*connectionManager.getConnectedAddress()));
-	connectionManager.inputSimulator.sleepMs(1000); // TODO constant
+	connectionManager.inputSimulator.sleepMs(Constants::KEEP_ALIVE_SEND_RATE_MS);
 }
 
 void ConnectionManager::KeepAliveReceiver::onUpdate(ConnectionManager &connectionManager) {
 	if (!connectionManager.isConnected()) {
-		if (!connectionManager.connectionManagerMessages.popAndGet(this->connectionManagerMessageBuffer, std::chrono::milliseconds(100))) { // TODO constant
+		if (!connectionManager.connectionManagerMessages.popAndGet(this->connectionManagerMessageBuffer, std::chrono::milliseconds(Constants::MANUAL_LOOP_BACK_RATE_MS))) {
 			return;
 		}
 
@@ -24,8 +25,8 @@ void ConnectionManager::KeepAliveReceiver::onUpdate(ConnectionManager &connectio
 		}
 	}
 	else {
-		if (!connectionManager.connectionManagerMessages.popAndGet(this->connectionManagerMessageBuffer, std::chrono::milliseconds(100000)) 
-			|| std::get<ConnectionManagerMessageType>(this->connectionManagerMessageBuffer) != ConnectionManagerMessageType::KEEP_ALIVE) {    // TODO constant
+		if (!connectionManager.connectionManagerMessages.popAndGet(this->connectionManagerMessageBuffer, std::chrono::milliseconds(Constants::KEEP_ALIVE_TIMEOUT_MS))
+			|| std::get<ConnectionManagerMessageType>(this->connectionManagerMessageBuffer) != ConnectionManagerMessageType::KEEP_ALIVE) {
 				connectionManager.keepAliveSender.interrupt();
 				connectionManager.keepAliveSender.join();
 				Logger::log("Disconnected from: ", *connectionManager.connectedAddress);

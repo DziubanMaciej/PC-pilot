@@ -77,7 +77,6 @@ class ServerMessage : public Message<ServerMessage, 16> {
     friend class Message<ServerMessage, 16>;
     ServerMessage(const InetAddress &address) : address(address) {}
     ServerMessage(const InetAddress &address, const Byte* bytes) : Message(bytes), address(address) {}
-//	ServerMessage(ServerMessage&&) = default;
 public:
     ServerMessage() = default;
     ServerMessage(ServerMessage&&) = default;

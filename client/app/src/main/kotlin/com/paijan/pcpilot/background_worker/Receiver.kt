@@ -1,6 +1,7 @@
 package com.paijan.pcpilot.background_worker
 
 import android.util.Log
+import com.paijan.pcpilot.Constants
 import com.paijan.pcpilot.communication.ClientMessage
 import java.net.DatagramPacket
 import java.net.DatagramSocket
@@ -9,10 +10,9 @@ import java.util.concurrent.BlockingQueue
 
 class Receiver(
         private val socket: DatagramSocket,
-        private val receivedMessages: BlockingQueue<ClientMessage>,
-        bufferSize: Int = 512
+        private val receivedMessages: BlockingQueue<ClientMessage>
 ) : RunnableAdapter("Receiver") {
-    private val packet: DatagramPacket = DatagramPacket(ByteArray(bufferSize), bufferSize)
+    private val packet: DatagramPacket = DatagramPacket(ByteArray(Constants.MAX_MESSAGE_SIZE), Constants.MAX_MESSAGE_SIZE)
 
     @Throws(InterruptedException::class, IllegalStateException::class)
     override fun runBody() {
