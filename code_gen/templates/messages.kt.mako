@@ -6,6 +6,7 @@ import android.util.Log
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.util.Arrays
 
 fun ByteBuffer.putPreamble(): ByteBuffer {
@@ -93,14 +94,15 @@ class ${message_class.name} private constructor(bytes: ByteArray, val address: I
 
         fun createMessage${message.name}(${utils.get_args_list(message.fields)}): ${message_class.name} {
             val bytes = ByteBuffer.allocate(SIZE)
-                ${utils.get_put_call('Preamble', None)}
-                ${utils.get_put_call('Byte', 'Type.{}.value'.format(message.name))}
+                    .order(ByteOrder.LITTLE_ENDIAN)
+                    ${utils.get_put_call('Preamble', None)}
+                    ${utils.get_put_call('Byte', 'Type.{}.value'.format(message.name))}
                 % for field in message.fields:
                 % if not utils.is_fixed_field(field):
-                ${utils.get_put_call(field.type, field.name)}
+                    ${utils.get_put_call(field.type, field.name)}
                 % endif
                 % endfor
-                .array()
+                    .array()
             return ${message_class.name}(bytes, address)
         }
         % endfor

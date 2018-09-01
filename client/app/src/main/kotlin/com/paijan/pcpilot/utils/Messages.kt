@@ -5,6 +5,7 @@ import android.util.Log
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.util.Arrays
 
 fun ByteBuffer.putPreamble(): ByteBuffer {
@@ -99,43 +100,48 @@ class ServerMessage private constructor(bytes: ByteArray, val address: InetSocke
 
         fun createMessageConnectionRequest(address: InetSocketAddress): ServerMessage {
             val bytes = ByteBuffer.allocate(SIZE)
-                .putPreamble()
-                .put(Type.ConnectionRequest.value)
-                .array()
+                    .order(ByteOrder.LITTLE_ENDIAN)
+                    .putPreamble()
+                    .put(Type.ConnectionRequest.value)
+                    .array()
             return ServerMessage(bytes, address)
         }
 
         fun createMessageKeepAlive(address: InetSocketAddress): ServerMessage {
             val bytes = ByteBuffer.allocate(SIZE)
-                .putPreamble()
-                .put(Type.KeepAlive.value)
-                .array()
+                    .order(ByteOrder.LITTLE_ENDIAN)
+                    .putPreamble()
+                    .put(Type.KeepAlive.value)
+                    .array()
             return ServerMessage(bytes, address)
         }
 
         fun createMessageMoveCursor(address: InetSocketAddress, x: Float, y: Float): ServerMessage {
             val bytes = ByteBuffer.allocate(SIZE)
-                .putPreamble()
-                .put(Type.MoveCursor.value)
-                .putFloat(x)
-                .putFloat(y)
-                .array()
+                    .order(ByteOrder.LITTLE_ENDIAN)
+                    .putPreamble()
+                    .put(Type.MoveCursor.value)
+                    .putFloat(x)
+                    .putFloat(y)
+                    .array()
             return ServerMessage(bytes, address)
         }
 
         fun createMessageLeftPress(address: InetSocketAddress): ServerMessage {
             val bytes = ByteBuffer.allocate(SIZE)
-                .putPreamble()
-                .put(Type.LeftPress.value)
-                .array()
+                    .order(ByteOrder.LITTLE_ENDIAN)
+                    .putPreamble()
+                    .put(Type.LeftPress.value)
+                    .array()
             return ServerMessage(bytes, address)
         }
 
         fun createMessageLeftRelease(address: InetSocketAddress): ServerMessage {
             val bytes = ByteBuffer.allocate(SIZE)
-                .putPreamble()
-                .put(Type.LeftRelease.value)
-                .array()
+                    .order(ByteOrder.LITTLE_ENDIAN)
+                    .putPreamble()
+                    .put(Type.LeftRelease.value)
+                    .array()
             return ServerMessage(bytes, address)
         }
     }
@@ -208,17 +214,19 @@ class ClientMessage private constructor(bytes: ByteArray, val address: InetSocke
 
         fun createMessageConnectionAccept(address: InetSocketAddress): ClientMessage {
             val bytes = ByteBuffer.allocate(SIZE)
-                .putPreamble()
-                .put(Type.ConnectionAccept.value)
-                .array()
+                    .order(ByteOrder.LITTLE_ENDIAN)
+                    .putPreamble()
+                    .put(Type.ConnectionAccept.value)
+                    .array()
             return ClientMessage(bytes, address)
         }
 
         fun createMessageKeepAlive(address: InetSocketAddress): ClientMessage {
             val bytes = ByteBuffer.allocate(SIZE)
-                .putPreamble()
-                .put(Type.KeepAlive.value)
-                .array()
+                    .order(ByteOrder.LITTLE_ENDIAN)
+                    .putPreamble()
+                    .put(Type.KeepAlive.value)
+                    .array()
             return ClientMessage(bytes, address)
         }
     }

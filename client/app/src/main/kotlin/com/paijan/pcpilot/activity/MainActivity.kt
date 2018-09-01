@@ -4,22 +4,24 @@ import android.app.Activity
 import android.os.Bundle
 import android.view.View
 import com.paijan.pcpilot.R
-import com.paijan.pcpilot.utils.SocketEstablisher
 import com.paijan.pcpilot.background_worker.Processor
 import com.paijan.pcpilot.background_worker.Receiver
 import com.paijan.pcpilot.background_worker.Transmitter
-import com.paijan.pcpilot.utils.ClientMessage
-import com.paijan.pcpilot.utils.ServerMessage
 import com.paijan.pcpilot.background_worker.connection_manager.ConnectionManager
 import com.paijan.pcpilot.background_worker.connection_manager.DefaultConnectionManager
+import com.paijan.pcpilot.utils.ClientMessage
+import com.paijan.pcpilot.utils.ServerMessage
+import com.paijan.pcpilot.utils.SocketEstablisher
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main.view.*
 import java.net.InetSocketAddress
 import java.util.concurrent.LinkedBlockingQueue
 
 class MainActivity : Activity() {
-    var connectionManager : ConnectionManager? = null
-    var receiver : Thread? = null
-    var processor : Thread? = null
-    var transmitter : Thread? = null
+    var connectionManager: ConnectionManager? = null
+    var receiver: Thread? = null
+    var processor: Thread? = null
+    var transmitter: Thread? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,6 +40,9 @@ class MainActivity : Activity() {
         receiver = Thread(Receiver(sockets.receiver, receivedMessages))
         processor = Thread(Processor(connectionManager!!, receivedMessages, toSendMessages))
         transmitter = Thread(Transmitter(sockets.receiver, toSendMessages))
+        root_layout.touchPad.onSendCursorMoveCallback = { x, y ->
+            ServerMessage.createMessageMoveCursor(connectionManager!!.getConnectedAddress(), x, y)
+        }
 
         connectionManager?.run()
         receiver?.start()
