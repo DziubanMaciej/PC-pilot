@@ -19,9 +19,17 @@ public:
 		thr.threadFunction(args...);
 	}
 
+	bool isJoinable() const {
+		return thread && thread->joinable();
+	}
+
 	void join() {
 		this->thread->join();
 		this->thread.reset(nullptr);
+	}
+
+	void joinIfJoinable() {
+		if (isJoinable()) join();
 	}
 
 	void interrupt() {

@@ -46,7 +46,7 @@ void ConnectionManager::interrupt() {
 
 void ConnectionManager::join() {
 	keepAliveReceiver.join();
-	keepAliveSender.join();
+	keepAliveSender.joinIfJoinable();
 }
 
 bool ConnectionManager::isConnected() const {
