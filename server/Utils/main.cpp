@@ -23,7 +23,7 @@ int main() {
 	BlockingQueue<ServerMessage> receivedMessages;
 	BlockingQueue<ClientMessage> toSendMessages;
 
-	ConnectionManager connectionManager;
+	ConnectionManager connectionManager{ toSendMessages, *inputSimulator };
 	Receiver receiver;
 	Processor processor;
 	Transmitter transmitter;
@@ -32,15 +32,20 @@ int main() {
 	auto receiveSocket = context->getInetSocket(*address, true);
 	auto transmitSocket = context->getInetSocket(*address, true);
 
+	connectionManager.start();
 	receiver.start(receivedMessages, *receiveSocket);
 	processor.start(receivedMessages, toSendMessages, connectionManager, *inputSimulator);
 	transmitter.start(toSendMessages, *transmitSocket);
 
-	inputSimulator->sleepMs(2000);
+	std::cout << "Press enter to interrupt threads: ";
+	std::cin.get();
+
+	connectionManager.interrupt();
 	receiver.interrupt();
 	processor.interrupt();
 	transmitter.interrupt();
 
+	connectionManager.join();
 	receiver.join();
 	processor.join();
 	transmitter.join();

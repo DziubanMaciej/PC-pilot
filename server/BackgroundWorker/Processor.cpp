@@ -7,10 +7,10 @@ void Processor::onUpdate(BlockingQueue<ServerMessage> &receivedMessages, Blockin
 
 	switch (this->messageBuffer.getType()) {
 		case ServerMessage::Type::ConnectionRequest:
-			// TODO
+			connectionManager.notifyConnectionRequest(this->messageBuffer.address);
 			break;
 		case ServerMessage::Type::KeepAlive:
-			// TODO
+			connectionManager.notifyKeepAlive(this->messageBuffer.address);
 			break;
 		case ServerMessage::Type::MoveCursor: {
 			auto x = this->messageBuffer.getMessageMoveCursorX();

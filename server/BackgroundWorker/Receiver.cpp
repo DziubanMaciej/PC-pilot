@@ -3,7 +3,7 @@
 
 void Receiver::onUpdate(BlockingQueue<ServerMessage> &receivedMessages, ConnectionlessSocket &socket) {
 	// TODO constant
-	if (!socket.receive(this->byteBuffer, this->addressBuffer, Constants::MAX_MESSAGE_SIZE, 100)) {
+	if (!socket.receive(this->byteBuffer, this->addressBuffer, Constants::MAX_MESSAGE_SIZE, 1000)) {
 		return;
 	}
 

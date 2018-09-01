@@ -52,6 +52,6 @@ bool UdpSocket::receive(std::vector<unsigned char> &result, InetAddress& senderA
 		ApplicationError::exception("Receiving", errorCode);
 	}
 	result.resize(retVal);
-	senderAddress = { addr.sin_addr.S_un.S_addr, addr.sin_port };
+	senderAddress = { addr.sin_addr.S_un.S_addr, htons(addr.sin_port) };
 	return true;
 }
