@@ -17,7 +17,7 @@ class Logger {
 
 	template <typename... Args>
 	void _log() {
-		int a = 0;
+		this->out << '\n';
 	}
 
 public:

@@ -1,5 +1,6 @@
 #include "ConnectionManager.h"
 #include "Utils/ApplicationError.h"
+#include "Utils/Logger.h"
 
 void ConnectionManager::KeepAliveSender::onUpdate(ConnectionManager &connectionManager) {
 	if (!connectionManager.isConnected()) {
@@ -19,6 +20,7 @@ void ConnectionManager::KeepAliveReceiver::onUpdate(ConnectionManager &connectio
 		if (std::get<ConnectionManagerMessageType>(this->connectionManagerMessageBuffer) == ConnectionManagerMessageType::CONNECTION_REQUEST) {
 			connectionManager.connectedAddress = std::make_unique<InetAddress>(std::get<InetAddress>(this->connectionManagerMessageBuffer));
 			connectionManager.keepAliveSender.start(connectionManager);
+			Logger::log("Connected to: ", *connectionManager.connectedAddress);
 		}
 	}
 	else {
@@ -26,6 +28,7 @@ void ConnectionManager::KeepAliveReceiver::onUpdate(ConnectionManager &connectio
 			|| std::get<ConnectionManagerMessageType>(this->connectionManagerMessageBuffer) != ConnectionManagerMessageType::KEEP_ALIVE) {    // TODO constant
 				connectionManager.keepAliveSender.interrupt();
 				connectionManager.keepAliveSender.join();
+				Logger::log("Disconnected from: ", *connectionManager.connectedAddress);
 				connectionManager.connectedAddress.reset();
 		}
 	}

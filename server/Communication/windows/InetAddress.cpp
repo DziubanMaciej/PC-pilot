@@ -3,7 +3,7 @@
 
 #include <ws2tcpip.h>
 
-std::string InetAddress::ipToString(int addressFamily, void * address) {
+std::string InetAddress::ipToString(int addressFamily, const void * address) {
 	char buffer[64] = {};
 	auto result = InetNtop(addressFamily, address, buffer, sizeof(buffer));
 	if (result == nullptr) {
@@ -12,7 +12,7 @@ std::string InetAddress::ipToString(int addressFamily, void * address) {
 	return std::string{ buffer };
 }
 
-std::string InetAddress::ipToString(InetAddress & address) {
+std::string InetAddress::ipToString(const InetAddress & address) {
 	return ipToString(AF_INET, &address.address);
 }
 
@@ -32,4 +32,8 @@ std::unique_ptr<InetAddress> InetAddress::createFromString(const std::string & a
 		ApplicationError::exception("InetAddress parse");
 	}
 	return std::make_unique<InetAddress>(ip, port);
+}
+
+std::ostream& operator<<(std::ostream& out, const InetAddress& address) {
+	return out << InetAddress::ipToString(address) << ":" << address.port;
 }

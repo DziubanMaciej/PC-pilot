@@ -10,10 +10,16 @@ struct InetAddress {
 	uint32_t address;
 	unsigned short port;
 
-	static std::string ipToString(int addressFamily, void *address);
-	static std::string ipToString(InetAddress &address);
+	static std::string ipToString(int addressFamily, const void *address);
+	static std::string ipToString(const InetAddress &address);
 
 	static std::unique_ptr<InetAddress> createAny(short port);
 	static std::unique_ptr<InetAddress> createLoopback(short port);
 	static std::unique_ptr<InetAddress> createFromString(const std::string &address, short port);
 };
+
+namespace {
+	class ostream;
+}
+
+std::ostream& operator<<(std::ostream&, const InetAddress&);

@@ -38,7 +38,7 @@ int main() {
 	processor.start(receivedMessages, toSendMessages, connectionManager, *inputSimulator);
 	transmitter.start(toSendMessages, *transmitSocket);
 
-	Logger::log("Press enter to interrupt threads and exit\n");
+	Logger::log("Press enter to interrupt threads and exit");
 	std::cin.get();
 
 	connectionManager.interrupt();
