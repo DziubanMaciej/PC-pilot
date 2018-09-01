@@ -20,6 +20,7 @@ interface ConnectionManager {
     // Thread control
     fun run()
     fun interrupt()
+    fun join()
 
     // State getters
     fun isConnected() : Boolean

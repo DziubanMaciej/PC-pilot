@@ -2,7 +2,7 @@ package com.paijan.pcpilot.background_worker
 
 import android.util.Log
 
-abstract class RunnableAdapter(private val messageTag: String) : Runnable {
+abstract class RunnableAdapter(protected val messageTag: String) : Runnable {
     override fun run() {
         Log.i(messageTag, "start")
         try {
