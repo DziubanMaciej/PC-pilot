@@ -16,7 +16,7 @@ void Processor::onUpdate(BlockingQueue<ServerMessage> &receivedMessages, Blockin
 		case ServerMessage::Type::MoveCursor: {
 			auto x = this->messageBuffer.getMessageMoveCursorX();
 			auto y = this->messageBuffer.getMessageMoveCursorY();
-			inputSimulator.moveCursorTo(static_cast<int>(x), static_cast<int>(y));
+			inputSimulator.moveCursorBy(static_cast<int>(x), static_cast<int>(y));
 			break;
 		}
 		case ServerMessage::Type::LeftPress:
