@@ -36,17 +36,21 @@ class DefaultConnectionManager(
     }
 
     private fun processMessageUnconnected(): Boolean {
-        val message = messages.take() as? ConnectionManagerSendConnectionRequestMessage
-        message ?: return false
+        val message = messages.take()
+        if (message as? ConnectionManagerSendConnectionRequestMessage == null) {
+            return false
+        }
 
         toSendMessages.add(ServerMessage.createMessageConnectionRequest(message.address))
 
-        val responseMessage = messages.poll(1000, TimeUnit.MILLISECONDS) // TODO constant
+        val responseMessage = messages.poll(3000, TimeUnit.MILLISECONDS) // TODO constant
         if (responseMessage != null && (responseMessage is ConnectionManagerKeepAliveMessage) && message.address == responseMessage.address) {
             _connectedAddress = message.address
             onConnectListener(message.address)
+            Log.i("ConnectionManager", "Connection successful")
         } else {
             onDisconnectListener(message.address)
+            Log.i("ConnectionManager", "Connection failed")
         }
         return true
     }
@@ -54,10 +58,11 @@ class DefaultConnectionManager(
 
     private fun processMessageConnected(): Boolean {
         // TODO not so good implementation
-        val message = messages.poll(1000, TimeUnit.MILLISECONDS) as? ConnectionManagerKeepAliveMessage // TODO constant
+        val message = messages.poll(3000, TimeUnit.MILLISECONDS) as? ConnectionManagerKeepAliveMessage // TODO constant
         if (message == null) {
             onDisconnectListener(_connectedAddress!!)
             _connectedAddress = null
+            Log.i("ConnectionManager", "Disconnect")
         }
         return true
     }

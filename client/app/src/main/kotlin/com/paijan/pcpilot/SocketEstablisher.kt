@@ -17,14 +17,14 @@ typealias FilterFunction = (InetAddress) -> Boolean
 object SocketEstablisher {
 
     data class DatagramSocketTuple (
-            val sender: DatagramSocket,
-            val receiver: DatagramSocket
+            val receiver: DatagramSocket,
+            val sender: DatagramSocket
     )
 
 
     fun establishSockets(inetAddress: InetAddress): DatagramSocketTuple? {
-        var receiver : DatagramSocket? = null
-        var sender : DatagramSocket? = null
+        val receiver : DatagramSocket?
+        val sender : DatagramSocket?
 
         try {
             receiver = DatagramSocket(null)
@@ -37,7 +37,7 @@ object SocketEstablisher {
             sender.reuseAddress = true
             sender.bind(senderSocketAddress)
 
-            return DatagramSocketTuple(receiver, sender)
+            return DatagramSocketTuple(sender, receiver)
         } catch(e : SocketException) {
             Log.e("SocketEstablisher", "Socket exception")
         }

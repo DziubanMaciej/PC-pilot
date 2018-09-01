@@ -1,7 +1,5 @@
 package com.paijan.pcpilot
 
-import java.net.Socket
-
 import android.app.Activity
 import android.os.Bundle
 import android.view.View
@@ -12,13 +10,10 @@ import com.paijan.pcpilot.communication.ClientMessage
 import com.paijan.pcpilot.communication.ServerMessage
 import com.paijan.pcpilot.connection_manager.ConnectionManager
 import com.paijan.pcpilot.connection_manager.DefaultConnectionManager
-import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.util.concurrent.LinkedBlockingQueue
 
 class MainActivity : Activity() {
-    private val socket: Socket? = null
-
     var connectionManager : ConnectionManager? = null
     var receiver : Thread? = null
     var processor : Thread? = null
@@ -29,7 +24,8 @@ class MainActivity : Activity() {
         setContentView(R.layout.activity_main)
     }
 
-    fun onClick1(v: View?) {
+    @Suppress("UNUSED_PARAMETER")
+    fun onCreateSocket(v: View?) {
         val address = SocketEstablisher.getLocalAddresses { it.hostAddress.startsWith("192")}[0]
         val sockets = SocketEstablisher.establishSockets(address)!!
 
@@ -47,7 +43,8 @@ class MainActivity : Activity() {
         transmitter?.start()
     }
 
-    fun onClick2(v: View?) {
+    @Suppress("UNUSED_PARAMETER")
+    fun onDestroySocket(v: View?) {
         connectionManager?.interrupt()
         connectionManager = null
 
@@ -61,7 +58,9 @@ class MainActivity : Activity() {
         transmitter = null
     }
 
-    fun onClick3(v: View?) {
-
+    @Suppress("UNUSED_PARAMETER")
+    fun onSendConnectionRequest(v: View?) {
+        val socketAddress = InetSocketAddress("192.168.0.60", 9999);
+        connectionManager?.sendConnectionRequest(socketAddress)
     }
 }

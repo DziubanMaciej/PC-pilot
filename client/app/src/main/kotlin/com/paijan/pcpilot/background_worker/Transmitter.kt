@@ -1,5 +1,6 @@
 package com.paijan.pcpilot.background_worker
 
+import com.paijan.pcpilot.Constants
 import com.paijan.pcpilot.communication.ServerMessage
 import java.net.DatagramPacket
 import java.net.DatagramSocket
@@ -12,11 +13,9 @@ class Transmitter(
 
     @Throws(InterruptedException::class, IllegalStateException::class)
     override fun runBody() {
-        val maxMessageSize = 128 // TODO extract to some shared constant
-
         val messages = mutableListOf<ServerMessage>()
         messages.add(toSendMessages.take()) // block until first message
-        while (ServerMessage.SIZE * (messages.size + 1) < maxMessageSize) {
+        while (hasSpaceForAnotherMessage(messages)) {
             val message = toSendMessages.poll() ?: break // non blocking call
             messages.add(message)
         }
@@ -25,5 +24,10 @@ class Transmitter(
         val data = ServerMessage.toBytes(messages)
         val packet = DatagramPacket(data, data.size, messages[0].address)
         socket.send(packet)
+    }
+
+    private fun hasSpaceForAnotherMessage(messages : List<ServerMessage>) : Boolean {
+        val sizeAfterAdding = ServerMessage.SIZE * (messages.size + 1)
+        return sizeAfterAdding <= Constants.MAX_MESSAGE_SIZE
     }
 }
