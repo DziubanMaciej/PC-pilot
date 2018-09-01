@@ -1,11 +1,7 @@
-package com.paijan.pcpilot
+package com.paijan.pcpilot.utils
 
 import android.util.Log
 import java.net.*
-import java.util.Collections
-import java.util.Enumeration
-import java.util.function.Predicate
-import java.util.stream.Stream
 
 
 typealias FilterFunction = (InetAddress) -> Boolean

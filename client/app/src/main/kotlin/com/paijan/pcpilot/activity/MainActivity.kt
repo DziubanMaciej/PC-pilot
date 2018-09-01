@@ -1,15 +1,17 @@
-package com.paijan.pcpilot
+package com.paijan.pcpilot.activity
 
 import android.app.Activity
 import android.os.Bundle
 import android.view.View
+import com.paijan.pcpilot.R
+import com.paijan.pcpilot.utils.SocketEstablisher
 import com.paijan.pcpilot.background_worker.Processor
 import com.paijan.pcpilot.background_worker.Receiver
 import com.paijan.pcpilot.background_worker.Transmitter
-import com.paijan.pcpilot.communication.ClientMessage
-import com.paijan.pcpilot.communication.ServerMessage
-import com.paijan.pcpilot.connection_manager.ConnectionManager
-import com.paijan.pcpilot.connection_manager.DefaultConnectionManager
+import com.paijan.pcpilot.utils.ClientMessage
+import com.paijan.pcpilot.utils.ServerMessage
+import com.paijan.pcpilot.background_worker.connection_manager.ConnectionManager
+import com.paijan.pcpilot.background_worker.connection_manager.DefaultConnectionManager
 import java.net.InetSocketAddress
 import java.util.concurrent.LinkedBlockingQueue
 
@@ -26,7 +28,7 @@ class MainActivity : Activity() {
 
     @Suppress("UNUSED_PARAMETER")
     fun onCreateSocket(v: View?) {
-        val address = SocketEstablisher.getLocalAddresses { it.hostAddress.startsWith("192")}[0]
+        val address = SocketEstablisher.getLocalAddresses { it.hostAddress.startsWith("192") }[0]
         val sockets = SocketEstablisher.establishSockets(address)!!
 
         val receivedMessages = LinkedBlockingQueue<ClientMessage>()

@@ -1,7 +1,7 @@
 package com.paijan.pcpilot.background_worker
 
-import com.paijan.pcpilot.Constants
-import com.paijan.pcpilot.communication.ClientMessage
+import com.paijan.pcpilot.utils.Constants
+import com.paijan.pcpilot.utils.ClientMessage
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetSocketAddress

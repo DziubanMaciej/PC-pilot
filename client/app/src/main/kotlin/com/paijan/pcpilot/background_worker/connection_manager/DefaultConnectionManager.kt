@@ -1,9 +1,9 @@
-package com.paijan.pcpilot.connection_manager
+package com.paijan.pcpilot.background_worker.connection_manager
 
 import android.util.Log
-import com.paijan.pcpilot.Constants
+import com.paijan.pcpilot.utils.Constants
 import com.paijan.pcpilot.background_worker.RunnableAdapter
-import com.paijan.pcpilot.communication.ServerMessage
+import com.paijan.pcpilot.utils.ServerMessage
 import java.net.InetSocketAddress
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.LinkedBlockingQueue

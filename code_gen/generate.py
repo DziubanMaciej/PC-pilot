@@ -30,5 +30,5 @@ if __name__ == "__main__":
     generate('constants.h.mako', [cpp_output_base_dir, 'Utils',         'Constants.h'], data)
 
     data['utils'] = UtilsKt()
-    generate('messages.kt.mako',  [kt_output_base_dir, 'communication', 'Messages.kt' ], data)
-    generate('constants.kt.mako', [kt_output_base_dir,                  'Constants.kt'], data)
+    generate('messages.kt.mako',  [kt_output_base_dir, 'utils', 'Messages.kt' ], data)
+    generate('constants.kt.mako', [kt_output_base_dir, 'utils',  'Constants.kt'], data)

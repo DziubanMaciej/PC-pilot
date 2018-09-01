@@ -1,9 +1,9 @@
 package com.paijan.pcpilot.background_worker
 
 import android.util.Log
-import com.paijan.pcpilot.communication.ClientMessage
-import com.paijan.pcpilot.communication.ServerMessage
-import com.paijan.pcpilot.connection_manager.ConnectionManager
+import com.paijan.pcpilot.utils.ClientMessage
+import com.paijan.pcpilot.utils.ServerMessage
+import com.paijan.pcpilot.background_worker.connection_manager.ConnectionManager
 import java.util.concurrent.BlockingQueue
 
 class Processor(
