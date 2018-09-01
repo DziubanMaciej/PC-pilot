@@ -29,7 +29,7 @@ int main() {
 	Processor processor;
 	Transmitter transmitter;
 
-	const auto address = context->getInetAddress(context->getInetAddresses(true, false, false)[0], 9999);
+	const auto address = InetAddress::createFromString(context->getInetAddresses(true, false, false)[0], 9999);
 	auto receiveSocket = context->getInetSocket(*address, true);
 	auto transmitSocket = context->getInetSocket(*address, true);
 

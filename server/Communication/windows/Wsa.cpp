@@ -17,25 +17,6 @@ Wsa::~Wsa() {
 	WSACleanup();
 }
 
-std::unique_ptr<InetAddress> Wsa::getInetAddressAny(short port) {
-	return getInetAddress(INADDR_ANY, port);
-}
-
-std::unique_ptr<InetAddress> Wsa::getInetAddressLoopback(short port) {
-	return getInetAddress(INADDR_LOOPBACK, port);
-}
-
-std::unique_ptr<InetAddress> Wsa::getInetAddress(uint32_t address, short port) {
-	return std::make_unique<InetAddress>(address, port);
-}
-
-std::unique_ptr<InetAddress> Wsa::getInetAddress(const std::string & address, short port) {
-	uint32_t ip;
-	auto result = InetPton(AF_INET, address.c_str(), &ip);
-	if (result != 1) ApplicationError::exception("InetAddress parse");
-	return getInetAddress(ip, port);
-}
-
 std::unique_ptr<ConnectionlessSocket> Wsa::getInetSocket(const InetAddress &address, bool reusable) {
 	return std::make_unique<UdpSocket>(address, reusable);
 }
@@ -53,18 +34,7 @@ std::unique_ptr<Wsa::Adapter[]> Wsa::getAdapters() {
 	return adapters;
 }
 
-std::string Wsa::ipToString(int addressFamily, void *address) {
-	char buffer[64] = {};
-	auto result = InetNtop(addressFamily, address, buffer, sizeof(buffer));
-	if (result == nullptr) {
-		ApplicationError::unrecoverable("Address parse");
-	}
-	return std::string{ buffer };
-}
 
-std::string Wsa::ipToString(InetAddress & address) {
-	return ipToString(AF_INET, &address.address);
-}
 
 std::vector<std::string> Wsa::getInetAddresses(bool ipv4, bool ipv6, bool loopback) {
 	auto adapters = getAdapters();
@@ -79,7 +49,7 @@ std::vector<std::string> Wsa::getInetAddresses(bool ipv4, bool ipv6, bool loopba
 				if (!ipv4) continue;
 
 				auto a = &((sockaddr_in*)address)->sin_addr;
-				std::string str = ipToString(family, a);
+				std::string str = InetAddress::ipToString(family, a);
 
 				if (!loopback && str.find("127") == 0) continue;
 				result.push_back(str);
@@ -87,7 +57,7 @@ std::vector<std::string> Wsa::getInetAddresses(bool ipv4, bool ipv6, bool loopba
 			else if (family == AF_INET6) {
 				if (!ipv6) continue;
 				auto a = &((sockaddr_in6*)address)->sin6_addr;
-				std::string str = ipToString(family, a);
+				std::string str = InetAddress::ipToString(family, a);
 
 				if (!loopback && str.find("::1") == 0) continue;
 				result.push_back(str);

@@ -1,5 +1,6 @@
 add_sources (
 	${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt
+	${CMAKE_CURRENT_SOURCE_DIR}/InetAddress.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/UdpSocket.h
 	${CMAKE_CURRENT_SOURCE_DIR}/UdpSocket.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Wsa.h
