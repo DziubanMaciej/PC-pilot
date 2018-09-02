@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import com.paijan.pcpilot.R
+import com.paijan.pcpilot.utils.DatagramSocketTuple
 import com.paijan.pcpilot.utils.SocketEstablisher
 
 class SocketEstablishActivity : Activity() {
@@ -20,7 +21,7 @@ class SocketEstablishActivity : Activity() {
         socketEstablisherThread = Thread(SocketEstablisher { onSocketsEstablished(it) }).apply { start()}
     }
 
-    private fun onSocketsEstablished(sockets: SocketEstablisher.DatagramSocketTuple) {
+    private fun onSocketsEstablished(sockets: DatagramSocketTuple) {
         socketEstablisherThread?.interrupt()
         socketEstablisherThread = null
 

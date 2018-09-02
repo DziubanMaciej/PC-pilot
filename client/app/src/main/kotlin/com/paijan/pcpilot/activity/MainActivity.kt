@@ -12,8 +12,8 @@ import com.paijan.pcpilot.background_worker.Transmitter
 import com.paijan.pcpilot.background_worker.connection_manager.ConnectionManager
 import com.paijan.pcpilot.background_worker.connection_manager.DefaultConnectionManager
 import com.paijan.pcpilot.utils.ClientMessage
+import com.paijan.pcpilot.utils.DatagramSocketTuple
 import com.paijan.pcpilot.utils.ServerMessage
-import com.paijan.pcpilot.utils.SocketEstablisher
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.view.*
 import java.net.InetSocketAddress
@@ -23,7 +23,7 @@ class MainActivity : Activity() {
     private val receivedMessages = LinkedBlockingQueue<ClientMessage>()
     private val toSendMessages = LinkedBlockingQueue<ServerMessage>()
 
-    private var sockets: SocketEstablisher.DatagramSocketTuple? = null
+    private var sockets: DatagramSocketTuple? = null
     private var connectionManager: ConnectionManager? = null
     private var receiver: Thread? = null
     private var processor: Thread? = null

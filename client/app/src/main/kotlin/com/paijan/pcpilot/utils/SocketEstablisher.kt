@@ -4,23 +4,22 @@ import android.util.Log
 import java.net.*
 
 
-typealias FilterFunction = (InetAddress) -> Boolean
-
 /**
  * A runnable that repeatedly tries to bind socket to local ip address on an ephemeral port
  * When it succeeds it calls a callback provided in constructor
  */
-class SocketEstablisher(val callback: (SocketEstablisher.DatagramSocketTuple) -> Unit) : Runnable {
-    data class DatagramSocketTuple(
-            val receiver: DatagramSocket,
-            val sender: DatagramSocket
-    ) : AutoCloseable {
-        override fun close() {
-            receiver.close()
-            sender.close()
-        }
-    }
 
+data class DatagramSocketTuple(
+        val receiver: DatagramSocket,
+        val sender: DatagramSocket
+) : AutoCloseable {
+    override fun close() {
+        receiver.close()
+        sender.close()
+    }
+}
+
+class SocketEstablisher(val callback: (DatagramSocketTuple) -> Unit) : Runnable {
     override fun run() {
         while (true) {
             val sockets = getLocalAddress()?.let { establishSockets(it) }
@@ -34,7 +33,7 @@ class SocketEstablisher(val callback: (SocketEstablisher.DatagramSocketTuple) ->
         }
     }
 
-    fun establishSockets(inetAddress: InetAddress): DatagramSocketTuple? {
+    private fun establishSockets(inetAddress: InetAddress): DatagramSocketTuple? {
         val receiver: DatagramSocket?
         val sender: DatagramSocket?
 
@@ -56,7 +55,7 @@ class SocketEstablisher(val callback: (SocketEstablisher.DatagramSocketTuple) ->
         return null
     }
 
-    fun getAddresses(filterFunction: FilterFunction? = { true }): MutableList<InetAddress> {
+    private fun getAddresses(filterFunction: ((InetAddress) -> Boolean)? = { true }): MutableList<InetAddress> {
         val result: MutableList<InetAddress> = mutableListOf()
         try {
             val networkInterfaces = NetworkInterface.getNetworkInterfaces()
@@ -72,7 +71,7 @@ class SocketEstablisher(val callback: (SocketEstablisher.DatagramSocketTuple) ->
         return result
     }
 
-    fun getLocalAddress(): InetAddress? {
+    private fun getLocalAddress(): InetAddress? {
         return getAddresses { it.hostAddress.startsWith("192") }[0]
     }
 }

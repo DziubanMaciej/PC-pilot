@@ -1,8 +1,8 @@
 package com.paijan.pcpilot.activity
 
 import android.app.Application
-import com.paijan.pcpilot.utils.SocketEstablisher
+import com.paijan.pcpilot.utils.DatagramSocketTuple
 
 class ApplicationImpl : Application() {
-    var sockets: SocketEstablisher.DatagramSocketTuple? = null
+    var sockets: DatagramSocketTuple? = null
 }
