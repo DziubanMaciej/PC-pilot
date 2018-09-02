@@ -23,7 +23,7 @@ class MainActivity : Activity() {
     private val receivedMessages = LinkedBlockingQueue<ClientMessage>()
     private val toSendMessages = LinkedBlockingQueue<ServerMessage>()
 
-    private var sockets: DatagramSocketTuple? = null
+    private val applicationImpl get() = (application as ApplicationImpl)
     private var connectionManager: ConnectionManager? = null
     private var receiver: Thread? = null
     private var processor: Thread? = null
@@ -63,20 +63,18 @@ class MainActivity : Activity() {
         receivedMessages.clear()
         toSendMessages.clear()
 
-        sockets?.close()
+        applicationImpl.sockets?.close()
     }
 
     private fun setupThreads() {
-        sockets = (application as ApplicationImpl).sockets
-
         connectionManager = DefaultConnectionManager(
                 { updateButtonStates(true) },
                 { updateButtonStates(false) },
                 toSendMessages
         )
-        receiver = Thread(Receiver(sockets?.receiver!!, receivedMessages))
+        receiver = Thread(Receiver(applicationImpl.sockets?.receiver!!, receivedMessages))
         processor = Thread(Processor(connectionManager!!, receivedMessages, toSendMessages))
-        transmitter = Thread(Transmitter(sockets?.receiver!!, toSendMessages))
+        transmitter = Thread(Transmitter(applicationImpl.sockets?.receiver!!, toSendMessages))
         root_layout.touchPad.onSendCursorMoveCallback = { x, y ->
             connectionManager?.takeIf { it.isConnected() }?.let {
                 toSendMessages.add(ServerMessage.createMessageMoveCursor(it.getConnectedAddress(), x, y))
