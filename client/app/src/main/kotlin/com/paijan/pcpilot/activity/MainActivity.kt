@@ -2,7 +2,9 @@ package com.paijan.pcpilot.activity
 
 import android.app.Activity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import android.widget.Button
 import com.paijan.pcpilot.R
 import com.paijan.pcpilot.background_worker.Processor
 import com.paijan.pcpilot.background_worker.Receiver
@@ -18,30 +20,79 @@ import java.net.InetSocketAddress
 import java.util.concurrent.LinkedBlockingQueue
 
 class MainActivity : Activity() {
-    var connectionManager: ConnectionManager? = null
-    var receiver: Thread? = null
-    var processor: Thread? = null
-    var transmitter: Thread? = null
+    private val receivedMessages = LinkedBlockingQueue<ClientMessage>()
+    private val toSendMessages = LinkedBlockingQueue<ServerMessage>()
+
+    private var sockets: SocketEstablisher.DatagramSocketTuple? = null
+    private var connectionManager: ConnectionManager? = null
+    private var receiver: Thread? = null
+    private var processor: Thread? = null
+    private var transmitter: Thread? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        resetThreads()
+        setupThreads()
     }
 
-    @Suppress("UNUSED_PARAMETER")
-    fun onCreateSocket(v: View?) {
-        val address = SocketEstablisher.getLocalAddresses { it.hostAddress.startsWith("192") }[0]
-        val sockets = SocketEstablisher.establishSockets(address)!!
+    override fun onDestroy() {
+        resetThreads()
+        super.onDestroy()
+    }
 
-        val receivedMessages = LinkedBlockingQueue<ClientMessage>()
-        val toSendMessages = LinkedBlockingQueue<ServerMessage>()
+    private fun resetThreads() {
+        Log.i("MainActivity", "resetThreads called()")
+        updateButtonStates(false)
 
-        connectionManager = DefaultConnectionManager({ }, {}, toSendMessages)
-        receiver = Thread(Receiver(sockets.receiver, receivedMessages))
+        receiver?.interrupt()
+        processor?.interrupt()
+        transmitter?.interrupt()
+        connectionManager?.interrupt()
+
+        receiver?.join()
+        processor?.join()
+        transmitter?.join()
+        connectionManager?.join()
+
+        receiver = null
+        processor = null
+        transmitter = null
+        connectionManager = null
+
+        receivedMessages.clear()
+        toSendMessages.clear()
+
+        SocketEstablisher.closeSockets(sockets)
+    }
+
+    private fun setupThreads() {
+        val address = SocketEstablisher.getLocalAddress()
+        if (address == null) {
+            // TODO textfield
+            Log.e("MainActivity", "No local address")
+            return
+        }
+
+        sockets = SocketEstablisher.establishSockets(address)
+        if (sockets == null) {
+            // TODO textfield
+            Log.e("MainActivity", "Socket establishing failed")
+            return
+        }
+
+        connectionManager = DefaultConnectionManager(
+                { updateButtonStates(true) },
+                { updateButtonStates(false) },
+                toSendMessages
+        )
+        receiver = Thread(Receiver(sockets?.receiver!!, receivedMessages))
         processor = Thread(Processor(connectionManager!!, receivedMessages, toSendMessages))
-        transmitter = Thread(Transmitter(sockets.receiver, toSendMessages))
+        transmitter = Thread(Transmitter(sockets?.receiver!!, toSendMessages))
         root_layout.touchPad.onSendCursorMoveCallback = { x, y ->
-            ServerMessage.createMessageMoveCursor(connectionManager!!.getConnectedAddress(), x, y)
+            connectionManager?.takeIf { it.isConnected() }?.let {
+                toSendMessages.add(ServerMessage.createMessageMoveCursor(it.getConnectedAddress(), x, y))
+            }
         }
 
         connectionManager?.run()
@@ -50,24 +101,26 @@ class MainActivity : Activity() {
         transmitter?.start()
     }
 
-    @Suppress("UNUSED_PARAMETER")
-    fun onDestroySocket(v: View?) {
-        connectionManager?.interrupt()
-        connectionManager = null
+    private fun updateButtonStates(connected: Boolean) {
+        fun Button.turn(on: Boolean) {
+            isClickable = on
+            alpha = if (on) 1.0f else 0.3f
+        }
 
-        receiver?.interrupt()
-        receiver = null
-
-        processor?.interrupt()
-        processor = null
-
-        transmitter?.interrupt()
-        transmitter = null
+        runOnUiThread {
+            root_layout.button_connect.turn(!connected)
+            root_layout.button_disconnect.turn(connected)
+        }
     }
 
     @Suppress("UNUSED_PARAMETER")
-    fun onSendConnectionRequest(v: View?) {
-        val socketAddress = InetSocketAddress("192.168.0.60", 9999);
+    fun onClickConnect(v: View?) {
+        val socketAddress = InetSocketAddress("192.168.0.60", 9999)
         connectionManager?.sendConnectionRequest(socketAddress)
+    }
+
+    @Suppress("UNUSED_PARAMETER")
+    fun onClickDisconnect(v: View?) {
+        connectionManager?.disconnect()
     }
 }

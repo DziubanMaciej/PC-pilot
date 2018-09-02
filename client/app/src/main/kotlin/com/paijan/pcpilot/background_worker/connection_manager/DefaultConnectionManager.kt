@@ -57,6 +57,24 @@ class DefaultConnectionManager(
     override fun isConnected(): Boolean = _connectedAddress != null
     override fun getConnectedAddress(): InetSocketAddress = _connectedAddress!!
 
+    override fun connect(address: InetSocketAddress) {
+        _connectedAddress = address
+        onConnectListener(address)
+        Log.i("ConnectionManager", "Connected with $_connectedAddress")
+    }
+
+    override fun disconnect() {
+        if (!isConnected()) {
+            // Possible race condition
+            Log.w("ConnectionManager", "disconnect() called while not connected. Ignoring.")
+            return
+        }
+
+        Log.i("ConnectionManager", "Disconnected from $_connectedAddress")
+        onDisconnectListener(_connectedAddress!!)
+        _connectedAddress = null
+    }
+
     override fun sendConnectionRequest(address: InetSocketAddress) {
         connectionManagerMessages.add(ConnectionManagerSendConnectionRequestMessage(address))
     }
@@ -97,12 +115,9 @@ class DefaultConnectionManager(
 
             val responseMessage = connectionManagerMessages.poll(Constants.KEEP_ALIVE_TIMEOUT_MS, TimeUnit.MILLISECONDS)
             if (responseMessage != null && (responseMessage is ConnectionManagerKeepAliveMessage) && message.address == responseMessage.address) {
-                _connectedAddress = message.address
-                onConnectListener(message.address)
-                Log.i(messageTag, "Connection successful")
+                connect(message.address)
             } else {
-                onDisconnectListener(message.address)
-                Log.i(messageTag, "Connection failed")
+                Log.i(messageTag, "Failed connecting with ${message.address}")
             }
         }
 
@@ -110,9 +125,7 @@ class DefaultConnectionManager(
             // TODO this implementation allows any ConnectionManagerMessage to arrive here
             val message = connectionManagerMessages.poll(Constants.KEEP_ALIVE_TIMEOUT_MS, TimeUnit.MILLISECONDS)
             if (message == null) {
-                onDisconnectListener(_connectedAddress!!)
-                _connectedAddress = null
-                Log.i("ConnectionManager", "Disconnect due to a timeout")
+                disconnect()
             } else if (message !is ConnectionManagerKeepAliveMessage) {
                 Log.w(messageTag, "Wrong message type when connected")
                 return

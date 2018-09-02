@@ -4,7 +4,7 @@ import android.util.Log
 
 abstract class RunnableAdapter(protected val messageTag: String) : Runnable {
     override fun run() {
-        Log.i(messageTag, "start")
+        Log.i(messageTag, "start id=" + Thread.currentThread().id)
         try {
             while (true) {
                 runBody()

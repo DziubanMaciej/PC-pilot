@@ -45,7 +45,7 @@ object SocketEstablisher {
         sockets?.sender?.close()
     }
 
-    fun getLocalAddresses(filterFunction : FilterFunction?): MutableList<InetAddress> {
+    fun getAddresses(filterFunction : FilterFunction? = {true}): MutableList<InetAddress> {
         val result: MutableList<InetAddress> = mutableListOf()
         try {
             val networkInterfaces = NetworkInterface.getNetworkInterfaces()
@@ -58,5 +58,9 @@ object SocketEstablisher {
             }
         } catch (e: SocketException) { }
         return result
+    }
+
+    fun getLocalAddress() : InetAddress? {
+        return getAddresses { it.hostAddress.startsWith("192") }[0]
     }
 }
