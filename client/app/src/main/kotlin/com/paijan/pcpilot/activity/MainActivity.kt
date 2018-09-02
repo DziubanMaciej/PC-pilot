@@ -67,19 +67,7 @@ class MainActivity : Activity() {
     }
 
     private fun setupThreads() {
-        val address = SocketEstablisher.getLocalAddress()
-        if (address == null) {
-            // TODO textfield
-            Log.e("MainActivity", "No local address")
-            return
-        }
-
-        sockets = SocketEstablisher.establishSockets(address)
-        if (sockets == null) {
-            // TODO textfield
-            Log.e("MainActivity", "Socket establishing failed")
-            return
-        }
+        sockets = (application as ApplicationImpl).sockets
 
         connectionManager = DefaultConnectionManager(
                 { updateButtonStates(true) },
