@@ -7,20 +7,36 @@ import java.net.*
 typealias FilterFunction = (InetAddress) -> Boolean
 
 /**
- * Creates 2 sockets on localhost, that can work at the same time
- * If one of sockets could not be created, it increments port number and tries again until success
+ * A runnable that repeatedly tries to bind socket to local ip address on an ephemeral port
+ * When it succeeds it calls a callback provided in constructor
  */
-object SocketEstablisher {
-
-    data class DatagramSocketTuple (
+class SocketEstablisher(val callback: (SocketEstablisher.DatagramSocketTuple) -> Unit) : Runnable {
+    data class DatagramSocketTuple(
             val receiver: DatagramSocket,
             val sender: DatagramSocket
-    )
+    ) : AutoCloseable {
+        override fun close() {
+            receiver.close()
+            sender.close()
+        }
+    }
 
+    override fun run() {
+        while (true) {
+            val sockets = getLocalAddress()?.let { establishSockets(it) }
+            if (sockets == null) {
+                Thread.sleep(Constants.MANUAL_LOOP_BACK_RATE_MS)
+                continue
+            }
+
+            callback(sockets)
+            break
+        }
+    }
 
     fun establishSockets(inetAddress: InetAddress): DatagramSocketTuple? {
-        val receiver : DatagramSocket?
-        val sender : DatagramSocket?
+        val receiver: DatagramSocket?
+        val sender: DatagramSocket?
 
         try {
             receiver = DatagramSocket(null)
@@ -34,18 +50,13 @@ object SocketEstablisher {
             sender.bind(senderSocketAddress)
 
             return DatagramSocketTuple(sender, receiver)
-        } catch(e : SocketException) {
+        } catch (e: SocketException) {
             Log.e("SocketEstablisher", "Socket exception")
         }
         return null
     }
 
-    fun closeSockets(sockets: DatagramSocketTuple?) {
-        sockets?.receiver?.close()
-        sockets?.sender?.close()
-    }
-
-    fun getAddresses(filterFunction : FilterFunction? = {true}): MutableList<InetAddress> {
+    fun getAddresses(filterFunction: FilterFunction? = { true }): MutableList<InetAddress> {
         val result: MutableList<InetAddress> = mutableListOf()
         try {
             val networkInterfaces = NetworkInterface.getNetworkInterfaces()
@@ -56,11 +67,12 @@ object SocketEstablisher {
                     }
                 }
             }
-        } catch (e: SocketException) { }
+        } catch (e: SocketException) {
+        }
         return result
     }
 
-    fun getLocalAddress() : InetAddress? {
+    fun getLocalAddress(): InetAddress? {
         return getAddresses { it.hostAddress.startsWith("192") }[0]
     }
 }

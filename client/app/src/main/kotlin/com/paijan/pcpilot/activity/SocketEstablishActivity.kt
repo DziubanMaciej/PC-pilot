@@ -3,37 +3,28 @@ package com.paijan.pcpilot.activity;
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.view.View
 import com.paijan.pcpilot.R
 import com.paijan.pcpilot.utils.SocketEstablisher
 
 class SocketEstablishActivity : Activity() {
+    private var socketEstablisherThread: Thread? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_establish)
     }
 
+
     override fun onResume() {
         super.onResume()
-
-        val address = SocketEstablisher.getLocalAddress()
-        if (address == null) {
-            // TODO textfield
-            Log.e("MainActivity", "No local address")
-            return
-        }
-
-        val sockets = SocketEstablisher.establishSockets(address)
-        if (sockets == null) {
-            // TODO textfield
-            Log.e("MainActivity", "Socket establishing failed")
-            return
-        }
-        (application as ApplicationImpl).sockets = sockets
+        socketEstablisherThread = Thread(SocketEstablisher { onSocketsEstablished(it) }).apply { start()}
     }
 
-    fun onClickB(v : View?) {
+    private fun onSocketsEstablished(sockets: SocketEstablisher.DatagramSocketTuple) {
+        socketEstablisherThread?.interrupt()
+        socketEstablisherThread = null
+
+        (application as ApplicationImpl).sockets = sockets
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
     }

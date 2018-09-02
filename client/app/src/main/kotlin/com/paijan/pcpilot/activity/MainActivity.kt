@@ -63,7 +63,7 @@ class MainActivity : Activity() {
         receivedMessages.clear()
         toSendMessages.clear()
 
-        SocketEstablisher.closeSockets(sockets)
+        sockets?.close()
     }
 
     private fun setupThreads() {
