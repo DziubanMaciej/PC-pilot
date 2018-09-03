@@ -3,6 +3,7 @@ package com.paijan.pcpilot.activity;
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import com.paijan.pcpilot.R
 import com.paijan.pcpilot.utils.DatagramSocketTuple
 import com.paijan.pcpilot.utils.SocketEstablisher
@@ -15,13 +16,15 @@ class SocketEstablishActivity : Activity() {
         setContentView(R.layout.activity_establish)
     }
 
-
     override fun onResume() {
         super.onResume()
+        Log.i("SocketEstablishActivity", "onResume() - begin establishing")
         socketEstablisherThread = Thread(SocketEstablisher { onSocketsEstablished(it) }).apply { start()}
     }
 
     private fun onSocketsEstablished(sockets: DatagramSocketTuple) {
+        Log.i("SocketEstablishActivity", "onSocketsEstablished()")
+
         socketEstablisherThread?.interrupt()
         socketEstablisherThread = null
 

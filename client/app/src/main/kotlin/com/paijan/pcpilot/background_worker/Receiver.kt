@@ -1,7 +1,7 @@
 package com.paijan.pcpilot.background_worker
 
-import com.paijan.pcpilot.utils.Constants
 import com.paijan.pcpilot.utils.ClientMessage
+import com.paijan.pcpilot.utils.Constants
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetSocketAddress
@@ -13,7 +13,7 @@ class Receiver(
 ) : RunnableAdapter("Receiver") {
     private val packet: DatagramPacket = DatagramPacket(ByteArray(Constants.MAX_MESSAGE_SIZE), Constants.MAX_MESSAGE_SIZE)
 
-    @Throws(InterruptedException::class, IllegalStateException::class)
+    @Throws(InterruptedException::class)
     override fun runBody() {
         if (Thread.interrupted()) throw InterruptedException()
 

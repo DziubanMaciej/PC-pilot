@@ -32,18 +32,16 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        resetThreads()
+        updateButtonStates(false)
         setupThreads()
     }
 
     override fun onDestroy() {
-        resetThreads()
         super.onDestroy()
-    }
+        Log.i("MainActivity", "onDestroy()")
 
-    private fun resetThreads() {
-        Log.i("MainActivity", "resetThreads called()")
-        updateButtonStates(false)
+        // Close sockets first to interrupt all blocking operations
+        applicationImpl.sockets?.close()
 
         receiver?.interrupt()
         processor?.interrupt()
@@ -63,7 +61,7 @@ class MainActivity : Activity() {
         receivedMessages.clear()
         toSendMessages.clear()
 
-        applicationImpl.sockets?.close()
+        Log.i("MainActivity", "onDestroy() ended successfully")
     }
 
     private fun setupThreads() {
@@ -74,7 +72,7 @@ class MainActivity : Activity() {
         )
         receiver = Thread(Receiver(applicationImpl.sockets?.receiver!!, receivedMessages))
         processor = Thread(Processor(connectionManager!!, receivedMessages, toSendMessages))
-        transmitter = Thread(Transmitter(applicationImpl.sockets?.receiver!!, toSendMessages))
+        transmitter = Thread(Transmitter(applicationImpl.sockets?.sender!!, toSendMessages))
         root_layout.touchPad.onSendCursorMoveCallback = { x, y ->
             connectionManager?.takeIf { it.isConnected() }?.let {
                 toSendMessages.add(ServerMessage.createMessageMoveCursor(it.getConnectedAddress(), x, y))
