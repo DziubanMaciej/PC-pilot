@@ -72,6 +72,6 @@ class SocketEstablisher(val callback: (DatagramSocketTuple) -> Unit) : Runnable 
     }
 
     private fun getLocalAddress(): InetAddress? {
-        return getAddresses { it.hostAddress.startsWith("192") }[0]
+        return getAddresses { it.hostAddress.startsWith("192") }.getOrNull(0)
     }
 }
