@@ -15,6 +15,7 @@ import com.paijan.pcpilot.utils.ClientMessage
 import com.paijan.pcpilot.utils.ServerMessage
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.view.*
+import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.util.concurrent.LinkedBlockingQueue
 
@@ -31,6 +32,19 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        setupTouchPadButtons()
+    }
+
+    private fun setupTouchPadButtons() {
+        fun sendMessage(createMessage: (InetSocketAddress) -> ServerMessage) {
+            connectionManager?.takeIf { it.isConnected() }?.let {
+                toSendMessages.add(createMessage(it.getConnectedAddress()))
+            }
+        }
+        root_layout.touchPadButtonLeft.onTouchDown = { sendMessage { ServerMessage.createMessageLeftPress(it) } }
+        root_layout.touchPadButtonLeft.onTouchUp = { sendMessage { ServerMessage.createMessageLeftRelease(it) } }
+        root_layout.touchPadButtonRight.onTouchDown = { sendMessage { ServerMessage.createMessageRightPress(it) } }
+        root_layout.touchPadButtonRight.onTouchUp = { sendMessage { ServerMessage.createMessageRightRelease(it) } }
     }
 
     override fun onResume() {

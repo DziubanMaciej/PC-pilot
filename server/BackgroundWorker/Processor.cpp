@@ -20,10 +20,16 @@ void Processor::onUpdate(BlockingQueue<ServerMessage> &receivedMessages, Blockin
 			break;
 		}
 		case ServerMessage::Type::LeftPress:
-			// TODO
+			inputSimulator.sendMouseButtonEvent(InputSimulator::MouseButtonEventType::LeftPress);
 			break;
 		case ServerMessage::Type::LeftRelease:
-			// TODO
+			inputSimulator.sendMouseButtonEvent(InputSimulator::MouseButtonEventType::LeftRelease);
+			break;
+		case ServerMessage::Type::RightPress:
+			inputSimulator.sendMouseButtonEvent(InputSimulator::MouseButtonEventType::RightPress);
+			break;
+		case ServerMessage::Type::RightRelease:
+			inputSimulator.sendMouseButtonEvent(InputSimulator::MouseButtonEventType::RightRelease);
 			break;
 	}
 }
