@@ -8,7 +8,7 @@
     tools:context=".activity.MainActivity">
 
     <Button
-        android:id="@+id/button_connect"
+        android:id="@+id/buttonConnect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
@@ -19,7 +19,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/button_disconnect"
+        android:id="@+id/buttonDisconnect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="64dp"
@@ -29,19 +29,76 @@
         android:text="@string/disconnect"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.909"
-        app:layout_constraintStart_toEndOf="@+id/button_connect"
+        app:layout_constraintStart_toEndOf="@+id/buttonConnect"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guidelineHorizontalTouchpadTop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.57" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guidelineHorizontalButtonsTop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.86" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guidelineVerticalMiddle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintGuide_percent="0.5"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <com.paijan.pcpilot.custom_ui.TouchPad
         android:id="@+id/touchPad"
-        android:layout_width="363dp"
-        android:layout_height="215dp"
-        android:layout_marginBottom="16dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:src="@drawable/touchpad"
+        android:src="@drawable/touch_pad_mouse"
+        app:layout_constraintBottom_toTopOf="@id/guidelineHorizontalButtonsTop"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guidelineHorizontalTouchpadTop"
+        tools:scaleType="fitXY" />
+
+    <com.paijan.pcpilot.custom_ui.TouchPadButton
+        android:id="@+id/touchPadButtonLeft"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/touch_pad_button_left"
+        android:contentDescription="Left button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guidelineVerticalMiddle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guidelineHorizontalButtonsTop"
+        tools:scaleType="fitXY" />
+
+    <com.paijan.pcpilot.custom_ui.TouchPadButton
+        android:id="@+id/touchPadButtonRight"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/touch_pad_button_right"
+        android:contentDescription="Right button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guidelineVerticalMiddle"
+        app:layout_constraintTop_toTopOf="@+id/guidelineHorizontalButtonsTop"
         tools:scaleType="fitXY" />
+
 </android.support.constraint.ConstraintLayout>

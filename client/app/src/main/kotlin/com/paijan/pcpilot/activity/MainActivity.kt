@@ -100,8 +100,8 @@ class MainActivity : Activity() {
         }
 
         runOnUiThread {
-            root_layout.button_connect.turn(!connected)
-            root_layout.button_disconnect.turn(connected)
+            root_layout.buttonConnect.turn(!connected)
+            root_layout.buttonDisconnect.turn(connected)
         }
     }
 
