@@ -12,7 +12,6 @@ import com.paijan.pcpilot.background_worker.Transmitter
 import com.paijan.pcpilot.background_worker.connection_manager.ConnectionManager
 import com.paijan.pcpilot.background_worker.connection_manager.DefaultConnectionManager
 import com.paijan.pcpilot.utils.ClientMessage
-import com.paijan.pcpilot.utils.DatagramSocketTuple
 import com.paijan.pcpilot.utils.ServerMessage
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.view.*
@@ -32,11 +31,11 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        updateButtonStates(false)
     }
 
     override fun onResume() {
         super.onResume()
+        updateButtonStates(false)
         setupThreads()
     }
 
@@ -67,6 +66,10 @@ class MainActivity : Activity() {
         toSendMessages.clear()
 
         Log.i("MainActivity", "onResume() ended successfully")
+    }
+
+    override fun onBackPressed() {
+        finishAffinity()
     }
 
     private fun setupThreads() {
