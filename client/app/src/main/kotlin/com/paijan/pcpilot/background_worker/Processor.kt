@@ -22,7 +22,7 @@ class Processor(
                 connectionManager.notifyKeepAlive(message.address)
             }
             else -> {
-                Log.w("Processor", "Unknown message, ignoring")
+                Log.w(messageTag, "Unknown message, ignoring")
             }
         }
     }

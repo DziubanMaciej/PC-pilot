@@ -4,15 +4,14 @@ import android.util.Log
 
 abstract class RunnableAdapter(protected val messageTag: String) : Runnable {
     override fun run() {
-        Log.i(messageTag, "start id=" + Thread.currentThread().id)
+        Log.i(messageTag, "Start, id=" + Thread.currentThread().id)
         try {
-            while (true) {
+            while (!Thread.interrupted()) {
                 runBody()
             }
         } catch (e: InterruptedException) {
-            Log.i(messageTag, "Thread interrupted")
         }
-        Log.i(messageTag, "end")
+        Log.i(messageTag, "End, id=" + Thread.currentThread().id)
     }
 
     @Throws(InterruptedException::class)

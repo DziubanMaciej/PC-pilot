@@ -16,8 +16,6 @@ class Receiver(
 
     @Throws(InterruptedException::class)
     override fun runBody() {
-        if (Thread.interrupted()) throw InterruptedException()
-
         try {
             socket.receive(packet)
         } catch (e : SocketException) {
