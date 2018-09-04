@@ -48,7 +48,9 @@ class ServerMessage private constructor(bytes: ByteArray, val address: InetSocke
         KeepAlive(1),
         MoveCursor(2),
         LeftPress(3),
-        LeftRelease(4);
+        LeftRelease(4),
+        RightPress(5),
+        RightRelease(6);
 
         companion object {
             fun fromValue(value: Byte): Type? {
@@ -141,6 +143,24 @@ class ServerMessage private constructor(bytes: ByteArray, val address: InetSocke
                     .order(ByteOrder.LITTLE_ENDIAN)
                     .putPreamble()
                     .put(Type.LeftRelease.value)
+                    .array()
+            return ServerMessage(bytes, address)
+        }
+
+        fun createMessageRightPress(address: InetSocketAddress): ServerMessage {
+            val bytes = ByteBuffer.allocate(SIZE)
+                    .order(ByteOrder.LITTLE_ENDIAN)
+                    .putPreamble()
+                    .put(Type.RightPress.value)
+                    .array()
+            return ServerMessage(bytes, address)
+        }
+
+        fun createMessageRightRelease(address: InetSocketAddress): ServerMessage {
+            val bytes = ByteBuffer.allocate(SIZE)
+                    .order(ByteOrder.LITTLE_ENDIAN)
+                    .putPreamble()
+                    .put(Type.RightRelease.value)
                     .array()
             return ServerMessage(bytes, address)
         }

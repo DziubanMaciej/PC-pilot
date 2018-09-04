@@ -90,7 +90,9 @@ public:
         MoveCursor = 2,
         LeftPress = 3,
         LeftRelease = 4,
-        ErrorType = 5
+        RightPress = 5,
+        RightRelease = 6,
+        ErrorType = 7
     };
 
     Type getType() {
@@ -146,6 +148,22 @@ public:
         return std::move(ServerMessage(address)
             .setPreamble()
             .setField<Byte, 7>(static_cast<Byte>(Type::LeftRelease))
+        );
+    }
+
+    // --- --- --- RightPress
+    static ServerMessage createMessageRightPress(const InetAddress &address) {
+        return std::move(ServerMessage(address)
+            .setPreamble()
+            .setField<Byte, 7>(static_cast<Byte>(Type::RightPress))
+        );
+    }
+
+    // --- --- --- RightRelease
+    static ServerMessage createMessageRightRelease(const InetAddress &address) {
+        return std::move(ServerMessage(address)
+            .setPreamble()
+            .setField<Byte, 7>(static_cast<Byte>(Type::RightRelease))
         );
     }
 };

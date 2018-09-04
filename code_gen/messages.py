@@ -11,6 +11,8 @@ serverMessage = MessageClass("ServerMessage",
     ),
     Message('LeftPress'),
     Message('LeftRelease'),
+    Message('RightPress'),
+    Message('RightRelease'),
 )
 
 clientMessage = MessageClass("ClientMessage",
