@@ -33,12 +33,17 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         updateButtonStates(false)
+    }
+
+    override fun onResume() {
+        super.onResume()
         setupThreads()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.i("MainActivity", "onDestroy()")
+    override fun onPause() {
+        super.onPause()
+
+        Log.i("MainActivity", "onResume()")
 
         // Close sockets first to interrupt all blocking operations
         applicationImpl.sockets?.close()
@@ -61,7 +66,7 @@ class MainActivity : Activity() {
         receivedMessages.clear()
         toSendMessages.clear()
 
-        Log.i("MainActivity", "onDestroy() ended successfully")
+        Log.i("MainActivity", "onResume() ended successfully")
     }
 
     private fun setupThreads() {

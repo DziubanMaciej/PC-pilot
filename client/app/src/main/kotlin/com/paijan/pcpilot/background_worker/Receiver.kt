@@ -5,6 +5,7 @@ import com.paijan.pcpilot.utils.Constants
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetSocketAddress
+import java.net.SocketException
 import java.util.concurrent.BlockingQueue
 
 class Receiver(
@@ -17,7 +18,12 @@ class Receiver(
     override fun runBody() {
         if (Thread.interrupted()) throw InterruptedException()
 
-        socket.receive(packet)
+        try {
+            socket.receive(packet)
+        } catch (e : SocketException) {
+            throw InterruptedException()
+        }
+
         for (message in ClientMessage.fromBytes(packet.data, packet.length, packet.socketAddress as InetSocketAddress)) {
             receivedMessages.add(message) // may throw
         }
