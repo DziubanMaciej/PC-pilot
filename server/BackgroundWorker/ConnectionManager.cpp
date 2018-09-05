@@ -12,22 +12,31 @@ void ConnectionManager::KeepAliveSender::onUpdate(ConnectionManager &connectionM
 }
 
 void ConnectionManager::KeepAliveReceiver::onUpdate(ConnectionManager &connectionManager) {
-	if (!connectionManager.isConnected()) {
-		if (!connectionManager.connectionManagerMessages.popAndGet(this->connectionManagerMessageBuffer, std::chrono::milliseconds(Constants::MANUAL_LOOP_BACK_RATE_MS))) {
-			return;
-		}
+	if (connectionManager.isConnected()) onUpdateConnected(connectionManager);
+	else onUpdateUnconnected(connectionManager);
+}
 
-		if (std::get<ConnectionManagerMessageType>(this->connectionManagerMessageBuffer) == ConnectionManagerMessageType::CONNECTION_REQUEST) {
-			connectionManager.connectedAddress = std::make_unique<InetAddress>(std::get<InetAddress>(this->connectionManagerMessageBuffer));
-			Logger::log("Connected to: ", *connectionManager.connectedAddress);
+void ConnectionManager::KeepAliveReceiver::onUpdateConnected(ConnectionManager &connectionManager) {
+	// TODO this implementation allows any ConnectionManagerMessageType to arrive here
+	if (connectionManager.connectionManagerMessages.popAndGet(this->connectionManagerMessageBuffer, std::chrono::milliseconds(Constants::KEEP_ALIVE_TIMEOUT_MS))) {
+		if (std::get<ConnectionManagerMessageType>(this->connectionManagerMessageBuffer) != ConnectionManagerMessageType::KEEP_ALIVE) {
+			Logger::log("Wrong message type while connected");
 		}
+		return;
 	}
-	else {
-		if (!connectionManager.connectionManagerMessages.popAndGet(this->connectionManagerMessageBuffer, std::chrono::milliseconds(Constants::KEEP_ALIVE_TIMEOUT_MS))
-			|| std::get<ConnectionManagerMessageType>(this->connectionManagerMessageBuffer) != ConnectionManagerMessageType::KEEP_ALIVE) {
-				Logger::log("Disconnected from: ", *connectionManager.connectedAddress);
-				connectionManager.connectedAddress.reset();
-		}
+
+	Logger::log("Disconnected from: ", *connectionManager.connectedAddress);
+	connectionManager.connectedAddress.reset();
+}
+
+void ConnectionManager::KeepAliveReceiver::onUpdateUnconnected(ConnectionManager &connectionManager) {
+	if (!connectionManager.connectionManagerMessages.popAndGet(this->connectionManagerMessageBuffer, std::chrono::milliseconds(Constants::MANUAL_LOOP_BACK_RATE_MS))) {
+		return;
+	}
+
+	if (std::get<ConnectionManagerMessageType>(this->connectionManagerMessageBuffer) == ConnectionManagerMessageType::CONNECTION_REQUEST) {
+		connectionManager.connectedAddress = std::make_unique<InetAddress>(std::get<InetAddress>(this->connectionManagerMessageBuffer));
+		Logger::log("Connected to: ", *connectionManager.connectedAddress);
 	}
 }
 

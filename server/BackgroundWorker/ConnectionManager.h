@@ -20,6 +20,8 @@ class ConnectionManager {
 
 	class KeepAliveReceiver : public InterruptibleThreadAdapter<ConnectionManager> {
 		void onUpdate(ConnectionManager &connectionManager) override;
+		void onUpdateConnected(ConnectionManager &connectionManager);
+		void onUpdateUnconnected(ConnectionManager &connectionManager);
 		ConnectionManagerMessage connectionManagerMessageBuffer;
 	};
 
