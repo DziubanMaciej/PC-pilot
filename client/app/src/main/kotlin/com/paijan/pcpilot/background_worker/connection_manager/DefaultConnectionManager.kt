@@ -72,6 +72,7 @@ class DefaultConnectionManager(
 
         Log.i("ConnectionManager", "Disconnected from $_connectedAddress")
         onDisconnectListener(_connectedAddress!!)
+        toSendMessages.add(ServerMessage.createMessageDisconnect(_connectedAddress!!))
         _connectedAddress = null
     }
 

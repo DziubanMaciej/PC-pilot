@@ -17,12 +17,18 @@ void ConnectionManager::KeepAliveReceiver::onUpdate(ConnectionManager &connectio
 }
 
 void ConnectionManager::KeepAliveReceiver::onUpdateConnected(ConnectionManager &connectionManager) {
-	// TODO this implementation allows any ConnectionManagerMessageType to arrive here
+	// TODO this implementation allows any CONNECTION_REQUEST and KEEP_ALIVE to sustain connection
 	if (connectionManager.connectionManagerMessages.popAndGet(this->connectionManagerMessageBuffer, std::chrono::milliseconds(Constants::KEEP_ALIVE_TIMEOUT_MS))) {
-		if (std::get<ConnectionManagerMessageType>(this->connectionManagerMessageBuffer) != ConnectionManagerMessageType::KEEP_ALIVE) {
-			Logger::log("Wrong message type while connected");
+		switch (std::get<ConnectionManagerMessageType>(this->connectionManagerMessageBuffer)) {
+			case ConnectionManagerMessageType::CONNECTION_REQUEST:
+				return;
+			case ConnectionManagerMessageType::DISCONNECT:
+				break;
+			case ConnectionManagerMessageType::KEEP_ALIVE:
+				return;
+			default:
+				ApplicationError::exception("Unknown enum value");
 		}
-		return;
 	}
 
 	Logger::log("Disconnected from: ", *connectionManager.connectedAddress);
@@ -69,6 +75,10 @@ const std::unique_ptr<InetAddress>& ConnectionManager::getConnectedAddress() con
 
 void ConnectionManager::notifyConnectionRequest(const InetAddress & address) {
 	this->connectionManagerMessages.push(std::make_tuple(ConnectionManagerMessageType::CONNECTION_REQUEST, address));
+}
+
+void ConnectionManager::notifyDisconnect(const InetAddress &address) {
+	this->connectionManagerMessages.push(std::make_tuple(ConnectionManagerMessageType::DISCONNECT, address));
 }
 
 void ConnectionManager::notifyKeepAlive(const InetAddress & address) {

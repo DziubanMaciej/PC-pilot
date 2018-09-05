@@ -10,6 +10,9 @@ void Processor::onUpdate(BlockingQueue<ServerMessage> &receivedMessages, Blockin
 		case ServerMessage::Type::ConnectionRequest:
 			connectionManager.notifyConnectionRequest(this->messageBuffer.address);
 			break;
+		case ServerMessage::Type::Disconnect:
+			connectionManager.notifyDisconnect(this->messageBuffer.address);
+			break;
 		case ServerMessage::Type::KeepAlive:
 			connectionManager.notifyKeepAlive(this->messageBuffer.address);
 			break;

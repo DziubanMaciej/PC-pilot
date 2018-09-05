@@ -9,6 +9,7 @@
 class ConnectionManager {
 	enum class ConnectionManagerMessageType {
 		CONNECTION_REQUEST,
+		DISCONNECT,
 		KEEP_ALIVE
 	};
 
@@ -39,6 +40,7 @@ public:
 	const std::unique_ptr<InetAddress>& getConnectedAddress() const;
 
 	void notifyConnectionRequest(const InetAddress &address);
+	void notifyDisconnect(const InetAddress &address);
 	void notifyKeepAlive(const InetAddress &address);
 
 private:
