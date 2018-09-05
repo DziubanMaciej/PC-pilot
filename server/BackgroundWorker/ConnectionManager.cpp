@@ -5,7 +5,6 @@
 
 void ConnectionManager::KeepAliveSender::onUpdate(ConnectionManager &connectionManager) {
 	if (!connectionManager.isConnected()) {
-		this->interrupt();
 		return;
 	}
 	connectionManager.toSendMessages.push(ClientMessage::createMessageKeepAlive(*connectionManager.getConnectedAddress()));
@@ -20,15 +19,12 @@ void ConnectionManager::KeepAliveReceiver::onUpdate(ConnectionManager &connectio
 
 		if (std::get<ConnectionManagerMessageType>(this->connectionManagerMessageBuffer) == ConnectionManagerMessageType::CONNECTION_REQUEST) {
 			connectionManager.connectedAddress = std::make_unique<InetAddress>(std::get<InetAddress>(this->connectionManagerMessageBuffer));
-			connectionManager.keepAliveSender.start(connectionManager);
 			Logger::log("Connected to: ", *connectionManager.connectedAddress);
 		}
 	}
 	else {
 		if (!connectionManager.connectionManagerMessages.popAndGet(this->connectionManagerMessageBuffer, std::chrono::milliseconds(Constants::KEEP_ALIVE_TIMEOUT_MS))
 			|| std::get<ConnectionManagerMessageType>(this->connectionManagerMessageBuffer) != ConnectionManagerMessageType::KEEP_ALIVE) {
-				connectionManager.keepAliveSender.interrupt();
-				connectionManager.keepAliveSender.join();
 				Logger::log("Disconnected from: ", *connectionManager.connectedAddress);
 				connectionManager.connectedAddress.reset();
 		}
@@ -41,6 +37,7 @@ ConnectionManager::ConnectionManager(BlockingQueue<ClientMessage>& toSendMessage
 
 void ConnectionManager::start() {
 	keepAliveReceiver.start(*this);
+	keepAliveSender.start(*this);
 }
 
 void ConnectionManager::interrupt() {
@@ -50,7 +47,7 @@ void ConnectionManager::interrupt() {
 
 void ConnectionManager::join() {
 	keepAliveReceiver.join();
-	keepAliveSender.joinIfJoinable();
+	keepAliveSender.join();
 }
 
 bool ConnectionManager::isConnected() const {
