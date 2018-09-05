@@ -87,12 +87,13 @@ public:
     enum class Type : Byte {
         ConnectionRequest = 0,
         KeepAlive = 1,
-        MoveCursor = 2,
-        LeftPress = 3,
-        LeftRelease = 4,
-        RightPress = 5,
-        RightRelease = 6,
-        ErrorType = 7
+        Disconnect = 2,
+        MoveCursor = 3,
+        LeftPress = 4,
+        LeftRelease = 5,
+        RightPress = 6,
+        RightRelease = 7,
+        ErrorType = 8
     };
 
     Type getType() {
@@ -116,6 +117,14 @@ public:
         return std::move(ServerMessage(address)
             .setPreamble()
             .setField<Byte, 7>(static_cast<Byte>(Type::KeepAlive))
+        );
+    }
+
+    // --- --- --- Disconnect
+    static ServerMessage createMessageDisconnect(const InetAddress &address) {
+        return std::move(ServerMessage(address)
+            .setPreamble()
+            .setField<Byte, 7>(static_cast<Byte>(Type::Disconnect))
         );
     }
 

@@ -4,6 +4,7 @@ from utils.definitions import Message, Field, MessageClass, Types
 serverMessage = MessageClass("ServerMessage",
     Message('ConnectionRequest'),
     Message('KeepAlive'),
+	Message('Disconnect'),
 
     Message('MoveCursor',
         Field('x', Types.Float),
