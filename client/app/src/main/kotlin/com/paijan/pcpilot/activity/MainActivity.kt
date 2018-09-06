@@ -122,7 +122,7 @@ class MainActivity : Activity() {
     @Suppress("UNUSED_PARAMETER")
     fun onClickConnect(v: View?) {
         val socketAddress = InetSocketAddress("192.168.0.60", 9999)
-        connectionManager?.sendConnectionRequest(socketAddress)
+        connectionManager?.notifySendConnectionRequest(socketAddress)
     }
 
     @Suppress("UNUSED_PARAMETER")

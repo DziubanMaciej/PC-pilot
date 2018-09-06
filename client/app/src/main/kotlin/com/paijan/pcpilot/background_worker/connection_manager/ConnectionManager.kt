@@ -26,12 +26,8 @@ interface ConnectionManager {
     fun isConnected() : Boolean
     fun getConnectedAddress() : InetSocketAddress
 
-    // Actual connecting
-    fun connect(address: InetSocketAddress)
-    fun disconnect()
-
     // Messages enqueues
-    fun sendConnectionRequest(address: InetSocketAddress)
+    fun notifySendConnectionRequest(address: InetSocketAddress)
     fun notifyDisconnect(address: InetSocketAddress)
     fun notifyKeepAlive(address: InetSocketAddress)
 

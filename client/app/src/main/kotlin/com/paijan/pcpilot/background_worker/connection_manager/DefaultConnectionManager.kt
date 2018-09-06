@@ -1,14 +1,13 @@
 package com.paijan.pcpilot.background_worker.connection_manager
 
 import android.util.Log
-import com.paijan.pcpilot.utils.Constants
 import com.paijan.pcpilot.background_worker.RunnableAdapter
+import com.paijan.pcpilot.utils.Constants
 import com.paijan.pcpilot.utils.ServerMessage
 import java.net.InetSocketAddress
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.locks.ReadWriteLock
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
 import kotlin.concurrent.write
@@ -26,7 +25,6 @@ class DefaultConnectionManager(
     private var _connectedAddress: InetSocketAddress? = null
     private var receiverThread: Thread? = null
     private var transmitterThread: Thread? = null
-
 
     override fun run() {
         if (running) {
@@ -49,7 +47,6 @@ class DefaultConnectionManager(
 
         this.receiverThread?.interrupt()
         this.transmitterThread?.interrupt()
-
     }
 
     override fun join() {
@@ -62,13 +59,25 @@ class DefaultConnectionManager(
     override fun isConnected(): Boolean = _connectedAddress != null
     override fun getConnectedAddress(): InetSocketAddress = _connectedAddress!!
 
-    override fun connect(address: InetSocketAddress) {
+    override fun notifySendConnectionRequest(address: InetSocketAddress) {
+        connectionManagerMessages.add(ConnectionManagerSendConnectionRequestMessage(address))
+    }
+
+    override fun notifyDisconnect(address: InetSocketAddress) {
+        connectionManagerMessages.add(ConnectionManagerDisconnectRequestMessage(address))
+    }
+
+    override fun notifyKeepAlive(address: InetSocketAddress) {
+        connectionManagerMessages.add(ConnectionManagerKeepAliveMessage(address))
+    }
+
+    private fun connect(address: InetSocketAddress) {
         _connectedAddress = address
         onConnectListener(address)
         Log.i("ConnectionManager", "Connected with $_connectedAddress")
     }
 
-    override fun disconnect() {
+    private fun disconnect() {
         if (!isConnected()) {
             // Possible race condition
             Log.w("ConnectionManager", "disconnect() called while not connected. Ignoring.")
@@ -79,18 +88,6 @@ class DefaultConnectionManager(
         onDisconnectListener(_connectedAddress!!)
         toSendMessages.add(ServerMessage.createMessageDisconnect(_connectedAddress!!))
         _connectedAddress = null
-    }
-
-    override fun sendConnectionRequest(address: InetSocketAddress) {
-        connectionManagerMessages.add(ConnectionManagerSendConnectionRequestMessage(address))
-    }
-
-    override fun notifyDisconnect(address: InetSocketAddress) {
-        connectionManagerMessages.add(ConnectionManagerDisconnectRequestMessage(address))
-    }
-
-    override fun notifyKeepAlive(address: InetSocketAddress) {
-        connectionManagerMessages.add(ConnectionManagerKeepAliveMessage(address))
     }
 
 
@@ -161,6 +158,4 @@ class DefaultConnectionManager(
             lock.takeIf { shouldDisconnect }?.write { disconnect() }
         }
     }
-
-
 }
