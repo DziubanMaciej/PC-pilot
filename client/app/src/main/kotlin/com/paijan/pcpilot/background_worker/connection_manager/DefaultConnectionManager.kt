@@ -139,20 +139,38 @@ class DefaultConnectionManager(
         }
 
         private fun processMessageConnected() {
-            // TODO this implementation allows any ConnectionManagerMessage to arrive here
-            val message = connectionManagerMessages.poll(Constants.KEEP_ALIVE_TIMEOUT_MS, TimeUnit.MILLISECONDS)
-
-            var shouldDisconnect = false
+            var shouldDisconnect = true
+            var waitTimeNs = Constants.KEEP_ALIVE_TIMEOUT_MS * 1000000
             lock.read {
                 if (!isConnected()) {
                     Log.w(messageTag, "Connection lost while waiting for KeepAlive")
                     return@read
                 }
 
-                if (message == null || message is ConnectionManagerDisconnectRequestMessage) {
-                    shouldDisconnect = true
-                } else if (message !is ConnectionManagerKeepAliveMessage) {
-                    Log.w(messageTag, "Wrong message type when connected")
+                waitLoop@ while (waitTimeNs > 0) {
+                    val timeStart = System.nanoTime()
+                    val message = connectionManagerMessages.poll(waitTimeNs, TimeUnit.NANOSECONDS)
+                    waitTimeNs -= System.nanoTime() - timeStart
+
+                    when (message) {
+                        null -> {
+                            shouldDisconnect = true
+                            break@waitLoop
+                        }
+                        is ConnectionManagerDisconnectRequestMessage -> {
+                            shouldDisconnect = true
+                            break@waitLoop
+                        }
+                        is ConnectionManagerKeepAliveMessage -> {
+                            shouldDisconnect = false
+                            break@waitLoop
+                        }
+                        else -> {
+                            Log.w(messageTag, "Wrong message type when connected, ignoring")
+                            shouldDisconnect = true
+                            continue@waitLoop
+                        }
+                    }
                 }
             }
             lock.takeIf { shouldDisconnect }?.write { disconnect() }
