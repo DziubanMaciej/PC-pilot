@@ -4,21 +4,33 @@
 #include "Utils/Logger.h"
 
 void ConnectionManager::KeepAliveSender::onUpdate(ConnectionManager &connectionManager) {
+	auto lock = connectionManager.lock();
 	if (!connectionManager.isConnected()) {
 		return;
 	}
 	connectionManager.toSendMessages.push(ClientMessage::createMessageKeepAlive(*connectionManager.getConnectedAddress()));
+	lock.unlock();
+
 	connectionManager.inputSimulator.sleepMs(Constants::KEEP_ALIVE_SEND_RATE_MS);
 }
 
 void ConnectionManager::KeepAliveReceiver::onUpdate(ConnectionManager &connectionManager) {
-	if (connectionManager.isConnected()) onUpdateConnected(connectionManager);
+	auto lock = connectionManager.lock();
+	auto connected = connectionManager.isConnected();
+	lock.unlock();
+
+	if (connected) onUpdateConnected(connectionManager);
 	else onUpdateUnconnected(connectionManager);
 }
 
 void ConnectionManager::KeepAliveReceiver::onUpdateConnected(ConnectionManager &connectionManager) {
 	// TODO this implementation allows any CONNECTION_REQUEST and KEEP_ALIVE to sustain connection
 	if (connectionManager.connectionManagerMessages.popAndGet(this->connectionManagerMessageBuffer, std::chrono::milliseconds(Constants::KEEP_ALIVE_TIMEOUT_MS))) {
+		auto lock = connectionManager.lock();
+		if (!connectionManager.isConnected()) { // Could have been disconnected while getting message
+			return;
+		}
+
 		switch (std::get<ConnectionManagerMessageType>(this->connectionManagerMessageBuffer)) {
 			case ConnectionManagerMessageType::CONNECTION_REQUEST:
 				return;
@@ -31,12 +43,18 @@ void ConnectionManager::KeepAliveReceiver::onUpdateConnected(ConnectionManager &
 		}
 	}
 
+	auto lock = connectionManager.lock();
 	Logger::log("Disconnected from: ", *connectionManager.connectedAddress);
 	connectionManager.connectedAddress.reset();
 }
 
 void ConnectionManager::KeepAliveReceiver::onUpdateUnconnected(ConnectionManager &connectionManager) {
 	if (!connectionManager.connectionManagerMessages.popAndGet(this->connectionManagerMessageBuffer, std::chrono::milliseconds(Constants::MANUAL_LOOP_BACK_RATE_MS))) {
+		return;
+	}
+
+	auto lock = connectionManager.lock();
+	if (connectionManager.isConnected()) { // Could have been connected while getting message
 		return;
 	}
 

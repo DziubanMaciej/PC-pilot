@@ -5,6 +5,7 @@
 #include "InputSimulator/InputSimulator.h"
 #include "Utils/BlockingQueue.h"
 #include "Utils/InterruptibleThread.h"
+#include <mutex>
 
 class ConnectionManager {
 	enum class ConnectionManagerMessageType {
@@ -47,8 +48,13 @@ private:
 	BlockingQueue<ClientMessage> &toSendMessages;
 	InputSimulator &inputSimulator;
 
+	std::mutex mutex;
 	std::unique_ptr<InetAddress> connectedAddress;
 	BlockingQueue<ConnectionManagerMessage> connectionManagerMessages;
 	KeepAliveReceiver keepAliveReceiver;
 	KeepAliveSender keepAliveSender;
+
+	std::unique_lock<std::mutex> lock() {
+		return std::unique_lock<std::mutex> { this->mutex };
+	}
 };
