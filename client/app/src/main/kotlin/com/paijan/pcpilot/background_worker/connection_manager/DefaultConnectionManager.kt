@@ -8,6 +8,10 @@ import java.net.InetSocketAddress
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.locks.ReadWriteLock
+import java.util.concurrent.locks.ReentrantReadWriteLock
+import kotlin.concurrent.read
+import kotlin.concurrent.write
 
 
 class DefaultConnectionManager(
@@ -16,6 +20,7 @@ class DefaultConnectionManager(
         private val toSendMessages: BlockingQueue<ServerMessage>
 ) : ConnectionManager {
     private val connectionManagerMessages: BlockingQueue<in ConnectionManagerMessage> = LinkedBlockingQueue()
+    private val lock = ReentrantReadWriteLock()
 
     private var running = false
     private var _connectedAddress: InetSocketAddress? = null
@@ -85,15 +90,16 @@ class DefaultConnectionManager(
     }
 
 
-    inner class DefaultConnectionManagerTransmitter()
+    inner class DefaultConnectionManagerTransmitter
         : RunnableAdapter("ConnectionManagerTransmitter") {
 
         override fun runBody() {
             Thread.sleep(Constants.KEEP_ALIVE_SEND_RATE_MS)
 
-            if (isConnected()) {
-                // Possible race condition
-                toSendMessages.add(ServerMessage.createMessageKeepAlive(getConnectedAddress()))
+            lock.read {
+                if (isConnected()) {
+                    toSendMessages.add(ServerMessage.createMessageKeepAlive(getConnectedAddress()))
+                }
             }
         }
     }
@@ -113,24 +119,42 @@ class DefaultConnectionManager(
             }
 
             toSendMessages.add(ServerMessage.createMessageConnectionRequest(message.address))
-
             val responseMessage = connectionManagerMessages.poll(Constants.KEEP_ALIVE_TIMEOUT_MS, TimeUnit.MILLISECONDS)
-            if (responseMessage != null && (responseMessage is ConnectionManagerKeepAliveMessage) && message.address == responseMessage.address) {
-                connect(message.address)
-            } else {
-                Log.i(messageTag, "Failed connecting with ${message.address}")
+
+            var shouldConnect = false
+            lock.read {
+                if (isConnected()) {
+                    Log.w(messageTag, "Connection acquired while waiting for connection response")
+                    return@read
+                }
+
+                if (responseMessage != null && (responseMessage is ConnectionManagerKeepAliveMessage) && message.address == responseMessage.address) {
+                    shouldConnect = true
+                } else {
+                    Log.i(messageTag, "Failed connecting with ${message.address}")
+                }
             }
+            lock.takeIf { shouldConnect }?.write { connect(message.address) }
         }
 
         private fun processMessageConnected() {
             // TODO this implementation allows any ConnectionManagerMessage to arrive here
             val message = connectionManagerMessages.poll(Constants.KEEP_ALIVE_TIMEOUT_MS, TimeUnit.MILLISECONDS)
-            if (message == null) {
-                disconnect()
-            } else if (message !is ConnectionManagerKeepAliveMessage) {
-                Log.w(messageTag, "Wrong message type when connected")
-                return
+
+            var shouldDisconnect = false
+            lock.read {
+                if (!isConnected()) {
+                    Log.w(messageTag, "Connection lost while waiting for KeepAlive")
+                    return@read
+                }
+
+                if (message == null) {
+                    shouldDisconnect = true
+                } else if (message !is ConnectionManagerKeepAliveMessage) {
+                    Log.w(messageTag, "Wrong message type when connected")
+                }
             }
+            lock.takeIf { shouldDisconnect }?.write { disconnect() }
         }
     }
 
