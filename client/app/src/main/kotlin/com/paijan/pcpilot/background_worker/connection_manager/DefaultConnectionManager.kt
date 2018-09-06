@@ -120,22 +120,44 @@ class DefaultConnectionManager(
             }
 
             toSendMessages.add(ServerMessage.createMessageConnectionRequest(message.address))
-            val responseMessage = connectionManagerMessages.poll(Constants.KEEP_ALIVE_TIMEOUT_MS, TimeUnit.MILLISECONDS)
 
             var shouldConnect = false
+            var waitTimeNs = Constants.KEEP_ALIVE_TIMEOUT_MS * 1000000
             lock.read {
                 if (isConnected()) {
                     Log.w(messageTag, "Connection acquired while waiting for connection response")
                     return@read
                 }
 
-                if (responseMessage != null && (responseMessage is ConnectionManagerKeepAliveMessage) && message.address == responseMessage.address) {
-                    shouldConnect = true
-                } else {
-                    Log.i(messageTag, "Failed connecting with ${message.address}")
+                waitLoop@ while (waitTimeNs > 0) {
+                    val timeStart = System.nanoTime()
+                    val responseMessage = connectionManagerMessages.poll(Constants.KEEP_ALIVE_TIMEOUT_MS, TimeUnit.MILLISECONDS)
+                    waitTimeNs -= System.nanoTime() - timeStart
+
+                    when (responseMessage) {
+                        null -> {
+                            shouldConnect = false
+                            break@waitLoop
+                        }
+                        is ConnectionManagerKeepAliveMessage -> {
+                            val addressMatches = message.address == responseMessage.address
+                            shouldConnect = addressMatches
+                            break@waitLoop
+                        }
+                        else -> {
+                            shouldConnect = false
+                            break@waitLoop
+                        }
+                    }
+
                 }
             }
-            lock.takeIf { shouldConnect }?.write { connect(message.address) }
+
+            if (shouldConnect) {
+                lock.write { connect(message.address) }
+            } else {
+                Log.i(messageTag, "Failed connecting with ${message.address}")
+            }
         }
 
         private fun processMessageConnected() {
