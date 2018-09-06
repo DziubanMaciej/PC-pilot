@@ -85,6 +85,10 @@ class DefaultConnectionManager(
         connectionManagerMessages.add(ConnectionManagerSendConnectionRequestMessage(address))
     }
 
+    override fun notifyDisconnect(address: InetSocketAddress) {
+        connectionManagerMessages.add(ConnectionManagerDisconnectRequestMessage(address))
+    }
+
     override fun notifyKeepAlive(address: InetSocketAddress) {
         connectionManagerMessages.add(ConnectionManagerKeepAliveMessage(address))
     }
@@ -148,7 +152,7 @@ class DefaultConnectionManager(
                     return@read
                 }
 
-                if (message == null) {
+                if (message == null || message is ConnectionManagerDisconnectRequestMessage) {
                     shouldDisconnect = true
                 } else if (message !is ConnectionManagerKeepAliveMessage) {
                     Log.w(messageTag, "Wrong message type when connected")

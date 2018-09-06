@@ -32,6 +32,7 @@ interface ConnectionManager {
 
     // Messages enqueues
     fun sendConnectionRequest(address: InetSocketAddress)
+    fun notifyDisconnect(address: InetSocketAddress)
     fun notifyKeepAlive(address: InetSocketAddress)
 
     // Callbacks

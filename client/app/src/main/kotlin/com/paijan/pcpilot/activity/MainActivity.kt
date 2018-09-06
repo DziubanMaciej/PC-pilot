@@ -127,6 +127,6 @@ class MainActivity : Activity() {
 
     @Suppress("UNUSED_PARAMETER")
     fun onClickDisconnect(v: View?) {
-        connectionManager?.disconnect()
+        connectionManager?.getConnectedAddress()?.let { connectionManager?.notifyDisconnect(it) }
     }
 }
