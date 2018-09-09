@@ -50,14 +50,14 @@ class MainActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
+        Log.i("MainActivity", "onResume()")
         updateButtonStates(false)
         setupThreads()
     }
 
     override fun onPause() {
         super.onPause()
-
-        Log.i("MainActivity", "onResume()")
+        Log.i("MainActivity", "onPause()")
 
         // Close sockets first to interrupt all blocking operations
         applicationImpl.sockets?.close()
@@ -79,8 +79,6 @@ class MainActivity : Activity() {
 
         receivedMessages.clear()
         toSendMessages.clear()
-
-        Log.i("MainActivity", "onResume() ended successfully")
     }
 
     override fun onBackPressed() {
@@ -123,6 +121,7 @@ class MainActivity : Activity() {
 
     @Suppress("UNUSED_PARAMETER")
     fun onClickConnect(v: View?) {
+        // TODO add textfield or implement server-side advertise
         val socketAddress = InetSocketAddress("192.168.0.60", 9999)
         connectionManager?.notifySendConnectionRequest(socketAddress)
     }
