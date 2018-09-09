@@ -11,15 +11,16 @@ import com.paijan.pcpilot.background_worker.Receiver
 import com.paijan.pcpilot.background_worker.Transmitter
 import com.paijan.pcpilot.background_worker.connection_manager.ConnectionManager
 import com.paijan.pcpilot.background_worker.connection_manager.DefaultConnectionManager
+import com.paijan.pcpilot.utils.ActivityEnder
 import com.paijan.pcpilot.utils.ClientMessage
 import com.paijan.pcpilot.utils.ServerMessage
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.view.*
-import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.util.concurrent.LinkedBlockingQueue
 
 class MainActivity : Activity() {
+    private val activityEnder = ActivityEnder(this)
     private val receivedMessages = LinkedBlockingQueue<ClientMessage>()
     private val toSendMessages = LinkedBlockingQueue<ServerMessage>()
 
@@ -83,18 +84,19 @@ class MainActivity : Activity() {
     }
 
     override fun onBackPressed() {
-        finishAffinity()
+        activityEnder.endApplication()
     }
 
     private fun setupThreads() {
         connectionManager = DefaultConnectionManager(
                 { updateButtonStates(true) },
                 { updateButtonStates(false) },
-                toSendMessages
+                toSendMessages,
+                activityEnder.onThreadEndCallback
         )
-        receiver = Thread(Receiver(applicationImpl.sockets?.receiver!!, receivedMessages))
-        processor = Thread(Processor(connectionManager!!, receivedMessages, toSendMessages))
-        transmitter = Thread(Transmitter(applicationImpl.sockets?.sender!!, toSendMessages))
+        receiver = Thread(Receiver(applicationImpl.sockets?.receiver!!, receivedMessages, activityEnder.onThreadEndCallback))
+        processor = Thread(Processor(connectionManager!!, receivedMessages, toSendMessages, activityEnder.onThreadEndCallback))
+        transmitter = Thread(Transmitter(applicationImpl.sockets?.sender!!, toSendMessages, activityEnder.onThreadEndCallback))
         root_layout.touchPad.onSendCursorMoveCallback = { x, y ->
             connectionManager?.takeIf { it.isConnected() }?.let {
                 toSendMessages.add(ServerMessage.createMessageMoveCursor(it.getConnectedAddress(), x, y))

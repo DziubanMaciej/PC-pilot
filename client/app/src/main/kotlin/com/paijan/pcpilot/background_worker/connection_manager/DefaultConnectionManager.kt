@@ -2,6 +2,7 @@ package com.paijan.pcpilot.background_worker.connection_manager
 
 import android.util.Log
 import com.paijan.pcpilot.background_worker.RunnableAdapter
+import com.paijan.pcpilot.background_worker.ThreadEndCallback
 import com.paijan.pcpilot.utils.Constants
 import com.paijan.pcpilot.utils.ServerMessage
 import java.net.InetSocketAddress
@@ -16,7 +17,8 @@ import kotlin.concurrent.write
 class DefaultConnectionManager(
         override val onConnectListener: ConnectionCallback,
         override val onDisconnectListener: ConnectionCallback,
-        private val toSendMessages: BlockingQueue<ServerMessage>
+        private val toSendMessages: BlockingQueue<ServerMessage>,
+        private val onThreadEnd: ThreadEndCallback
 ) : ConnectionManager {
     private val connectionManagerMessages: BlockingQueue<in ConnectionManagerMessage> = LinkedBlockingQueue()
     private val lock = ReentrantReadWriteLock()
@@ -32,10 +34,10 @@ class DefaultConnectionManager(
             return
         }
 
-        this.receiverThread = Thread(DefaultConnectionManagerReceiver())
+        this.receiverThread = Thread(DefaultConnectionManagerReceiver(onThreadEnd))
         this.receiverThread?.start()
 
-        this.transmitterThread = Thread(DefaultConnectionManagerTransmitter())
+        this.transmitterThread = Thread(DefaultConnectionManagerTransmitter(onThreadEnd))
         this.transmitterThread?.start()
     }
 
@@ -91,8 +93,8 @@ class DefaultConnectionManager(
     }
 
 
-    inner class DefaultConnectionManagerTransmitter
-        : RunnableAdapter("ConnectionManagerTransmitter") {
+    inner class DefaultConnectionManagerTransmitter(onThreadEnd: ThreadEndCallback)
+        : RunnableAdapter("ConnectionManagerTransmitter", onThreadEnd) {
 
         override fun runBody() {
             Thread.sleep(Constants.KEEP_ALIVE_SEND_RATE_MS)
@@ -106,7 +108,7 @@ class DefaultConnectionManager(
     }
 
 
-    inner class DefaultConnectionManagerReceiver : RunnableAdapter("ConnectionManagerReceiver") {
+    inner class DefaultConnectionManagerReceiver(onThreadEnd: ThreadEndCallback) : RunnableAdapter("ConnectionManagerReceiver", onThreadEnd) {
         override fun runBody() {
             if (isConnected()) processMessageConnected()
             else processMessageUnconnected()

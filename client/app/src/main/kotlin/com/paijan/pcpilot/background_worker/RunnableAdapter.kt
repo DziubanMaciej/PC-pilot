@@ -2,7 +2,12 @@ package com.paijan.pcpilot.background_worker
 
 import android.util.Log
 
-abstract class RunnableAdapter(protected val messageTag: String) : Runnable {
+typealias ThreadEndCallback = () -> Unit
+
+abstract class RunnableAdapter(
+        protected val messageTag: String,
+        private val onThreadEnd: ThreadEndCallback
+) : Runnable {
     override fun run() {
         try {
             Log.i(messageTag, "Start, id=" + Thread.currentThread().id)
@@ -13,8 +18,9 @@ abstract class RunnableAdapter(protected val messageTag: String) : Runnable {
             } catch (e: InterruptedException) {
             }
             Log.i(messageTag, "End, id=" + Thread.currentThread().id)
-        } catch (e : Throwable) {
-            Log.e(messageTag, "Uncaught exception in thread with id="+Thread.currentThread().id, e)
+            onThreadEnd()
+        } catch (e: Throwable) {
+            Log.e(messageTag, "Uncaught exception in thread with id=" + Thread.currentThread().id, e)
             throw e
         }
     }

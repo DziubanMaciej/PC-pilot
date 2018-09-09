@@ -9,8 +9,9 @@ import java.util.concurrent.BlockingQueue
 class Processor(
         private val connectionManager: ConnectionManager,
         private val receivedMessages: BlockingQueue<ClientMessage>,
-        private val toSendMessages: BlockingQueue<ServerMessage>
-) : RunnableAdapter("Processor") {
+        private val toSendMessages: BlockingQueue<ServerMessage>,
+        onThreadEnd: ThreadEndCallback
+) : RunnableAdapter("Processor", onThreadEnd) {
 
     @Throws(InterruptedException::class)
     override fun runBody() {
