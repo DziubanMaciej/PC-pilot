@@ -2,7 +2,6 @@ package com.paijan.pcpilot.activity
 
 import android.app.Activity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import com.paijan.pcpilot.R
@@ -33,10 +32,12 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        setupTouchPadButtons()
+        setupTouchPad()
+        setupThreads()
+        updateButtonStates(false)
     }
 
-    private fun setupTouchPadButtons() {
+    private fun setupTouchPad() {
         fun sendMessage(createMessage: (InetSocketAddress) -> ServerMessage) {
             connectionManager?.takeIf { it.isConnected() }?.let {
                 toSendMessages.add(createMessage(it.getConnectedAddress()))
@@ -46,18 +47,15 @@ class MainActivity : Activity() {
         root_layout.touchPadButtonLeft.onTouchUp = { sendMessage { ServerMessage.createMessageLeftRelease(it) } }
         root_layout.touchPadButtonRight.onTouchDown = { sendMessage { ServerMessage.createMessageRightPress(it) } }
         root_layout.touchPadButtonRight.onTouchUp = { sendMessage { ServerMessage.createMessageRightRelease(it) } }
+        root_layout.touchPad.onSendCursorMoveCallback = { x, y ->
+            connectionManager?.takeIf { it.isConnected() }?.let {
+                toSendMessages.add(ServerMessage.createMessageMoveCursor(it.getConnectedAddress(), x, y))
+            }
+        }
     }
 
-    override fun onResume() {
-        super.onResume()
-        Log.i("MainActivity", "onResume()")
-        updateButtonStates(false)
-        setupThreads()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        Log.i("MainActivity", "onPause()")
+    override fun onDestroy() {
+        super.onDestroy()
 
         // Close sockets first to interrupt all blocking operations
         applicationImpl.sockets?.close()
@@ -95,11 +93,6 @@ class MainActivity : Activity() {
         receiver = Thread(Receiver(applicationImpl.sockets?.receiver!!, receivedMessages, activityEnder.onThreadEndCallback))
         processor = Thread(Processor(connectionManager!!, receivedMessages, toSendMessages, activityEnder.onThreadEndCallback))
         transmitter = Thread(Transmitter(applicationImpl.sockets?.sender!!, toSendMessages, activityEnder.onThreadEndCallback))
-        root_layout.touchPad.onSendCursorMoveCallback = { x, y ->
-            connectionManager?.takeIf { it.isConnected() }?.let {
-                toSendMessages.add(ServerMessage.createMessageMoveCursor(it.getConnectedAddress(), x, y))
-            }
-        }
 
         connectionManager?.run()
         receiver?.start()
