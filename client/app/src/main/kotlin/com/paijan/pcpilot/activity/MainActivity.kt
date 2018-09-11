@@ -9,6 +9,7 @@ import android.widget.Button
 import com.paijan.pcpilot.R
 import com.paijan.pcpilot.background_worker.Processor
 import com.paijan.pcpilot.background_worker.Receiver
+import com.paijan.pcpilot.background_worker.ServerListClearer
 import com.paijan.pcpilot.background_worker.Transmitter
 import com.paijan.pcpilot.background_worker.connection_manager.ConnectionManager
 import com.paijan.pcpilot.background_worker.connection_manager.DefaultConnectionManager
@@ -27,17 +28,20 @@ class MainActivity : Activity() {
     private val toSendMessages = LinkedBlockingQueue<ServerMessage>()
 
     private val applicationImpl get() = (application as ApplicationImpl)
+    private lateinit var serverRecyclerViewAdapter: ServerRecyclerViewAdapter
+
     private var connectionManager: ConnectionManager? = null
     private var receiver: Thread? = null
     private var processor: Thread? = null
     private var transmitter: Thread? = null
+    private var serverListClearer: Thread? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setupTouchPad()
-        setupThreads()
         setupServerList()
+        setupThreads()
         updateButtonStates(false)
     }
 
@@ -59,13 +63,15 @@ class MainActivity : Activity() {
     }
 
     private fun setupServerList() {
-        val adapter = ServerRecyclerViewAdapter(root_layout.serverListWrapper)
+        serverRecyclerViewAdapter = ServerRecyclerViewAdapter(root_layout.serverListWrapper)
         root_layout.serverList.apply {
             val linearLayoutManager = LinearLayoutManager(this.context)
             this.layoutManager = linearLayoutManager
-            this.adapter = adapter
+            this.adapter = serverRecyclerViewAdapter
             this.addItemDecoration(DividerItemDecoration(this.context, linearLayoutManager.orientation))
         }
+
+        serverRecyclerViewAdapter.addEntry(InetSocketAddress(0))
     }
 
     override fun onDestroy() {
@@ -78,16 +84,19 @@ class MainActivity : Activity() {
         processor?.interrupt()
         transmitter?.interrupt()
         connectionManager?.interrupt()
+        serverListClearer?.interrupt()
 
         receiver?.join()
         processor?.join()
         transmitter?.join()
         connectionManager?.join()
+        serverListClearer?.join()
 
         receiver = null
         processor = null
         transmitter = null
         connectionManager = null
+        serverListClearer = null
 
         receivedMessages.clear()
         toSendMessages.clear()
@@ -107,11 +116,13 @@ class MainActivity : Activity() {
         receiver = Thread(Receiver(applicationImpl.sockets?.receiver!!, receivedMessages, activityEnder.onThreadEndCallback))
         processor = Thread(Processor(connectionManager!!, receivedMessages, toSendMessages, activityEnder.onThreadEndCallback))
         transmitter = Thread(Transmitter(applicationImpl.sockets?.sender!!, toSendMessages, activityEnder.onThreadEndCallback))
+        serverListClearer = Thread(ServerListClearer(serverRecyclerViewAdapter, activityEnder.onThreadEndCallback)) // TODO
 
         connectionManager?.run()
         receiver?.start()
         processor?.start()
         transmitter?.start()
+        serverListClearer?.start()
     }
 
     private fun updateButtonStates(connected: Boolean) {

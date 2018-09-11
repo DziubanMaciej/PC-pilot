@@ -1,24 +1,44 @@
 package com.paijan.pcpilot.utils
 
+import android.app.Activity
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import android.widget.Button
 import com.paijan.pcpilot.custom_ui.DualSwapView
 import java.net.InetSocketAddress
 
-class ServerRecyclerViewAdapter(private val dualSwapView: DualSwapView) : RecyclerView.Adapter<ServerRecyclerViewAdapter.ServerRecyclerViewHolder>() {
+class ServerRecyclerViewAdapter(private val dualSwapView: DualSwapView)
+    : RecyclerView.Adapter<ServerRecyclerViewAdapter.ServerRecyclerViewHolder>() {
     class ServerRecyclerViewHolder(val view: Button) : RecyclerView.ViewHolder(view)
+    data class DataEntry(val timestamp: Long, val address: InetSocketAddress)
 
-    val data = mutableListOf<InetSocketAddress>()
+    private val data = mutableListOf<DataEntry>()
 
-    init {
-        registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
-            override fun onChanged() {
-                val isFull = itemCount > 0
-                dualSwapView.showView(isFull)
+    fun addEntry(address: InetSocketAddress) {
+        val dataEntry = DataEntry(System.currentTimeMillis(), address)
+        data.add(dataEntry)
+        onDataSetChanged()
+    }
+
+    fun clearOldEntries(maxEntryAge: Long): Int {
+        var entriesRemoved = 0
+        val minimumTimestamp = System.currentTimeMillis() - maxEntryAge
+        val iterator = data.iterator()
+        while (iterator.hasNext()) {
+            if (iterator.next().timestamp <= minimumTimestamp) {
+                iterator.remove()
+                entriesRemoved++
             }
-        })
-        notifyDataSetChanged()
+        }
+        onDataSetChanged()
+        return entriesRemoved
+    }
+
+    private fun onDataSetChanged() {
+        (dualSwapView.context as Activity).runOnUiThread {
+            val isFull = itemCount > 0
+            dualSwapView.showView(isFull)
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ServerRecyclerViewHolder {
@@ -30,6 +50,6 @@ class ServerRecyclerViewAdapter(private val dualSwapView: DualSwapView) : Recycl
     }
 
     override fun onBindViewHolder(holder: ServerRecyclerViewHolder, position: Int) {
-        holder.view.text = data[position].toString()
+        holder.view.text = data[position].address.toString()
     }
 }
