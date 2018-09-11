@@ -2,6 +2,8 @@ package com.paijan.pcpilot.activity
 
 import android.app.Activity
 import android.os.Bundle
+import android.support.v7.widget.DividerItemDecoration
+import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import android.widget.Button
 import com.paijan.pcpilot.R
@@ -13,6 +15,7 @@ import com.paijan.pcpilot.background_worker.connection_manager.DefaultConnection
 import com.paijan.pcpilot.utils.ActivityEnder
 import com.paijan.pcpilot.utils.ClientMessage
 import com.paijan.pcpilot.utils.ServerMessage
+import com.paijan.pcpilot.utils.ServerRecyclerViewAdapter
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.view.*
 import java.net.InetSocketAddress
@@ -34,6 +37,7 @@ class MainActivity : Activity() {
         setContentView(R.layout.activity_main)
         setupTouchPad()
         setupThreads()
+        setupServerList()
         updateButtonStates(false)
     }
 
@@ -51,6 +55,16 @@ class MainActivity : Activity() {
             connectionManager?.takeIf { it.isConnected() }?.let {
                 toSendMessages.add(ServerMessage.createMessageMoveCursor(it.getConnectedAddress(), x, y))
             }
+        }
+    }
+
+    private fun setupServerList() {
+        val adapter = ServerRecyclerViewAdapter(root_layout.serverListWrapper)
+        root_layout.serverList.apply {
+            val linearLayoutManager = LinearLayoutManager(this.context)
+            this.layoutManager = linearLayoutManager
+            this.adapter = adapter
+            this.addItemDecoration(DividerItemDecoration(this.context, linearLayoutManager.orientation))
         }
     }
 

@@ -2,4 +2,5 @@
     <string name="app_name">PC Pilot</string>
     <string name="connect">Connect</string>
     <string name="disconnect">Disconnect</string>
+    <string name="no_servers_message">No servers available :(</string>
 </resources>

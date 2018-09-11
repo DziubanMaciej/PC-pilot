@@ -2,4 +2,6 @@
 <resources>
     <declare-styleable name="TouchPad" />
     <declare-styleable name="TouchPadButton" />
+    <declare-styleable name="SwapView" />
+    <declare-styleable name="DualSwapView" />
 </resources>

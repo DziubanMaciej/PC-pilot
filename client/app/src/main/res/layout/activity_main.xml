@@ -101,4 +101,28 @@
         app:layout_constraintTop_toTopOf="@+id/guidelineHorizontalButtonsTop"
         tools:scaleType="fitXY" />
 
+    <com.paijan.pcpilot.custom_ui.DualSwapView
+        android:id="@+id/serverListWrapper"
+        android:layout_width="257dp"
+        android:layout_height="142dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="96dp"
+        android:background="@color/colorPrimary"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+
+            android:text="@string/no_servers_message"
+            android:textSize="24sp" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/serverList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </com.paijan.pcpilot.custom_ui.DualSwapView>
+
 </android.support.constraint.ConstraintLayout>
