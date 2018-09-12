@@ -4,6 +4,6 @@ package com.paijan.pcpilot.utils
 
 object Constants {
 % for constant in constants:
-    const val ${constant.name} : ${constant.type.name_kt} = ${constant.value}
+    ${utils.get_constant_specifiers(constant.type)}${constant.name} : ${constant.type.name_kt} = ${utils.get_constant_value(constant)}
 % endfor
 }

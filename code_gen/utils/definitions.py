@@ -2,20 +2,22 @@ preamble_value = "PCPILOT"
 
 
 class Type:
-    def __init__(self, name, size, name_cpp=None, name_kt=None):
-        self.name = name
+    def __init__(self, size, name=None, name_cpp=None, name_kt=None):
         self.size = size
         self.name_cpp = name_cpp if name_cpp is not None else name
         self.name_kt = name_kt if name_kt is not None else name.capitalize()
 
+        if not self.name_cpp or not self.name_kt:
+            raise Exception("No type name provided")
+
 
 class Types:
-    Int = Type('int', 4)
-    Long = Type('long', -1)
-    Float = Type('float', 4)
-    Byte = Type('Byte', 1)
-    Preamble = Type('Preamble', len(preamble_value))
-
+    Int = Type(4,name='int')
+    Long = Type(-1, name='long')
+    Float = Type(4, name='float')
+    Byte = Type(1, name='Byte')
+    Preamble = Type(len(preamble_value), name='Preamble')
+    IntArray = Type(-1, name_cpp="std::vector<int>", name_kt="List<Int>")
 
 class Field:
     def __init__(self, field_name, field_type):

@@ -1,3 +1,4 @@
+from utils.definitions import Types
 import itertools
 
 class Utils:
@@ -26,6 +27,16 @@ class Utils:
     def get_args_list(cls, fields):
         raise NotImplementedError()
 
+    @classmethod
+    def get_constant_value(cls, constant):
+        if constant.type != Types.IntArray:
+            return constant.value
+        return cls._get_constant_value_int_array(constant.value)
+
+    @classmethod
+    def _get_constant_value_int_array(cls, constant_value):
+        raise NotImplementedError()
+
 
 
 
@@ -37,6 +48,16 @@ class UtilsCpp(Utils):
             if not cls.is_fixed_field(field):
                 separator = ", " if i != len(fields) - 1 else ""
                 result += "{} {}{}".format(field.type.name_cpp, field.name, separator)
+        return result
+
+    @classmethod
+    def _get_constant_value_int_array(cls, constant_value):
+        result = "{"
+        for last, element in cls.iter_with_last(constant_value):
+            result += str(element)
+            if not last:
+                result += ", "
+        result += "}"
         return result
 
 
@@ -53,9 +74,25 @@ class UtilsKt(Utils):
         return result
 
     @classmethod
+    def _get_constant_value_int_array(cls, constant_value):
+        result = "listOf("
+        for last, element in cls.iter_with_last(constant_value):
+            result += str(element)
+            if not last:
+                result += ", "
+        result += ")"
+        return result
+
+    @classmethod
     def get_put_call(cls, field_type, value):
         if field_type == 'Preamble':
             return ".putPreamble()"
 
         method_name = 'put' if field_type == 'Byte' else 'put{}'.format(field_type.name_kt)
         return ".{}({})".format(method_name, value)
+
+    @classmethod
+    def get_constant_specifiers(cls, field_type):
+        const = "const " if field_type != Types.IntArray else ""
+        val = "val "
+        return const + val
