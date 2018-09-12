@@ -7,6 +7,12 @@ class Utils:
         return ending if bool(is_last) else between
 
     @classmethod
+    def get_comma_separated_list(cls, values):
+        values_with_last = list(cls.iter_with_last(values))
+        tokens = (str(element) + cls.trailing_sign(last, ', ', '') for last, element in values_with_last)
+        return ''.join(tokens)
+
+    @classmethod
     def is_fixed_field(cls, field):
         return field.name in ['type', 'Preamble']
 
@@ -20,12 +26,9 @@ class Utils:
 
     @classmethod
     def iter_with_last(cls, arg):
+        arg = list(arg)
         booleans = itertools.chain(itertools.repeat(False, len(arg)-1), [True])
         return zip(booleans, arg)
-
-    @classmethod
-    def get_args_list(cls, fields):
-        raise NotImplementedError()
 
     @classmethod
     def get_constant_value(cls, constant):
@@ -38,6 +41,10 @@ class Utils:
         raise NotImplementedError()
 
     @classmethod
+    def get_args_list(cls, fields):
+        raise NotImplementedError()
+
+    @classmethod
     def get_constant_specifiers(cls, field_type):
         raise NotImplementedError
 
@@ -46,23 +53,14 @@ class Utils:
 
 class UtilsCpp(Utils):
     @classmethod
-    def get_args_list(cls, fields):
-        result = "const InetAddress &address" + cls.trailing_sign(len(fields) == 2, ', ', '')
-        for i, field in enumerate(fields):
-            if not cls.is_fixed_field(field):
-                separator = ", " if i != len(fields) - 1 else ""
-                result += "{} {}{}".format(field.type.name_cpp, field.name, separator)
-        return result
+    def _get_constant_value_int_array(cls, constant_value):
+        return "{{{}}}".format(cls.get_comma_separated_list(constant_value))
 
     @classmethod
-    def _get_constant_value_int_array(cls, constant_value):
-        result = "{"
-        for last, element in cls.iter_with_last(constant_value):
-            result += str(element)
-            if not last:
-                result += ", "
-        result += "}"
-        return result
+    def get_args_list(cls, fields):
+        result = "const InetAddress &address" + cls.trailing_sign(len(fields) == 2, ', ', '')
+        params = ('{} {}'.format(field.type.name_cpp, field.name) for field in fields if not cls.is_fixed_field(field))
+        return result + cls.get_comma_separated_list(params)
 
     @classmethod
     def get_constant_specifiers(cls, field_type):
@@ -74,23 +72,20 @@ class UtilsCpp(Utils):
 
 class UtilsKt(Utils):
     @classmethod
-    def get_args_list(cls, fields):
-        result = 'address: InetSocketAddress' + cls.trailing_sign(len(fields) == 2, ', ', '')
-        for i, field in enumerate(fields):
-            if not cls.is_fixed_field(field):
-                separator = ", " if i != len(fields) - 1 else ""
-                result += "{}: {}{}".format(field.name, field.type.name_kt, separator)
-        return result
+    def _get_constant_value_int_array(cls, constant_value):
+        return "listOf({})".format(cls.get_comma_separated_list(constant_value))
 
     @classmethod
-    def _get_constant_value_int_array(cls, constant_value):
-        result = "listOf("
-        for last, element in cls.iter_with_last(constant_value):
-            result += str(element)
-            if not last:
-                result += ", "
-        result += ")"
-        return result
+    def get_args_list(cls, fields):
+        result = 'address: InetSocketAddress' + cls.trailing_sign(len(fields) == 2, ', ', '')
+        params = ('{}: {}'.format(field.name, field.type.name_kt) for field in fields if not cls.is_fixed_field(field))
+        return result + cls.get_comma_separated_list(params)
+
+    @classmethod
+    def get_constant_specifiers(cls, field_type):
+        const = "const " if field_type != Types.IntArray else ""
+        val = "val "
+        return const + val
 
     @classmethod
     def get_put_call(cls, field_type, value):
@@ -99,9 +94,3 @@ class UtilsKt(Utils):
 
         method_name = 'put' if field_type == 'Byte' else 'put{}'.format(field_type.name_kt)
         return ".{}({})".format(method_name, value)
-
-    @classmethod
-    def get_constant_specifiers(cls, field_type):
-        const = "const " if field_type != Types.IntArray else ""
-        val = "val "
-        return const + val
