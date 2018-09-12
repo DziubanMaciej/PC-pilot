@@ -1,3 +1,5 @@
+import itertools
+
 class Utils:
     @classmethod
     def trailing_sign(cls, is_last, between, ending):
@@ -14,6 +16,11 @@ class Utils:
             return max(sizes)
         except ValueError:
             raise RuntimeError("message class with no messages")
+
+    @classmethod
+    def iter_with_last(cls, arg):
+        booleans = itertools.chain(itertools.repeat(False, len(arg)-1), [True])
+        return zip(booleans, arg)
 
     @classmethod
     def get_args_list(cls, fields):
