@@ -10,14 +10,20 @@ import java.net.InetSocketAddress
 class ServerRecyclerViewAdapter(private val dualSwapView: DualSwapView)
     : RecyclerView.Adapter<ServerRecyclerViewAdapter.ServerRecyclerViewHolder>() {
     class ServerRecyclerViewHolder(val view: Button) : RecyclerView.ViewHolder(view)
-    data class DataEntry(val timestamp: Long, val address: InetSocketAddress)
+    data class DataEntry(var timestamp: Long, val address: InetSocketAddress)
 
     private val data = mutableListOf<DataEntry>()
 
     fun addEntry(address: InetSocketAddress) {
-        val dataEntry = DataEntry(System.currentTimeMillis(), address)
-        data.add(dataEntry)
-        onDataSetChanged()
+        val timestamp = System.currentTimeMillis()
+        val existingDataEntry = data.find { it.address == address }
+        if (existingDataEntry != null) {
+            existingDataEntry.timestamp = timestamp
+        } else {
+            val newDataEntry = DataEntry(timestamp, address)
+            data.add(newDataEntry)
+            onDataSetChanged()
+        }
     }
 
     fun clearOldEntries(maxEntryAge: Long): Int {
@@ -36,6 +42,7 @@ class ServerRecyclerViewAdapter(private val dualSwapView: DualSwapView)
 
     private fun onDataSetChanged() {
         (dualSwapView.context as Activity).runOnUiThread {
+            notifyDataSetChanged()
             val isFull = itemCount > 0
             dualSwapView.showView(isFull)
         }

@@ -71,8 +71,6 @@ class MainActivity : Activity() {
             this.adapter = serverRecyclerViewAdapter
             this.addItemDecoration(DividerItemDecoration(this.context, linearLayoutManager.orientation))
         }
-
-        serverRecyclerViewAdapter.addEntry(InetSocketAddress(0))
     }
 
     override fun onDestroy() {
