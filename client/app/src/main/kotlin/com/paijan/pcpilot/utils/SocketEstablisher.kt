@@ -38,17 +38,18 @@ class SocketEstablisher(val callback: (DatagramSocketTuple) -> Unit) : Runnable 
         val sender: DatagramSocket?
 
         try {
-            receiver = DatagramSocket(null)
-            val receiverSocketAddress = InetSocketAddress(inetAddress, 0)
-            receiver.reuseAddress = true
-            receiver.bind(receiverSocketAddress)
-
             sender = DatagramSocket(null)
-            val senderSocketAddress = InetSocketAddress(inetAddress, receiver.localPort)
+            val senderSocketAddress = InetSocketAddress(inetAddress, Constants.AVAILABLE_CLIENT_PORTS[0])
             sender.reuseAddress = true
             sender.bind(senderSocketAddress)
 
-            return DatagramSocketTuple(sender, receiver)
+            receiver = DatagramSocket(null)
+            val receiverSocketAddress = InetSocketAddress(inetAddress, Constants.AVAILABLE_CLIENT_PORTS[0])
+            receiver.reuseAddress = true
+            receiver.bind(receiverSocketAddress)
+
+            Log.i("SocketEstablisher", "Sockets established on $senderSocketAddress")
+            return DatagramSocketTuple(receiver, sender)
         } catch (e: SocketException) {
             Log.e("SocketEstablisher", "Socket exception")
         }
