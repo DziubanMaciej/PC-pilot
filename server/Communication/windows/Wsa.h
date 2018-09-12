@@ -11,7 +11,7 @@ public:
 	Wsa();
 	~Wsa();
 
-	std::unique_ptr<ConnectionlessSocket> getInetSocket(const InetAddress &address, bool reusable) override;
+	std::unique_ptr<ConnectionlessSocket> getInetSocket(const InetAddress &address, bool reusable, bool broadcast) override;
 
 	std::vector<std::string> getInetAddresses(bool ipv4, bool ipv6, bool loopback) override;
 	static sockaddr_in convertInetAddress(const InetAddress &address);

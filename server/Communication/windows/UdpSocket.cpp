@@ -7,16 +7,17 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
-UdpSocket::UdpSocket(const InetAddress &address, bool reusable) : socket(::socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) {
-	bind(address, reusable);
+UdpSocket::UdpSocket(const InetAddress &address, bool reusable, bool broadcast) : socket(::socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) {
+	bind(address, reusable, broadcast);
 }
 
 UdpSocket::~UdpSocket() {
 	closesocket(this->socket);
 }
 
-void UdpSocket::bind(const InetAddress & address, bool reusable) {
-	::setsockopt(this->socket, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<char*>(&reusable), sizeof(char));
+void UdpSocket::bind(const InetAddress &address, bool reusable, bool broadcast) {
+	::setsockopt(this->socket, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<char*>(&reusable), sizeof(reusable));
+	::setsockopt(this->socket, SOL_SOCKET, SO_BROADCAST, reinterpret_cast<char*>(&broadcast), sizeof(broadcast));
 
 	auto addressStruct = Wsa::convertInetAddress(address);
 	auto result = ::bind(this->socket, reinterpret_cast<sockaddr*>(&addressStruct), sizeof(addressStruct));

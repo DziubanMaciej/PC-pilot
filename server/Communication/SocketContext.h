@@ -13,6 +13,6 @@ public:
 	SocketContext(const SocketContext&) = delete;
 	virtual ~SocketContext() {}
 
-	virtual std::unique_ptr<ConnectionlessSocket> getInetSocket(const InetAddress &address, bool reusable) = 0;
+	virtual std::unique_ptr<ConnectionlessSocket> getInetSocket(const InetAddress &address, bool reusable, bool broadcast) = 0;
 	virtual std::vector<std::string> getInetAddresses(bool ipv4, bool ipv6, bool loopback) = 0;
 };

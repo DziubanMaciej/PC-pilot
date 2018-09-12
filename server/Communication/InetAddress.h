@@ -15,6 +15,7 @@ struct InetAddress {
 
 	static std::unique_ptr<InetAddress> createAny(short port);
 	static std::unique_ptr<InetAddress> createLoopback(short port);
+	static std::unique_ptr<InetAddress> createBroadcast(short port);
 	static std::unique_ptr<InetAddress> createFromString(const std::string &address, short port);
 };
 

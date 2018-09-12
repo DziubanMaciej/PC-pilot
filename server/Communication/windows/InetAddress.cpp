@@ -25,6 +25,10 @@ std::unique_ptr<InetAddress> InetAddress::createLoopback(short port) {
 
 }
 
+std::unique_ptr<InetAddress> InetAddress::createBroadcast(short port) {
+	return std::make_unique<InetAddress>(INADDR_BROADCAST, port);
+}
+
 std::unique_ptr<InetAddress> InetAddress::createFromString(const std::string & address, short port) {
 	uint32_t ip;
 	auto result = InetPton(AF_INET, address.c_str(), &ip);

@@ -6,11 +6,14 @@
 void ConnectionManager::KeepAliveSender::onUpdate(ConnectionManager &connectionManager) {
 	auto lock = connectionManager.lock();
 	if (!connectionManager.isConnected()) {
-		return;
+		short port = Constants::AVAILABLE_CLIENT_PORTS[0];
+		connectionManager.toSendMessages.push(ClientMessage::createMessageAdvertise(*InetAddress::createBroadcast(port)));
 	}
-	connectionManager.toSendMessages.push(ClientMessage::createMessageKeepAlive(*connectionManager.getConnectedAddress()));
-	lock.unlock();
+	else {
+		connectionManager.toSendMessages.push(ClientMessage::createMessageKeepAlive(*connectionManager.getConnectedAddress()));
+	}
 
+	lock.unlock();
 	connectionManager.inputSimulator.sleepMs(Constants::KEEP_ALIVE_SEND_RATE_MS);
 }
 

@@ -17,8 +17,8 @@ Wsa::~Wsa() {
 	WSACleanup();
 }
 
-std::unique_ptr<ConnectionlessSocket> Wsa::getInetSocket(const InetAddress &address, bool reusable) {
-	return std::make_unique<UdpSocket>(address, reusable);
+std::unique_ptr<ConnectionlessSocket> Wsa::getInetSocket(const InetAddress &address, bool reusable, bool broadcast) {
+	return std::make_unique<UdpSocket>(address, reusable, broadcast);
 }
 
 std::unique_ptr<Wsa::Adapter[]> Wsa::getAdapters() {

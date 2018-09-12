@@ -30,8 +30,8 @@ int main() {
 	Transmitter transmitter;
 
 	const auto address = InetAddress::createFromString(context->getInetAddresses(true, false, false)[0], 9999);
-	auto receiveSocket = context->getInetSocket(*address, true);
-	auto transmitSocket = context->getInetSocket(*address, true);
+	auto receiveSocket = context->getInetSocket(*address, true, false);
+	auto transmitSocket = context->getInetSocket(*address, true, true);
 
 	connectionManager.start();
 	receiver.start(receivedMessages, *receiveSocket);
