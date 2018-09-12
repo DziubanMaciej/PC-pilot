@@ -7,4 +7,5 @@ object Constants {
     const val MANUAL_LOOP_BACK_RATE_MS : Long = 100
     const val SERVER_LIST_MAX_AGE_MS : Long = 6000
     const val MAX_MESSAGE_SIZE : Int = 128
+    val AVAILABLE_CLIENT_PORTS : List<Int> = listOf(50156, 51156, 52156, 53156)
 }

@@ -7,4 +7,5 @@ namespace Constants {
     constexpr long MANUAL_LOOP_BACK_RATE_MS = 100;
     constexpr long SERVER_LIST_MAX_AGE_MS = 6000;
     constexpr int MAX_MESSAGE_SIZE = 128;
+    const std::vector<int> AVAILABLE_CLIENT_PORTS = {50156, 51156, 52156, 53156};
 }
