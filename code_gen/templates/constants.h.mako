@@ -4,6 +4,6 @@
 
 namespace Constants {
 % for constant in constants:
-    const ${constant.type.name_cpp} ${constant.name} = ${utils.get_constant_value(constant)};
+    ${utils.get_constant_specifiers(constant.type)}${constant.type.name_cpp} ${constant.name} = ${utils.get_constant_value(constant)};
 % endfor
 }

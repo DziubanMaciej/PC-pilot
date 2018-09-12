@@ -37,6 +37,10 @@ class Utils:
     def _get_constant_value_int_array(cls, constant_value):
         raise NotImplementedError()
 
+    @classmethod
+    def get_constant_specifiers(cls, field_type):
+        raise NotImplementedError
+
 
 
 
@@ -59,6 +63,11 @@ class UtilsCpp(Utils):
                 result += ", "
         result += "}"
         return result
+
+    @classmethod
+    def get_constant_specifiers(cls, field_type):
+        return "constexpr " if field_type != Types.IntArray else "const "
+
 
 
 
