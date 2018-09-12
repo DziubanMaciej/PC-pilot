@@ -10,10 +10,12 @@ import java.net.*
  */
 
 data class DatagramSocketTuple(
+        val broadcastReceiver: DatagramSocket,
         val receiver: DatagramSocket,
         val sender: DatagramSocket
 ) : AutoCloseable {
     override fun close() {
+        broadcastReceiver.close()
         receiver.close()
         sender.close()
     }
@@ -34,10 +36,16 @@ class SocketEstablisher(val callback: (DatagramSocketTuple) -> Unit) : Runnable 
     }
 
     private fun establishSockets(inetAddress: InetAddress): DatagramSocketTuple? {
+        val broadcastReceiver: DatagramSocket?
         val receiver: DatagramSocket?
         val sender: DatagramSocket?
 
         try {
+            broadcastReceiver = DatagramSocket(null)
+            val broadcastReceiverSocketAddress = InetSocketAddress(Constants.AVAILABLE_CLIENT_PORTS[0])
+            broadcastReceiver.reuseAddress = true
+            broadcastReceiver.bind(broadcastReceiverSocketAddress)
+
             sender = DatagramSocket(null)
             val senderSocketAddress = InetSocketAddress(inetAddress, Constants.AVAILABLE_CLIENT_PORTS[0])
             sender.reuseAddress = true
@@ -49,7 +57,7 @@ class SocketEstablisher(val callback: (DatagramSocketTuple) -> Unit) : Runnable 
             receiver.bind(receiverSocketAddress)
 
             Log.i("SocketEstablisher", "Sockets established on $senderSocketAddress")
-            return DatagramSocketTuple(receiver, sender)
+            return DatagramSocketTuple(broadcastReceiver, receiver, sender)
         } catch (e: SocketException) {
             Log.e("SocketEstablisher", "Socket exception")
         }

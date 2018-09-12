@@ -32,6 +32,7 @@ class MainActivity : Activity() {
 
     private var connectionManager: ConnectionManager? = null
     private var receiver: Thread? = null
+    private var broadcastReceiver: Thread? = null
     private var processor: Thread? = null
     private var transmitter: Thread? = null
     private var serverListClearer: Thread? = null
@@ -81,18 +82,21 @@ class MainActivity : Activity() {
         applicationImpl.sockets?.close()
 
         receiver?.interrupt()
+        broadcastReceiver?.interrupt()
         processor?.interrupt()
         transmitter?.interrupt()
         connectionManager?.interrupt()
         serverListClearer?.interrupt()
 
         receiver?.join()
+        broadcastReceiver?.join()
         processor?.join()
         transmitter?.join()
         connectionManager?.join()
         serverListClearer?.join()
 
         receiver = null
+        broadcastReceiver = null
         processor = null
         transmitter = null
         connectionManager = null
@@ -114,12 +118,14 @@ class MainActivity : Activity() {
                 activityEnder.onThreadEndCallback
         )
         receiver = Thread(Receiver(applicationImpl.sockets?.receiver!!, receivedMessages, activityEnder.onThreadEndCallback))
+        broadcastReceiver = Thread(Receiver(applicationImpl.sockets?.broadcastReceiver!!, receivedMessages, activityEnder.onThreadEndCallback))
         processor = Thread(Processor(connectionManager!!, receivedMessages, { runOnUiThread{ serverRecyclerViewAdapter.addEntry(it)}}, activityEnder.onThreadEndCallback))
         transmitter = Thread(Transmitter(applicationImpl.sockets?.sender!!, toSendMessages, activityEnder.onThreadEndCallback))
         serverListClearer = Thread(ServerListClearer(serverRecyclerViewAdapter, activityEnder.onThreadEndCallback)) // TODO
 
         connectionManager?.run()
         receiver?.start()
+        broadcastReceiver?.start()
         processor?.start()
         transmitter?.start()
         serverListClearer?.start()
