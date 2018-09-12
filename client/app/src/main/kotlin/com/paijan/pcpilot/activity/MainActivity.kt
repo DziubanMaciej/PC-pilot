@@ -114,7 +114,7 @@ class MainActivity : Activity() {
                 activityEnder.onThreadEndCallback
         )
         receiver = Thread(Receiver(applicationImpl.sockets?.receiver!!, receivedMessages, activityEnder.onThreadEndCallback))
-        processor = Thread(Processor(connectionManager!!, receivedMessages, toSendMessages, activityEnder.onThreadEndCallback))
+        processor = Thread(Processor(connectionManager!!, receivedMessages, { runOnUiThread{ serverRecyclerViewAdapter.addEntry(it)}}, activityEnder.onThreadEndCallback))
         transmitter = Thread(Transmitter(applicationImpl.sockets?.sender!!, toSendMessages, activityEnder.onThreadEndCallback))
         serverListClearer = Thread(ServerListClearer(serverRecyclerViewAdapter, activityEnder.onThreadEndCallback)) // TODO
 

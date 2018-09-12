@@ -193,7 +193,8 @@ public:
     enum class Type : Byte {
         ConnectionAccept = 0,
         KeepAlive = 1,
-        ErrorType = 2
+        Advertise = 2,
+        ErrorType = 3
     };
 
     Type getType() {
@@ -217,6 +218,14 @@ public:
         return std::move(ClientMessage(address)
             .setPreamble()
             .setField<Byte, 7>(static_cast<Byte>(Type::KeepAlive))
+        );
+    }
+
+    // --- --- --- Advertise
+    static ClientMessage createMessageAdvertise(const InetAddress &address) {
+        return std::move(ClientMessage(address)
+            .setPreamble()
+            .setField<Byte, 7>(static_cast<Byte>(Type::Advertise))
         );
     }
 };

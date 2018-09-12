@@ -19,6 +19,7 @@ serverMessage = MessageClass("ServerMessage",
 clientMessage = MessageClass("ClientMessage",
     Message('ConnectionAccept'),
     Message('KeepAlive'),
+    Message('Advertise'),
 )
 
 message_classes = [
