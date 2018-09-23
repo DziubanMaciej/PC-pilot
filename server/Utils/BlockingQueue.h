@@ -41,7 +41,7 @@ public:
 
 	void clear() {
 		auto lock = this->lock();
-		std::queue<int> empty;
+		std::queue<T> empty;
 		std::swap(queue, empty);
 	}
 

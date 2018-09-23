@@ -8,6 +8,7 @@ struct InetAddress;
 class ConnectionlessSocket {
 public:
 	ConnectionlessSocket() {}
+	ConnectionlessSocket(const ConnectionlessSocket&) = delete;
 	virtual ~ConnectionlessSocket() {}
 
 	virtual void bind(const InetAddress &address, bool reusable, bool broadcast) = 0;
