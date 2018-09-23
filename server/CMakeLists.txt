@@ -5,7 +5,7 @@ set (CMAKE_SUPPRESS_REGENERATION true)
 set_property (GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Own vars
-set (SOLUTION_NAME "MyProject")
+set (SOLUTION_NAME "PC-pilot")
 set (PROJECT_NAME ${SOLUTION_NAME})
 set (SOURCE_FILES_PROPERTY "source_files")
 set (GROUP_PROPERTY "source_group")
