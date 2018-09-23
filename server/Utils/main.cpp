@@ -4,8 +4,8 @@
 #include "BackgroundWorker/Processor.h"
 #include "BackgroundWorker/Receiver.h"
 #include "BackgroundWorker/ConnectionManager.h"
-#include "Communication/windows/Wsa.h"
 #include "Communication/InetAddress.h"
+#include "Communication/SocketContext.h"
 #include "InputSimulator/InputSimulator.h"
 #include "Utils/Constants.h"
 #include "Utils/Logger.h"
@@ -17,7 +17,7 @@
 #include <thread>
 #include <vector>
 
-std::unique_ptr<SocketContext> context = std::make_unique<Wsa>();
+std::unique_ptr<SocketContext> context = SocketContext::create();
 std::unique_ptr<InputSimulator> inputSimulator = InputSimulator::create();
 
 int main() {

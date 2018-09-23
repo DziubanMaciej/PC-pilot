@@ -9,7 +9,7 @@ struct InetAddress;
 class Wsa : public SocketContext {
 public:
 	Wsa();
-	~Wsa();
+	~Wsa() override;
 
 	std::unique_ptr<ConnectionlessSocket> getInetSocket(const InetAddress &address, bool reusable, bool broadcast) override;
 

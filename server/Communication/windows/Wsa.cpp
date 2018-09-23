@@ -8,6 +8,10 @@
 #include <iphlpapi.h>
 #include <iostream>
 
+std::unique_ptr<SocketContext> SocketContext::create() {
+	return std::make_unique<Wsa>();
+}
+
 Wsa::Wsa() {
 	WSADATA wsaData;
 	WSAStartup(MAKEWORD(2, 2), &wsaData); //TODO check
