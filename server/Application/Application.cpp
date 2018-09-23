@@ -1,5 +1,6 @@
 #include "Application/Application.h"
 
+#include "Application/InputProcessor.h"
 #include "Communication/SocketContext.h"
 #include "InputSimulator/InputSimulator.h"
 #include "Utils/ApplicationError.h"
@@ -11,6 +12,10 @@ void Application::run(SocketContext &socketContext, InputSimulator &inputSimulat
 	createSockets(socketContext);
 	startThreads(inputSimulator);
 	handleInputs();
+}
+
+void Application::exit() {
+	this->exitCalled = true;
 }
 
 Application::~Application() {
@@ -44,8 +49,12 @@ void Application::startThreads(InputSimulator &inputSimulator) {
 }
 
 void Application::handleInputs() {
-	Logger::log("Press enter to interrupt threads and exit");
-	std::cin.get();
+	InputProcessor::printHelp(*this);
+	while (!this->exitCalled) {
+		std::string command;
+		std::getline(std::cin, command);
+		InputProcessor::call(*this, command);
+	}
 }
 
 void Application::interruptThreads() {

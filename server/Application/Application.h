@@ -18,6 +18,7 @@ public:
 	~Application();
 	Application(const Application&) = delete;
 	void run(SocketContext &socketContext, InputSimulator &inputSimulator);
+	void exit();
 
 private:
 	void validateIfFirstRun();
@@ -30,6 +31,7 @@ private:
 	void joinThreads();
 
 	std::atomic_bool runCalled = false;
+	bool exitCalled = false;
 
 	BlockingQueue<ServerMessage> receivedMessages;
 	BlockingQueue<ClientMessage> toSendMessages;
