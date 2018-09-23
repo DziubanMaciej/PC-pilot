@@ -83,7 +83,6 @@ void ConnectionManager::interrupt() {
 }
 
 void ConnectionManager::join() {
-	auto lock = this->lock();
 	keepAliveReceiver.join();
 	keepAliveSender.join();
 }
