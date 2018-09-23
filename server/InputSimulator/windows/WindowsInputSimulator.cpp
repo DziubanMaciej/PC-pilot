@@ -1,4 +1,4 @@
-#include "InputSimulator/WindowsInputSimulator.h"
+#include "InputSimulator/windows/WindowsInputSimulator.h"
 
 #include <Windows.h>
 #include "Winuser.h"
@@ -6,6 +6,10 @@
 #include <algorithm>
 #include <exception>
 #include <thread>
+
+std::unique_ptr<InputSimulator> InputSimulator::create() {
+	return std::make_unique<WindowsInputSimulator>();
+}
 
 bool WindowsInputSimulator::sendInput(tagINPUT &input) {
   auto inputsProcessed = SendInput(1, &input, sizeof(input));

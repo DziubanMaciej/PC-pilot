@@ -1,9 +1,14 @@
 #pragma once
 
 #include "Utils/InstanceLimited.h"
+#include <memory>
 
 class InputSimulator : public OneInstanced<InputSimulator> {
+protected:
+	InputSimulator() = default;
+	InputSimulator(InputSimulator&) = delete;
 public:
+	static std::unique_ptr<InputSimulator> create();
 	enum class MouseButtonEventType { LeftPress, LeftRelease, MiddlePress, MiddleRelease, RightPress, RightRelease };
 
 	// general

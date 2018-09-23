@@ -6,7 +6,7 @@
 #include "BackgroundWorker/ConnectionManager.h"
 #include "Communication/windows/Wsa.h"
 #include "Communication/InetAddress.h"
-#include "InputSimulator/WindowsInputSimulator.h"
+#include "InputSimulator/InputSimulator.h"
 #include "Utils/Constants.h"
 #include "Utils/Logger.h"
 
@@ -18,7 +18,7 @@
 #include <vector>
 
 std::unique_ptr<SocketContext> context = std::make_unique<Wsa>();
-std::unique_ptr<InputSimulator> inputSimulator = std::make_unique<WindowsInputSimulator>();
+std::unique_ptr<InputSimulator> inputSimulator = InputSimulator::create();
 
 int main() {
 	BlockingQueue<ServerMessage> receivedMessages;
