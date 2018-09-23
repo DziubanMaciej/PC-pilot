@@ -3,18 +3,18 @@
 #include "Utils/Constants.h"
 #include "Utils/Logger.h"
 
-void ConnectionManager::KeepAliveSender::onUpdate(ConnectionManager &connectionManager) {
+void ConnectionManager::KeepAliveSender::onUpdate(ConnectionManager &connectionManager, BlockingQueue<ClientMessage> &toSendMessages, InputSimulator &inputSimulator) {
 	auto lock = connectionManager.lock();
 	if (!connectionManager.isConnected()) {
 		short port = Constants::AVAILABLE_CLIENT_PORTS[0];
-		connectionManager.toSendMessages.push(ClientMessage::createMessageAdvertise(*InetAddress::createBroadcast(port)));
+		toSendMessages.push(ClientMessage::createMessageAdvertise(*InetAddress::createBroadcast(port)));
 	}
 	else {
-		connectionManager.toSendMessages.push(ClientMessage::createMessageKeepAlive(*connectionManager.getConnectedAddress()));
+		toSendMessages.push(ClientMessage::createMessageKeepAlive(*connectionManager.getConnectedAddress()));
 	}
 
 	lock.unlock();
-	connectionManager.inputSimulator.sleepMs(Constants::KEEP_ALIVE_SEND_RATE_MS);
+	inputSimulator.sleepMs(Constants::KEEP_ALIVE_SEND_RATE_MS);
 }
 
 void ConnectionManager::KeepAliveReceiver::onUpdate(ConnectionManager &connectionManager) {
@@ -67,13 +67,9 @@ void ConnectionManager::KeepAliveReceiver::onUpdateUnconnected(ConnectionManager
 	}
 }
 
-ConnectionManager::ConnectionManager(BlockingQueue<ClientMessage>& toSendMessages, InputSimulator & inputSimulator) :
-	toSendMessages(toSendMessages),
-	inputSimulator(inputSimulator) {}
-
-void ConnectionManager::start() {
+void ConnectionManager::start(BlockingQueue<ClientMessage> &toSendMessages, InputSimulator &inputSimulator) {
 	keepAliveReceiver.start(*this);
-	keepAliveSender.start(*this);
+	keepAliveSender.start(*this, toSendMessages, inputSimulator);
 }
 
 void ConnectionManager::interrupt() {

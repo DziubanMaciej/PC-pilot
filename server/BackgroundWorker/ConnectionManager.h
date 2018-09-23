@@ -16,8 +16,8 @@ class ConnectionManager {
 
 	using ConnectionManagerMessage = std::tuple<ConnectionManagerMessageType, InetAddress>;
 
-	class KeepAliveSender : public InterruptibleThreadAdapter<ConnectionManager> {
-		void onUpdate(ConnectionManager &connectionManager) override;
+	class KeepAliveSender : public InterruptibleThreadAdapter<ConnectionManager, BlockingQueue<ClientMessage>, InputSimulator> {
+		void onUpdate(ConnectionManager &connectionManager, BlockingQueue<ClientMessage> &toSendMessages, InputSimulator &inputSimulator) override;
 	};
 
 	class KeepAliveReceiver : public InterruptibleThreadAdapter<ConnectionManager> {
@@ -31,9 +31,10 @@ class ConnectionManager {
 	friend class keepAliveReceiver;
 
 public:
-	ConnectionManager(BlockingQueue<ClientMessage> &toSendMessages, InputSimulator &inputSimulator);
+	ConnectionManager() = default;
+	ConnectionManager(const ConnectionManager&) = delete;
 
-	void start();
+	void start(BlockingQueue<ClientMessage> &toSendMessages, InputSimulator &inputSimulator);
 	void interrupt();
 	void join();
 
@@ -45,9 +46,6 @@ public:
 	void notifyKeepAlive(const InetAddress &address);
 
 private:
-	BlockingQueue<ClientMessage> &toSendMessages;
-	InputSimulator &inputSimulator;
-
 	std::mutex mutex;
 	std::unique_ptr<InetAddress> connectedAddress;
 	BlockingQueue<ConnectionManagerMessage> connectionManagerMessages;

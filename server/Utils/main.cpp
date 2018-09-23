@@ -24,7 +24,7 @@ int main() {
 	BlockingQueue<ServerMessage> receivedMessages;
 	BlockingQueue<ClientMessage> toSendMessages;
 
-	ConnectionManager connectionManager{ toSendMessages, *inputSimulator };
+	ConnectionManager connectionManager;
 	Receiver receiver;
 	Processor processor;
 	Transmitter transmitter;
@@ -33,7 +33,7 @@ int main() {
 	auto receiveSocket = context->getInetSocket(*address, true, false);
 	auto transmitSocket = context->getInetSocket(*address, true, true);
 
-	connectionManager.start();
+	connectionManager.start(toSendMessages, *inputSimulator);
 	receiver.start(receivedMessages, *receiveSocket);
 	processor.start(receivedMessages, toSendMessages, connectionManager, *inputSimulator);
 	transmitter.start(toSendMessages, *transmitSocket);
