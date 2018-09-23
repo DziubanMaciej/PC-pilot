@@ -28,6 +28,12 @@ std::string Application::getStatus() {
 	return result;
 }
 
+std::string Application::getAddress() {
+	std::string result = "This host's address is ";
+	result.append(InetAddress::ipToString(*this->address, true));
+	return result;
+}
+
 void Application::exit() {
 	this->exitCalled = true;
 }
@@ -50,10 +56,10 @@ void Application::clearQueues() {
 }
 
 void Application::createSockets(SocketContext &socketContext) {
-	const auto address = InetAddress::createFromString(socketContext.getInetAddresses(true, false, false)[0], 9999);
-	this->receiveSocket = socketContext.getInetSocket(*address, true, false);
-	this->transmitSocket = socketContext.getInetSocket(*address, true, true);
-	Logger::log("Sockets established on ", InetAddress::ipToString(*address, true));
+	this->address = InetAddress::createFromString(socketContext.getInetAddresses(true, false, false)[0], 9999);
+	this->receiveSocket = socketContext.getInetSocket(*this->address, true, false);
+	this->transmitSocket = socketContext.getInetSocket(*this->address, true, true);
+	Logger::log("Sockets established on ", InetAddress::ipToString(*this->address, true));
 }
 
 void Application::startThreads(InputSimulator &inputSimulator) {

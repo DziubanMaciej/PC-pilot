@@ -9,6 +9,7 @@ const InputProcessor::InputEntries InputProcessor::inputEntries = {
 	{ "", InputProcessor::emptyMessage },
 	{ "help", InputProcessor::printHelp },
 	{ "status", InputProcessor::printStatus },
+	{ "address", InputProcessor::printAddress },
 	{ "exit", InputProcessor::exit }
 };
 
@@ -42,6 +43,10 @@ void InputProcessor::printHelp(Application &application) {
 
 void InputProcessor::printStatus(Application &application) {
 	Logger::log(application.getStatus());
+}
+
+void InputProcessor::printAddress(Application & application) {
+	Logger::log(application.getAddress());
 }
 
 void InputProcessor::exit(Application &application) {

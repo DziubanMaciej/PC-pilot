@@ -19,6 +19,7 @@ public:
 	Application(const Application&) = delete;
 	void run(SocketContext &socketContext, InputSimulator &inputSimulator);
 	std::string getStatus();
+	std::string getAddress();
 	void exit();
 
 private:
@@ -37,6 +38,7 @@ private:
 	BlockingQueue<ServerMessage> receivedMessages;
 	BlockingQueue<ClientMessage> toSendMessages;
 
+	std::unique_ptr<InetAddress> address;
 	std::unique_ptr<ConnectionlessSocket> receiveSocket;
 	std::unique_ptr<ConnectionlessSocket> transmitSocket;
 

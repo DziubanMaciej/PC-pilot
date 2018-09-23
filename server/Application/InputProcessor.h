@@ -15,6 +15,7 @@ public:
 private:
 	static void emptyMessage(Application &application);
 	static void printStatus(Application &application);
+	static void printAddress(Application &application);
 	static void exit(Application &application);
 
 	static const InputEntries inputEntries;
