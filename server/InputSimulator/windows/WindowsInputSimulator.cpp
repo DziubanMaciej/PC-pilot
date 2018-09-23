@@ -12,8 +12,8 @@ std::unique_ptr<InputSimulator> InputSimulator::create() {
 }
 
 bool WindowsInputSimulator::sendInput(tagINPUT &input) {
-  auto inputsProcessed = SendInput(1, &input, sizeof(input));
-  return static_cast<bool>(inputsProcessed);
+  auto inputsProcessed = ::SendInput(1, &input, sizeof(input));
+  return inputsProcessed != 0;
 }
 
 bool WindowsInputSimulator::sendMouseButtonEvent(
@@ -67,12 +67,12 @@ bool WindowsInputSimulator::click() {
 }
 
 bool WindowsInputSimulator::moveCursorTo(int x, int y) {
-  return SetCursorPos(x, y);
+  return SetCursorPos(x, y) != 0;
 }
 
 bool WindowsInputSimulator::moveCursorBy(int x, int y) {
   POINT current;
-  bool retVal = GetCursorPos(&current);
+  bool retVal = ::GetCursorPos(&current) != 0;
   if (retVal) {
     retVal = moveCursorTo(current.x + x, current.y + y);
   }
