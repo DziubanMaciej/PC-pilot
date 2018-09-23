@@ -35,6 +35,7 @@ public:
 		for (auto it = begin; it < end; it++) {
 			dump(*it, insertNewLines);
 		}
+		dump("", !insertNewLines);
 	}
 
 	template <typename T>

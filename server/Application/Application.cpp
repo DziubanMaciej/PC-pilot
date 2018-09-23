@@ -75,7 +75,7 @@ Application::ApplicationInputProcessor::InputEntries Application::createInputEnt
 		{ "", Application::emptyCommandHandler },
 		{ "status", Application::printStatus },
 		{ "help", Application::printHelp },
-		{ "address", Application::printAddress },
+		{ "disconnect", Application::disconnect },
 		{ "exit", Application::exit }
 	};
 }
@@ -89,12 +89,20 @@ void Application::unknownCommandHandler(Application &application) {
 }
 
 void Application::printStatus(Application &application) {
+	std::vector<std::string> tokens;
+	tokens.push_back("This host's address is ");
+	tokens.push_back(application.address->toString(true));
+	tokens.push_back("\n");
+
 	if (application.connectionManager.isConnected()) {
-		Logger::log("Connected to ", application.connectionManager.getConnectedAddress().toString(true));
+		tokens.push_back("Connected to ");
+		tokens.push_back(application.connectionManager.getConnectedAddress().toString(true));
 	}
 	else {
-		Logger::log("Waiting for connection...");
+		tokens.push_back("No remote device connected");
 	}
+
+	Logger::log.dumpContainer(tokens.begin(), tokens.end(), false);
 }
 
 void Application::printHelp(Application &application) {
@@ -112,8 +120,8 @@ void Application::printHelp(Application &application) {
 	Logger::log.dumpContainer(tokens.begin(), tokens.end());
 }
 
-void Application::printAddress(Application &application) {
-	Logger::log("This host's address is ", application.address->toString(true));
+void Application::disconnect(Application &application) {
+	application.connectionManager.disconnect();
 }
 
 void Application::exit(Application &application) {

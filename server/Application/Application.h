@@ -40,7 +40,7 @@ private:
 	static void unknownCommandHandler(Application& application);
 	static void printStatus(Application& application);
 	static void printHelp(Application& application);
-	static void printAddress(Application& application);
+	static void disconnect(Application& application);
 	static void exit(Application& application);
 
 	// Flags
