@@ -2,6 +2,7 @@
 #include "Utils/ApplicationError.h"
 
 #include <ws2tcpip.h>
+#include <sstream>
 
 std::string InetAddress::ipToString(int addressFamily, void *address) {
 	char buffer[64] = {};
@@ -12,10 +13,21 @@ std::string InetAddress::ipToString(int addressFamily, void *address) {
 	return std::string{ buffer };
 }
 
-std::string InetAddress::ipToString(const InetAddress &address) {
+std::string InetAddress::ipToString(int addressFamily, void *address, short port) {
+	std::ostringstream result;
+	result << ipToString(addressFamily, address) << ":" << port;
+	return result.str();
+}
+
+std::string InetAddress::ipToString(const InetAddress &address, bool appendPort) {
 	IN_ADDR inAddr;
 	inAddr.S_un.S_addr = address.address;
-	return ipToString(AF_INET, &inAddr);
+	if (appendPort) {
+		return ipToString(AF_INET, &inAddr, address.port);
+	}
+	else {
+		return ipToString(AF_INET, &inAddr);
+	}
 }
 
 std::unique_ptr<InetAddress> InetAddress::createAny(short port) {
@@ -41,5 +53,5 @@ std::unique_ptr<InetAddress> InetAddress::createFromString(const std::string & a
 }
 
 std::ostream& operator<<(std::ostream& out, const InetAddress& address) {
-	return out << InetAddress::ipToString(address) << ":" << address.port;
+	return out << InetAddress::ipToString(address, true);
 }

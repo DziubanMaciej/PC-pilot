@@ -11,7 +11,8 @@ struct InetAddress {
 	unsigned short port;
 
 	static std::string ipToString(int addressFamily, void *address);
-	static std::string ipToString(const InetAddress &address);
+	static std::string ipToString(int addressFamily, void *address, short port);
+	static std::string ipToString(const InetAddress &address, bool appendPort);
 
 	static std::unique_ptr<InetAddress> createAny(short port);
 	static std::unique_ptr<InetAddress> createLoopback(short port);

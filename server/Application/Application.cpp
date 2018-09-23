@@ -19,7 +19,7 @@ std::string Application::getStatus() {
 
 	if (connectionManager.isConnected()) {
 		result.append("Connected to ");
-		result.append(InetAddress::ipToString(*connectionManager.getConnectedAddress()));
+		result.append(InetAddress::ipToString(*connectionManager.getConnectedAddress(), true));
 	}
 	else {
 		result.append("Waiting for connection...");
@@ -53,7 +53,7 @@ void Application::createSockets(SocketContext &socketContext) {
 	const auto address = InetAddress::createFromString(socketContext.getInetAddresses(true, false, false)[0], 9999);
 	this->receiveSocket = socketContext.getInetSocket(*address, true, false);
 	this->transmitSocket = socketContext.getInetSocket(*address, true, true);
-	Logger::log("Sockets established on ", InetAddress::ipToString(*address));
+	Logger::log("Sockets established on ", InetAddress::ipToString(*address, true));
 }
 
 void Application::startThreads(InputSimulator &inputSimulator) {
