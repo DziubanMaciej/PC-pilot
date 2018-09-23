@@ -46,9 +46,8 @@ void ConnectionManager::KeepAliveReceiver::onUpdateConnected(ConnectionManager &
 		}
 	}
 
-	auto lock = connectionManager.lock();
-	Logger::log("Disconnected from: ", *connectionManager.connectedAddress);
-	connectionManager.connectedAddress.reset();
+	// popAndGet has timed out - disconnecting
+	connectionManager.disconnect();
 }
 
 void ConnectionManager::KeepAliveReceiver::onUpdateUnconnected(ConnectionManager &connectionManager) {
@@ -62,8 +61,8 @@ void ConnectionManager::KeepAliveReceiver::onUpdateUnconnected(ConnectionManager
 	}
 
 	if (std::get<ConnectionManagerMessageType>(this->connectionManagerMessageBuffer) == ConnectionManagerMessageType::CONNECTION_REQUEST) {
-		connectionManager.connectedAddress = std::make_unique<InetAddress>(std::get<InetAddress>(this->connectionManagerMessageBuffer));
-		Logger::log("Connected to: ", *connectionManager.connectedAddress);
+		auto connectedAddress = std::get<InetAddress>(this->connectionManagerMessageBuffer);
+		connectionManager.connect(connectedAddress);
 	}
 }
 
@@ -80,6 +79,17 @@ void ConnectionManager::interrupt() {
 void ConnectionManager::join() {
 	keepAliveReceiver.join();
 	keepAliveSender.join();
+}
+
+void ConnectionManager::connect(const InetAddress & address) {
+	this->connectedAddress = std::make_unique<InetAddress>(address);
+	Logger::log("Connected to: ", *this->connectedAddress);
+}
+
+void ConnectionManager::disconnect() {
+	auto lock = this->lock();
+	Logger::log("Disconnected from: ", *this->connectedAddress);
+	this->connectedAddress.reset();
 }
 
 bool ConnectionManager::isConnected() const {

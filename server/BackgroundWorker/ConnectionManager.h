@@ -13,7 +13,6 @@ class ConnectionManager {
 		DISCONNECT,
 		KEEP_ALIVE
 	};
-
 	using ConnectionManagerMessage = std::tuple<ConnectionManagerMessageType, InetAddress>;
 
 	class KeepAliveSender : public InterruptibleThreadAdapter<ConnectionManager, BlockingQueue<ClientMessage>, InputSimulator> {
@@ -27,8 +26,6 @@ class ConnectionManager {
 		ConnectionManagerMessage connectionManagerMessageBuffer;
 	};
 
-	friend class KeepAliveSender;
-	friend class keepAliveReceiver;
 
 public:
 	ConnectionManager() = default;
@@ -38,6 +35,8 @@ public:
 	void interrupt();
 	void join();
 
+	void connect(const InetAddress &address);
+	void disconnect();
 	bool isConnected() const;
 	const InetAddress& getConnectedAddress() const;
 
