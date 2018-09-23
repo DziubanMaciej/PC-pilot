@@ -19,7 +19,7 @@ std::string Application::getStatus() {
 
 	if (connectionManager.isConnected()) {
 		result.append("Connected to ");
-		result.append(connectionManager.getConnectedAddress()->toString(true));
+		result.append(connectionManager.getConnectedAddress().toString(true));
 	}
 	else {
 		result.append("Waiting for connection...");

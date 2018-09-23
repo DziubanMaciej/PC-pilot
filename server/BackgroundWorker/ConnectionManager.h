@@ -39,7 +39,7 @@ public:
 	void join();
 
 	bool isConnected() const;
-	const std::unique_ptr<InetAddress>& getConnectedAddress() const;
+	const InetAddress& getConnectedAddress() const;
 
 	void notifyConnectionRequest(const InetAddress &address);
 	void notifyDisconnect(const InetAddress &address);

@@ -10,7 +10,7 @@ void ConnectionManager::KeepAliveSender::onUpdate(ConnectionManager &connectionM
 		toSendMessages.push(ClientMessage::createMessageAdvertise(*InetAddress::createBroadcast(port)));
 	}
 	else {
-		toSendMessages.push(ClientMessage::createMessageKeepAlive(*connectionManager.getConnectedAddress()));
+		toSendMessages.push(ClientMessage::createMessageKeepAlive(connectionManager.getConnectedAddress()));
 	}
 
 	lock.unlock();
@@ -86,8 +86,8 @@ bool ConnectionManager::isConnected() const {
 	return bool(this->connectedAddress);
 }
 
-const std::unique_ptr<InetAddress>& ConnectionManager::getConnectedAddress() const {
-	return this->connectedAddress;
+const InetAddress& ConnectionManager::getConnectedAddress() const {
+	return *this->connectedAddress;
 }
 
 void ConnectionManager::notifyConnectionRequest(const InetAddress & address) {
