@@ -2,21 +2,18 @@
 
 #include <unordered_map>
 
-class Application;
-
-class InputProcessor {
-	using InputHandler = void(*)(Application&);
+template <typename ReturnType, typename ...Args>
+struct InputProcessor {
+	using InputHandler = ReturnType(*)(Args...);
 	using InputEntries = std::unordered_map<std::string, InputHandler>;
+	InputProcessor(InputEntries &inputEntries, InputHandler unknownCommandHandler) : inputEntries(inputEntries), unknownCommandHandler(unknownCommandHandler) {}
 
-public:
-	static void call(Application &application, const std::string &command);
-	static void printHelp(Application &application);
+	ReturnType call(const std::string &command, Args... args) {
+		const auto it = this->inputEntries.find(command);
+		const auto handler = (it != this->inputEntries.end()) ? it->second : this->unknownCommandHandler;
+		return handler(args...);
+	}
 
-private:
-	static void emptyMessage(Application &application);
-	static void printStatus(Application &application);
-	static void printAddress(Application &application);
-	static void exit(Application &application);
-
-	static const InputEntries inputEntries;
+	const InputEntries inputEntries;
+	const InputHandler unknownCommandHandler;
 };

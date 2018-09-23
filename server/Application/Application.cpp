@@ -6,41 +6,19 @@
 #include "Utils/ApplicationError.h"
 #include "Utils/Logger.h"
 
+Application::Application() : inputProcessor(createInputEntries(), (Application::ApplicationInputProcessor::InputHandler) unknownCommandHandler) {}
+
+Application::~Application() {
+	interruptThreads();
+	joinThreads();
+}
+
 void Application::run(SocketContext &socketContext, InputSimulator &inputSimulator) {
 	validateIfFirstRun();
 	clearQueues();
 	createSockets(socketContext);
 	startThreads(inputSimulator);
 	handleInputs();
-}
-
-std::string Application::getStatus() {
-	std::string result;
-
-	if (connectionManager.isConnected()) {
-		result.append("Connected to ");
-		result.append(connectionManager.getConnectedAddress().toString(true));
-	}
-	else {
-		result.append("Waiting for connection...");
-	}
-
-	return result;
-}
-
-std::string Application::getAddress() {
-	std::string result = "This host's address is ";
-	result.append(this->address->toString(true));
-	return result;
-}
-
-void Application::exit() {
-	this->exitCalled = true;
-}
-
-Application::~Application() {
-	interruptThreads();
-	joinThreads();
 }
 
 void Application::validateIfFirstRun() {
@@ -70,11 +48,11 @@ void Application::startThreads(InputSimulator &inputSimulator) {
 }
 
 void Application::handleInputs() {
-	InputProcessor::printHelp(*this);
+	Application::printHelp(*this);
 	while (!this->exitCalled) {
 		std::string command;
 		std::getline(std::cin, command);
-		InputProcessor::call(*this, command);
+		inputProcessor.call(command, *this);
 	}
 }
 
@@ -90,4 +68,54 @@ void Application::joinThreads() {
 	this->processor.join();
 	this->receiver.join();
 	this->connectionManager.join();
+}
+
+Application::ApplicationInputProcessor::InputEntries Application::createInputEntries() {
+	return ApplicationInputProcessor::InputEntries {
+		{ "", Application::emptyCommandHandler },
+		{ "status", Application::printStatus },
+		{ "help", Application::printHelp },
+		{ "address", Application::printAddress },
+		{ "exit", Application::exit }
+	};
+}
+
+void Application::emptyCommandHandler(Application &application) {
+	// No operation
+}
+
+void Application::unknownCommandHandler(Application &application) {
+	Logger::log("Unknown command provided. Type \"help\" to see available commands.\n");
+}
+
+void Application::printStatus(Application &application) {
+	if (application.connectionManager.isConnected()) {
+		Logger::log("Connected to ", application.connectionManager.getConnectedAddress().toString(true));
+	}
+	else {
+		Logger::log("Waiting for connection...");
+	}
+}
+
+void Application::printHelp(Application &application) {
+	std::vector<std::string> tokens;
+	tokens.push_back("Available commands:");
+
+	for (const auto& entry : application.inputProcessor.inputEntries) {
+		if (!entry.first.empty()) {
+			std::string line = "     - ";
+			line.append(entry.first);
+			tokens.push_back(line);
+		}
+	}
+
+	Logger::log.dumpContainer(tokens.begin(), tokens.end());
+}
+
+void Application::printAddress(Application &application) {
+	Logger::log("This host's address is ", application.address->toString(true));
+}
+
+void Application::exit(Application &application) {
+	application.exitCalled = true;
 }
