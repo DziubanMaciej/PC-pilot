@@ -6,7 +6,7 @@
 void ConnectionManager::KeepAliveSender::onUpdate(ConnectionManager &connectionManager, BlockingQueue<ClientMessage> &toSendMessages, InputSimulator &inputSimulator) {
 	auto lock = connectionManager.lock();
 	if (!connectionManager.isConnected()) {
-		short port = Constants::AVAILABLE_CLIENT_PORTS[0];
+		auto port = Constants::AVAILABLE_CLIENT_PORTS[0];
 		toSendMessages.push(ClientMessage::createMessageAdvertise(*InetAddress::createBroadcast(port)));
 	}
 	else {

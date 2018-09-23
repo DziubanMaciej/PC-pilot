@@ -13,7 +13,7 @@ std::string InetAddress::ipToString(int addressFamily, void *address) {
 	return std::string{ buffer };
 }
 
-std::string InetAddress::ipToString(int addressFamily, void *address, short port) {
+std::string InetAddress::ipToString(int addressFamily, void *address, uint16_t port) {
 	std::ostringstream result;
 	result << ipToString(addressFamily, address) << ":" << port;
 	return result.str();
@@ -30,20 +30,20 @@ std::string InetAddress::ipToString(const InetAddress &address, bool appendPort)
 	}
 }
 
-std::unique_ptr<InetAddress> InetAddress::createAny(short port) {
+std::unique_ptr<InetAddress> InetAddress::createAny(uint16_t port) {
 	return std::make_unique<InetAddress>(INADDR_ANY, port);
 }
 
-std::unique_ptr<InetAddress> InetAddress::createLoopback(short port) {
+std::unique_ptr<InetAddress> InetAddress::createLoopback(uint16_t port) {
 	return std::make_unique<InetAddress>(INADDR_LOOPBACK, port);
 
 }
 
-std::unique_ptr<InetAddress> InetAddress::createBroadcast(short port) {
+std::unique_ptr<InetAddress> InetAddress::createBroadcast(uint16_t port) {
 	return std::make_unique<InetAddress>(INADDR_BROADCAST, port);
 }
 
-std::unique_ptr<InetAddress> InetAddress::createFromString(const std::string & address, short port) {
+std::unique_ptr<InetAddress> InetAddress::createFromString(const std::string & address, uint16_t port) {
 	uint32_t ip;
 	auto result = InetPton(AF_INET, address.c_str(), &ip);
 	if (result != 1) {
