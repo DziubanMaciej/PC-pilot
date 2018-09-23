@@ -29,6 +29,7 @@ void ConnectionManager::KeepAliveReceiver::onUpdate(ConnectionManager &connectio
 void ConnectionManager::KeepAliveReceiver::onUpdateConnected(ConnectionManager &connectionManager) {
 	// TODO this implementation allows any CONNECTION_REQUEST and KEEP_ALIVE to sustain connection
 	if (connectionManager.connectionManagerMessages.popAndGet(this->connectionManagerMessageBuffer, std::chrono::milliseconds(Constants::KEEP_ALIVE_TIMEOUT_MS))) {
+		// Lock and check if precondition hasn't changed
 		auto lock = connectionManager.lock();
 		if (!connectionManager.isConnected()) { // Could have been disconnected while getting message
 			return;
@@ -46,20 +47,23 @@ void ConnectionManager::KeepAliveReceiver::onUpdateConnected(ConnectionManager &
 		}
 	}
 
-	// popAndGet has timed out - disconnecting
+	// popAndGet has timed out or received disconnect message - disconnecting
 	connectionManager.disconnect();
 }
 
 void ConnectionManager::KeepAliveReceiver::onUpdateUnconnected(ConnectionManager &connectionManager) {
+	// Get message or time out
 	if (!connectionManager.connectionManagerMessages.popAndGet(this->connectionManagerMessageBuffer, std::chrono::milliseconds(Constants::MANUAL_LOOP_BACK_RATE_MS))) {
 		return;
 	}
 
+	// Lock and check if precondition hasn't changed
 	auto lock = connectionManager.lock();
-	if (connectionManager.isConnected()) { // Could have been connected while getting message
+	if (connectionManager.isConnected()) {
 		return;
 	}
 
+	// Connect if message was connection request
 	if (std::get<ConnectionManagerMessageType>(this->connectionManagerMessageBuffer) == ConnectionManagerMessageType::CONNECTION_REQUEST) {
 		auto connectedAddress = std::get<InetAddress>(this->connectionManagerMessageBuffer);
 		connectionManager.connect(connectedAddress);
@@ -67,21 +71,25 @@ void ConnectionManager::KeepAliveReceiver::onUpdateUnconnected(ConnectionManager
 }
 
 void ConnectionManager::start(BlockingQueue<ClientMessage> &toSendMessages, InputSimulator &inputSimulator) {
+	auto lock = this->lock();
 	keepAliveReceiver.start(*this);
 	keepAliveSender.start(*this, toSendMessages, inputSimulator);
 }
 
 void ConnectionManager::interrupt() {
+	auto lock = this->lock();
 	keepAliveReceiver.interrupt();
 	keepAliveSender.interrupt();
 }
 
 void ConnectionManager::join() {
+	auto lock = this->lock();
 	keepAliveReceiver.join();
 	keepAliveSender.join();
 }
 
 void ConnectionManager::connect(const InetAddress & address) {
+	auto lock = this->lock();
 	this->connectedAddress = std::make_unique<InetAddress>(address);
 	Logger::log("Connected to: ", *this->connectedAddress);
 }

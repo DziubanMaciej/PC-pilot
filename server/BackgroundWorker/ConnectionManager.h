@@ -45,13 +45,13 @@ public:
 	void notifyKeepAlive(const InetAddress &address);
 
 private:
-	std::mutex mutex;
+	std::recursive_mutex mutex;
 	std::unique_ptr<InetAddress> connectedAddress;
 	BlockingQueue<ConnectionManagerMessage> connectionManagerMessages;
 	KeepAliveReceiver keepAliveReceiver;
 	KeepAliveSender keepAliveSender;
 
-	std::unique_lock<std::mutex> lock() {
-		return std::unique_lock<std::mutex> { this->mutex };
+	auto lock() {
+		return std::unique_lock<decltype(this->mutex)> { this->mutex };
 	}
 };
