@@ -12,7 +12,7 @@ struct InetAddress {
 
 	static std::string ipToString(int addressFamily, void *address);
 	static std::string ipToString(int addressFamily, void *address, uint16_t port);
-	static std::string ipToString(const InetAddress &address, bool appendPort);
+	std::string toString(bool appendPort) const;
 
 	static std::unique_ptr<InetAddress> createAny(uint16_t port);
 	static std::unique_ptr<InetAddress> createLoopback(uint16_t port);

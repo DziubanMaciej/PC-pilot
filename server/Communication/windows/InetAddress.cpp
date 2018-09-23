@@ -19,16 +19,17 @@ std::string InetAddress::ipToString(int addressFamily, void *address, uint16_t p
 	return result.str();
 }
 
-std::string InetAddress::ipToString(const InetAddress &address, bool appendPort) {
+std::string InetAddress::toString(bool appendPort) const {
 	IN_ADDR inAddr;
-	inAddr.S_un.S_addr = address.address;
+	inAddr.S_un.S_addr = this->address;
 	if (appendPort) {
-		return ipToString(AF_INET, &inAddr, address.port);
+		return ipToString(AF_INET, &inAddr, this->port);
 	}
 	else {
 		return ipToString(AF_INET, &inAddr);
 	}
 }
+
 
 std::unique_ptr<InetAddress> InetAddress::createAny(uint16_t port) {
 	return std::make_unique<InetAddress>(INADDR_ANY, port);
@@ -53,5 +54,5 @@ std::unique_ptr<InetAddress> InetAddress::createFromString(const std::string & a
 }
 
 std::ostream& operator<<(std::ostream& out, const InetAddress& address) {
-	return out << InetAddress::ipToString(address, true);
+	return out << address.toString(true);
 }
