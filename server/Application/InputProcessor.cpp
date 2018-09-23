@@ -41,7 +41,7 @@ void InputProcessor::printHelp(Application &application) {
 }
 
 void InputProcessor::printStatus(Application &application) {
-	Logger::log("TODO: status\n");
+	Logger::log(application.getStatus());
 }
 
 void InputProcessor::exit(Application &application) {

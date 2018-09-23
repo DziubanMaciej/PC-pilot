@@ -14,6 +14,20 @@ void Application::run(SocketContext &socketContext, InputSimulator &inputSimulat
 	handleInputs();
 }
 
+std::string Application::getStatus() {
+	std::string result;
+
+	if (connectionManager.isConnected()) {
+		result.append("Connected to ");
+		result.append(InetAddress::ipToString(*connectionManager.getConnectedAddress()));
+	}
+	else {
+		result.append("Waiting for connection...");
+	}
+
+	return result;
+}
+
 void Application::exit() {
 	this->exitCalled = true;
 }
@@ -39,6 +53,7 @@ void Application::createSockets(SocketContext &socketContext) {
 	const auto address = InetAddress::createFromString(socketContext.getInetAddresses(true, false, false)[0], 9999);
 	this->receiveSocket = socketContext.getInetSocket(*address, true, false);
 	this->transmitSocket = socketContext.getInetSocket(*address, true, true);
+	Logger::log("Sockets established on ", InetAddress::ipToString(*address));
 }
 
 void Application::startThreads(InputSimulator &inputSimulator) {

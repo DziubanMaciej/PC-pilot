@@ -18,6 +18,7 @@ public:
 	~Application();
 	Application(const Application&) = delete;
 	void run(SocketContext &socketContext, InputSimulator &inputSimulator);
+	std::string getStatus();
 	void exit();
 
 private:
