@@ -13,6 +13,6 @@ class ServerListClearer(
     override fun runBody() {
         Thread.sleep(Constants.SERVER_LIST_MAX_AGE_MS)
         val entriesRemoved = serverRecyclerViewAdapter.clearOldEntries(Constants.SERVER_LIST_MAX_AGE_MS)
-        Log.i(messageTag, "Removed ${entriesRemoved} entries")
+        Log.i(messageTag, "Removed $entriesRemoved entries")
     }
 }

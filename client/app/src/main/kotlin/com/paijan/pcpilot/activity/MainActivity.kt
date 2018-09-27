@@ -63,13 +63,57 @@ class MainActivity : Activity() {
     }
 
     private fun setupServerList() {
-        serverRecyclerViewAdapter = ServerRecyclerViewAdapter(root_layout.serverListWrapper, { connectionManager!!.isConnected() }, { connectionManager?.notifySendConnectionRequest(it) })
+        serverRecyclerViewAdapter = ServerRecyclerViewAdapter(
+                root_layout.serverListWrapper,
+                { connectionManager!!.isConnected() },
+                { connectionManager?.notifySendConnectionRequest(it) }
+        )
         root_layout.serverList.apply {
             val linearLayoutManager = LinearLayoutManager(this.context)
             this.layoutManager = linearLayoutManager
             this.adapter = serverRecyclerViewAdapter
             this.addItemDecoration(DividerItemDecoration(this.context, linearLayoutManager.orientation))
         }
+    }
+
+    private fun setupThreads() {
+        connectionManager = DefaultConnectionManager(
+                { this@MainActivity.runOnUiThread { serverRecyclerViewAdapter.onDataSetChanged() } },
+                { this@MainActivity.runOnUiThread { serverRecyclerViewAdapter.onDataSetChanged() } },
+                toSendMessages,
+                activityEnder.onThreadEndCallback
+        ).apply { run() }
+
+        receiver = Thread(Receiver(
+                applicationImpl.sockets?.receiver!!,
+                receivedMessages,
+                activityEnder.onThreadEndCallback
+        )).apply { start() }
+
+
+        broadcastReceiver = Thread(Receiver(
+                applicationImpl.sockets?.broadcastReceiver!!,
+                receivedMessages,
+                activityEnder.onThreadEndCallback
+        )).apply { start() }
+
+        processor = Thread(Processor(
+                connectionManager!!,
+                receivedMessages,
+                { runOnUiThread { serverRecyclerViewAdapter.addEntry(it) } },
+                activityEnder.onThreadEndCallback
+        )).apply { start() }
+
+        transmitter = Thread(Transmitter(
+                applicationImpl.sockets?.sender!!,
+                toSendMessages,
+                activityEnder.onThreadEndCallback
+        )).apply { start() }
+
+        serverListClearer = Thread(ServerListClearer(
+                serverRecyclerViewAdapter,
+                activityEnder.onThreadEndCallback
+        )).apply { start() }
     }
 
     override fun onDestroy() {
@@ -107,29 +151,10 @@ class MainActivity : Activity() {
         activityEnder.endApplication()
     }
 
-    private fun setupThreads() {
-        connectionManager = DefaultConnectionManager(
-                { this@MainActivity.runOnUiThread { serverRecyclerViewAdapter.onDataSetChanged() } },
-                { this@MainActivity.runOnUiThread { serverRecyclerViewAdapter.onDataSetChanged() } },
-                toSendMessages,
-                activityEnder.onThreadEndCallback
-        )
-        receiver = Thread(Receiver(applicationImpl.sockets?.receiver!!, receivedMessages, activityEnder.onThreadEndCallback))
-        broadcastReceiver = Thread(Receiver(applicationImpl.sockets?.broadcastReceiver!!, receivedMessages, activityEnder.onThreadEndCallback))
-        processor = Thread(Processor(connectionManager!!, receivedMessages, { runOnUiThread { serverRecyclerViewAdapter.addEntry(it) } }, activityEnder.onThreadEndCallback))
-        transmitter = Thread(Transmitter(applicationImpl.sockets?.sender!!, toSendMessages, activityEnder.onThreadEndCallback))
-        serverListClearer = Thread(ServerListClearer(serverRecyclerViewAdapter, activityEnder.onThreadEndCallback)) // TODO
-
-        connectionManager?.run()
-        receiver?.start()
-        broadcastReceiver?.start()
-        processor?.start()
-        transmitter?.start()
-        serverListClearer?.start()
-    }
-
     @Suppress("UNUSED_PARAMETER")
     fun onClickDisconnect(v: View?) {
-        connectionManager?.getConnectedAddress()?.let { connectionManager?.notifyDisconnect(it) }
+        connectionManager!!.apply {
+            notifyDisconnect(getConnectedAddress())
+        }
     }
 }
