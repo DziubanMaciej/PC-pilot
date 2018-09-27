@@ -18,20 +18,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/buttonDisconnect"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="64dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="32dp"
-        android:onClick="onClickDisconnect"
-        android:text="@string/disconnect"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.909"
-        app:layout_constraintStart_toEndOf="@+id/buttonConnect"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <android.support.constraint.Guideline
         android:id="@+id/guidelineHorizontalTouchpadTop"
         android:layout_width="wrap_content"
@@ -101,7 +87,7 @@
         app:layout_constraintTop_toTopOf="@+id/guidelineHorizontalButtonsTop"
         tools:scaleType="fitXY" />
 
-    <com.paijan.pcpilot.custom_ui.DualSwapView
+    <com.paijan.pcpilot.custom_ui.SwapView
         android:id="@+id/serverListWrapper"
         android:layout_width="257dp"
         android:layout_height="142dp"
@@ -112,10 +98,10 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
+            android:id="@+id/emptyServerList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-
             android:text="@string/no_servers_message"
             android:textSize="24sp" />
 
@@ -123,6 +109,13 @@
             android:id="@+id/serverList"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-    </com.paijan.pcpilot.custom_ui.DualSwapView>
+
+        <Button
+            android:id="@+id/buttonDisconnect"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:onClick="onClickDisconnect"
+            android:text="@string/disconnect" />
+    </com.paijan.pcpilot.custom_ui.SwapView>
 
 </android.support.constraint.ConstraintLayout>

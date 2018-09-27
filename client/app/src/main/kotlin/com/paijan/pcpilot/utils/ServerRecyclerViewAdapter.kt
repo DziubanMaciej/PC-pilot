@@ -2,12 +2,14 @@ package com.paijan.pcpilot.utils
 
 import android.app.Activity
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.ViewGroup
 import android.widget.Button
-import com.paijan.pcpilot.custom_ui.DualSwapView
+import com.paijan.pcpilot.custom_ui.SwapView
+import kotlinx.android.synthetic.main.activity_main.view.*
 import java.net.InetSocketAddress
 
-class ServerRecyclerViewAdapter(private val dualSwapView: DualSwapView)
+class ServerRecyclerViewAdapter(private val swapView: SwapView, private val onCheckConnectionState: () -> Boolean)
     : RecyclerView.Adapter<ServerRecyclerViewAdapter.ServerRecyclerViewHolder>() {
     class ServerRecyclerViewHolder(val view: Button) : RecyclerView.ViewHolder(view)
     data class DataEntry(var timestamp: Long, val address: InetSocketAddress)
@@ -40,11 +42,19 @@ class ServerRecyclerViewAdapter(private val dualSwapView: DualSwapView)
         return entriesRemoved
     }
 
-    private fun onDataSetChanged() {
-        (dualSwapView.context as Activity).runOnUiThread {
+    fun onDataSetChanged() {
+        Log.i("XD", "onDataSetChanged")
+        (swapView.context as Activity).runOnUiThread {
             notifyDataSetChanged()
-            val isFull = itemCount > 0
-            dualSwapView.showView(isFull)
+            if (onCheckConnectionState()) {
+                swapView.showView(swapView.buttonDisconnect)
+                return@runOnUiThread
+            }
+            if (itemCount > 0) {
+                swapView.showView(swapView.serverList)
+                return@runOnUiThread
+            }
+            swapView.showView(swapView.emptyServerList)
         }
     }
 

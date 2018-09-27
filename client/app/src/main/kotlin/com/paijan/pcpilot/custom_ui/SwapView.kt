@@ -12,10 +12,21 @@ open class SwapView : LinearLayout {
     constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
 
     fun showView(index: Int) {
+        if (index < 0 || index >= childCount) throw IllegalArgumentException()
+        hideAllChildren()
+        getChildAt(index).visibility = View.VISIBLE
+    }
+
+    fun showView(view: View) {
+        if (view.parent != this) throw IllegalArgumentException()
+        hideAllChildren()
+        view.visibility = View.VISIBLE
+    }
+
+    private fun hideAllChildren() {
         for (i in 0 until childCount) {
             getChildAt(i).visibility = View.GONE
         }
-        getChildAt(index).visibility = View.VISIBLE
     }
 }
 

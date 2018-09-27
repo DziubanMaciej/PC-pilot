@@ -64,7 +64,7 @@ class MainActivity : Activity() {
     }
 
     private fun setupServerList() {
-        serverRecyclerViewAdapter = ServerRecyclerViewAdapter(root_layout.serverListWrapper)
+        serverRecyclerViewAdapter = ServerRecyclerViewAdapter(root_layout.serverListWrapper, { connectionManager!!.isConnected()})
         root_layout.serverList.apply {
             val linearLayoutManager = LinearLayoutManager(this.context)
             this.layoutManager = linearLayoutManager
@@ -110,8 +110,14 @@ class MainActivity : Activity() {
 
     private fun setupThreads() {
         connectionManager = DefaultConnectionManager(
-                { updateButtonStates(true) },
-                { updateButtonStates(false) },
+                {
+                    updateButtonStates(true)
+                    this@MainActivity.runOnUiThread { serverRecyclerViewAdapter.onDataSetChanged() }
+                },
+                {
+                    updateButtonStates(false)
+                    this@MainActivity.runOnUiThread { serverRecyclerViewAdapter.onDataSetChanged() }
+                },
                 toSendMessages,
                 activityEnder.onThreadEndCallback
         )
