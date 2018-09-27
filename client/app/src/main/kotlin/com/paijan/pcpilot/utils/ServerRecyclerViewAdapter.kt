@@ -9,8 +9,11 @@ import com.paijan.pcpilot.custom_ui.SwapView
 import kotlinx.android.synthetic.main.activity_main.view.*
 import java.net.InetSocketAddress
 
-class ServerRecyclerViewAdapter(private val swapView: SwapView, private val onCheckConnectionState: () -> Boolean)
-    : RecyclerView.Adapter<ServerRecyclerViewAdapter.ServerRecyclerViewHolder>() {
+class ServerRecyclerViewAdapter(
+        private val swapView: SwapView,
+        private val onCheckConnectionState: () -> Boolean,
+        private val onConnectCallback: (InetSocketAddress) -> Unit
+) : RecyclerView.Adapter<ServerRecyclerViewAdapter.ServerRecyclerViewHolder>() {
     class ServerRecyclerViewHolder(val view: Button) : RecyclerView.ViewHolder(view)
     data class DataEntry(var timestamp: Long, val address: InetSocketAddress)
 
@@ -43,7 +46,6 @@ class ServerRecyclerViewAdapter(private val swapView: SwapView, private val onCh
     }
 
     fun onDataSetChanged() {
-        Log.i("XD", "onDataSetChanged")
         (swapView.context as Activity).runOnUiThread {
             notifyDataSetChanged()
             if (onCheckConnectionState()) {
@@ -67,6 +69,10 @@ class ServerRecyclerViewAdapter(private val swapView: SwapView, private val onCh
     }
 
     override fun onBindViewHolder(holder: ServerRecyclerViewHolder, position: Int) {
-        holder.view.text = data[position].address.toString()
+        val address = data[position].address
+        holder.view.apply {
+            text = address.toString()
+            setOnClickListener { onConnectCallback(data[position].address) }
+        }
     }
 }

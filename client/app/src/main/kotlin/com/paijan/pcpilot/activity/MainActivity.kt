@@ -43,7 +43,6 @@ class MainActivity : Activity() {
         setupTouchPad()
         setupServerList()
         setupThreads()
-        updateButtonStates(false)
     }
 
     private fun setupTouchPad() {
@@ -64,7 +63,7 @@ class MainActivity : Activity() {
     }
 
     private fun setupServerList() {
-        serverRecyclerViewAdapter = ServerRecyclerViewAdapter(root_layout.serverListWrapper, { connectionManager!!.isConnected()})
+        serverRecyclerViewAdapter = ServerRecyclerViewAdapter(root_layout.serverListWrapper, { connectionManager!!.isConnected() }, { connectionManager?.notifySendConnectionRequest(it) })
         root_layout.serverList.apply {
             val linearLayoutManager = LinearLayoutManager(this.context)
             this.layoutManager = linearLayoutManager
@@ -110,20 +109,14 @@ class MainActivity : Activity() {
 
     private fun setupThreads() {
         connectionManager = DefaultConnectionManager(
-                {
-                    updateButtonStates(true)
-                    this@MainActivity.runOnUiThread { serverRecyclerViewAdapter.onDataSetChanged() }
-                },
-                {
-                    updateButtonStates(false)
-                    this@MainActivity.runOnUiThread { serverRecyclerViewAdapter.onDataSetChanged() }
-                },
+                { this@MainActivity.runOnUiThread { serverRecyclerViewAdapter.onDataSetChanged() } },
+                { this@MainActivity.runOnUiThread { serverRecyclerViewAdapter.onDataSetChanged() } },
                 toSendMessages,
                 activityEnder.onThreadEndCallback
         )
         receiver = Thread(Receiver(applicationImpl.sockets?.receiver!!, receivedMessages, activityEnder.onThreadEndCallback))
         broadcastReceiver = Thread(Receiver(applicationImpl.sockets?.broadcastReceiver!!, receivedMessages, activityEnder.onThreadEndCallback))
-        processor = Thread(Processor(connectionManager!!, receivedMessages, { runOnUiThread{ serverRecyclerViewAdapter.addEntry(it)}}, activityEnder.onThreadEndCallback))
+        processor = Thread(Processor(connectionManager!!, receivedMessages, { runOnUiThread { serverRecyclerViewAdapter.addEntry(it) } }, activityEnder.onThreadEndCallback))
         transmitter = Thread(Transmitter(applicationImpl.sockets?.sender!!, toSendMessages, activityEnder.onThreadEndCallback))
         serverListClearer = Thread(ServerListClearer(serverRecyclerViewAdapter, activityEnder.onThreadEndCallback)) // TODO
 
@@ -133,25 +126,6 @@ class MainActivity : Activity() {
         processor?.start()
         transmitter?.start()
         serverListClearer?.start()
-    }
-
-    private fun updateButtonStates(connected: Boolean) {
-        fun Button.turn(on: Boolean) {
-            isClickable = on
-            alpha = if (on) 1.0f else 0.3f
-        }
-
-        runOnUiThread {
-            root_layout.buttonConnect.turn(!connected)
-            root_layout.buttonDisconnect.turn(connected)
-        }
-    }
-
-    @Suppress("UNUSED_PARAMETER")
-    fun onClickConnect(v: View?) {
-        // TODO add textfield or implement server-side advertise
-        val socketAddress = InetSocketAddress("192.168.0.60", 9999)
-        connectionManager?.notifySendConnectionRequest(socketAddress)
     }
 
     @Suppress("UNUSED_PARAMETER")
