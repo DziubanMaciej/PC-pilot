@@ -20,7 +20,7 @@ class DefaultConnectionManager(
         private val toSendMessages: BlockingQueue<ServerMessage>,
         private val onThreadEnd: ThreadEndCallback
 ) : ConnectionManager {
-    private val connectionManagerMessages: BlockingQueue<in ConnectionManagerMessage> = LinkedBlockingQueue()
+    private val connectionManagerMessages: BlockingQueue<ConnectionManagerMessage> = LinkedBlockingQueue()
     private val lock = ReentrantReadWriteLock()
 
     private var running = false
@@ -175,6 +175,10 @@ class DefaultConnectionManager(
                     val timeStart = System.nanoTime()
                     val message = connectionManagerMessages.poll(waitTimeNs, TimeUnit.NANOSECONDS)
                     waitTimeNs -= System.nanoTime() - timeStart
+
+                    if (message.address != getConnectedAddress()) {
+                        continue@waitLoop
+                    }
 
                     when (message) {
                         null -> {

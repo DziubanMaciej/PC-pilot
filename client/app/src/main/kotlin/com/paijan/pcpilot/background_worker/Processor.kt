@@ -22,11 +22,9 @@ class Processor(
                 onAdvertiseCallback(message.address)
             }
             ClientMessage.Type.KeepAlive -> {
-                // TODO validate client IP
                 connectionManager.notifyKeepAlive(message.address)
             }
             ClientMessage.Type.Disconnect -> {
-                // TODO validate client IP
                 connectionManager.notifyDisconnect(message.address)
             }
             else -> {
