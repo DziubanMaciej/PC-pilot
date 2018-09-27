@@ -192,8 +192,9 @@ class ServerMessage private constructor(bytes: ByteArray, val address: InetSocke
 class ClientMessage private constructor(bytes: ByteArray, val address: InetSocketAddress) : Message(bytes) {
     enum class Type(val value: Byte) {
         ConnectionAccept(0),
-        KeepAlive(1),
-        Advertise(2);
+        Disconnect(1),
+        KeepAlive(2),
+        Advertise(3);
 
         companion object {
             fun fromValue(value: Byte): Type? {
@@ -248,6 +249,15 @@ class ClientMessage private constructor(bytes: ByteArray, val address: InetSocke
                     .order(ByteOrder.LITTLE_ENDIAN)
                     .putPreamble()
                     .put(Type.ConnectionAccept.value)
+                    .array()
+            return ClientMessage(bytes, address)
+        }
+
+        fun createMessageDisconnect(address: InetSocketAddress): ClientMessage {
+            val bytes = ByteBuffer.allocate(SIZE)
+                    .order(ByteOrder.LITTLE_ENDIAN)
+                    .putPreamble()
+                    .put(Type.Disconnect.value)
                     .array()
             return ClientMessage(bytes, address)
         }

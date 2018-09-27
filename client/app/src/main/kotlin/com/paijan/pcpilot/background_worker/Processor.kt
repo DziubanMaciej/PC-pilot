@@ -25,6 +25,10 @@ class Processor(
                 // TODO validate client IP
                 connectionManager.notifyKeepAlive(message.address)
             }
+            ClientMessage.Type.Disconnect -> {
+                // TODO validate client IP
+                connectionManager.notifyDisconnect(message.address)
+            }
             else -> {
                 Log.w(messageTag, "Unknown message, ignoring")
             }

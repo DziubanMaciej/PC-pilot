@@ -121,6 +121,14 @@ void Application::printHelp(Application &application) {
 }
 
 void Application::disconnect(Application &application) {
+	auto lock = application.connectionManager.lock();
+	if (!application.connectionManager.isConnected()) {
+		Logger::log("Already disconnected");
+		return;
+	}
+
+	auto &connectedAddress = application.connectionManager.getConnectedAddress();
+	application.toSendMessages.push(ClientMessage::createMessageDisconnect(connectedAddress));
 	application.connectionManager.disconnect();
 }
 

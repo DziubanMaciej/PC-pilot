@@ -44,14 +44,14 @@ public:
 	void notifyDisconnect(const InetAddress &address);
 	void notifyKeepAlive(const InetAddress &address);
 
+	auto lock() {
+		return std::unique_lock<decltype(this->mutex)> { this->mutex };
+	}
+
 private:
 	std::recursive_mutex mutex;
 	std::unique_ptr<InetAddress> connectedAddress;
 	BlockingQueue<ConnectionManagerMessage> connectionManagerMessages;
 	KeepAliveReceiver keepAliveReceiver;
 	KeepAliveSender keepAliveSender;
-
-	auto lock() {
-		return std::unique_lock<decltype(this->mutex)> { this->mutex };
-	}
 };

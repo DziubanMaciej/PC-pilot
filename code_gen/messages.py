@@ -18,6 +18,7 @@ serverMessage = MessageClass("ServerMessage",
 
 clientMessage = MessageClass("ClientMessage",
     Message('ConnectionAccept'),
+    Message('Disconnect'),
     Message('KeepAlive'),
     Message('Advertise'),
 )
