@@ -51,24 +51,26 @@ class MainActivity : Activity() {
                 toSendMessages.add(createMessage(it.getConnectedAddress()))
             }
         }
-        root_layout.touchPadButtonLeft.onTouchDown = { sendMessage { ServerMessage.createMessageLeftPress(it) } }
-        root_layout.touchPadButtonLeft.onTouchUp = { sendMessage { ServerMessage.createMessageLeftRelease(it) } }
-        root_layout.touchPadButtonRight.onTouchDown = { sendMessage { ServerMessage.createMessageRightPress(it) } }
-        root_layout.touchPadButtonRight.onTouchUp = { sendMessage { ServerMessage.createMessageRightRelease(it) } }
-        root_layout.touchPad.onSendCursorMoveCallback = { x, y ->
-            connectionManager?.takeIf { it.isConnected() }?.let {
-                toSendMessages.add(ServerMessage.createMessageMoveCursor(it.getConnectedAddress(), x, y))
+        root.apply {
+            touchPadButtonLeft.onTouchDown = { sendMessage { ServerMessage.createMessageLeftPress(it) } }
+            touchPadButtonLeft.onTouchUp = { sendMessage { ServerMessage.createMessageLeftRelease(it) } }
+            touchPadButtonRight.onTouchDown = { sendMessage { ServerMessage.createMessageRightPress(it) } }
+            touchPadButtonRight.onTouchUp = { sendMessage { ServerMessage.createMessageRightRelease(it) } }
+            touchPad.onSendCursorMoveCallback = { x, y ->
+                connectionManager?.takeIf { it.isConnected() }?.let {
+                    toSendMessages.add(ServerMessage.createMessageMoveCursor(it.getConnectedAddress(), x, y))
+                }
             }
         }
     }
 
     private fun setupServerList() {
         serverRecyclerViewAdapter = ServerRecyclerViewAdapter(
-                root_layout.serverListWrapper,
+                root.serverListWrapper,
                 { connectionManager!!.isConnected() },
                 { connectionManager?.notifySendConnectionRequest(it) }
         )
-        root_layout.serverList.apply {
+        root.serverList.apply {
             val linearLayoutManager = LinearLayoutManager(this.context)
             this.layoutManager = linearLayoutManager
             this.adapter = serverRecyclerViewAdapter
