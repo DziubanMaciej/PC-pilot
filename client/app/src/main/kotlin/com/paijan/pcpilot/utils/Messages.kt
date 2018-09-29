@@ -52,7 +52,8 @@ class ServerMessage private constructor(bytes: ByteArray, val address: InetSocke
         LeftRelease(5),
         RightPress(6),
         RightRelease(7),
-        KeyPress(8);
+        KeyPress(8),
+        KeyPressEnter(9);
 
         companion object {
             fun fromValue(value: Byte): Type? {
@@ -182,6 +183,15 @@ class ServerMessage private constructor(bytes: ByteArray, val address: InetSocke
                     .putPreamble()
                     .put(Type.KeyPress.value)
                     .putInt(unicode)
+                    .array()
+            return ServerMessage(bytes, address)
+        }
+
+        fun createMessageKeyPressEnter(address: InetSocketAddress): ServerMessage {
+            val bytes = ByteBuffer.allocate(SIZE)
+                    .order(ByteOrder.LITTLE_ENDIAN)
+                    .putPreamble()
+                    .put(Type.KeyPressEnter.value)
                     .array()
             return ServerMessage(bytes, address)
         }

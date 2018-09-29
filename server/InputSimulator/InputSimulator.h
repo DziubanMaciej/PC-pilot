@@ -22,4 +22,5 @@ public:
 
 	// keyboard
 	virtual bool pressButtonUnicode(char16_t unicode) = 0;
+	virtual bool pressButtonEnter() = 0;
 };

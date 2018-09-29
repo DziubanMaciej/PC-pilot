@@ -89,3 +89,14 @@ bool WindowsInputSimulator::pressButtonUnicode(char16_t unicode) {
   input.ki.dwExtraInfo = 0;
   return sendInput(input);
 }
+
+bool WindowsInputSimulator::pressButtonEnter() {
+	INPUT input;
+	input.type = 1;
+	input.ki.wVk = VK_RETURN;
+	input.ki.wScan = 0;
+	input.ki.dwFlags = 0;
+	input.ki.time = 0;
+	input.ki.dwExtraInfo = 0;
+	return sendInput(input);
+}

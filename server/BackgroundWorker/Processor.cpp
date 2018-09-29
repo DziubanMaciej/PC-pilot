@@ -35,8 +35,10 @@ void Processor::onUpdate(BlockingQueue<ServerMessage> &receivedMessages, Blockin
 			inputSimulator.sendMouseButtonEvent(InputSimulator::MouseButtonEventType::RightRelease);
 			break;
 		case ServerMessage::Type::KeyPress:
-			auto unicode = this->messageBuffer.getMessageKeyPressUnicode();
-			inputSimulator.pressButtonUnicode(unicode);
+			inputSimulator.pressButtonUnicode(this->messageBuffer.getMessageKeyPressUnicode());
+			break;
+		case ServerMessage::Type::KeyPressEnter:
+			inputSimulator.pressButtonEnter();
 			break;
 	}
 }

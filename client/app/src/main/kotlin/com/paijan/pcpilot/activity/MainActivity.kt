@@ -168,18 +168,27 @@ class MainActivity : Activity() {
             KeyEvent.KEYCODE_DEL -> {
                 return '\b'.toInt()
             }
-            KeyEvent.KEYCODE_ENTER -> {
-                return '\n'.toInt()
-            }
         }
         return event.unicodeChar
     }
 
-    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        val unicode = getUnicode(event!!)
+    private fun getMessageCreateFunction(event: KeyEvent) : MessageCreateFunction? {
+        if (event.keyCode == KeyEvent.KEYCODE_ENTER) {
+            return { ServerMessage.createMessageKeyPressEnter(it)}
+        }
+
+        val unicode = getUnicode(event)
         if (unicode > 0) {
-            MessageSendTask.createAndExecute({ ServerMessage.createMessageKeyPress(it, unicode) }, connectionManager, toSendMessages)
-            return true
+            return { ServerMessage.createMessageKeyPress(it, unicode) }
+        }
+
+        return null
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        val messageCreateFunction = getMessageCreateFunction(event!!)
+        if (messageCreateFunction != null) {
+            MessageSendTask.createAndExecute(messageCreateFunction, connectionManager, toSendMessages)
         }
         return super.onKeyDown(keyCode, event)
     }

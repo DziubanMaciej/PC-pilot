@@ -15,8 +15,9 @@ serverMessage = MessageClass("ServerMessage",
     Message('RightPress'),
     Message('RightRelease'),
     Message('KeyPress',
-        Field('unicode', Types.UnicodeChar),
-    )
+        Field('unicode', Types.UnicodeChar)
+    ),
+    Message('KeyPressEnter'),
 )
 
 clientMessage = MessageClass("ClientMessage",

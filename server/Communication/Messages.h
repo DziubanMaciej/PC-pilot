@@ -94,7 +94,8 @@ public:
         RightPress = 6,
         RightRelease = 7,
         KeyPress = 8,
-        ErrorType = 9
+        KeyPressEnter = 9,
+        ErrorType = 10
     };
 
     Type getType() {
@@ -187,6 +188,14 @@ public:
     }
     char16_t getMessageKeyPressUnicode() {
         return getField<char16_t, 8>();
+    }
+
+    // --- --- --- KeyPressEnter
+    static ServerMessage createMessageKeyPressEnter(const InetAddress &address) {
+        return std::move(ServerMessage(address)
+            .setPreamble()
+            .setField<Byte, 7>(static_cast<Byte>(Type::KeyPressEnter))
+        );
     }
 };
 
