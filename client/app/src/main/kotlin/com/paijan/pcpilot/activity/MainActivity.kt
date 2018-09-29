@@ -41,6 +41,10 @@ class MainActivity : Activity() {
         setContentView(R.layout.activity_main)
         setupTouchPad()
         setupServerList()
+    }
+
+    override fun onResume() {
+        super.onResume()
         setupThreads()
     }
 
@@ -108,8 +112,9 @@ class MainActivity : Activity() {
         )).apply { start() }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+
+    override fun onPause() {
+        super.onPause()
 
         // Close sockets first to interrupt all blocking operations
         applicationImpl.sockets?.close()
