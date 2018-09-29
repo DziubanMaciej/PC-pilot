@@ -3,8 +3,10 @@ package com.paijan.pcpilot.utils
 import android.app.Activity
 import android.support.v7.widget.RecyclerView
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Button
+import com.paijan.pcpilot.R
 import com.paijan.pcpilot.custom_ui.SwapView
 import kotlinx.android.synthetic.main.activity_main.view.*
 import java.net.InetSocketAddress
@@ -49,7 +51,7 @@ class ServerRecyclerViewAdapter(
         (swapView.context as Activity).runOnUiThread {
             notifyDataSetChanged()
             if (onCheckConnectionState()) {
-                swapView.showView(swapView.buttonDisconnect)
+                swapView.showView(swapView.disconnectServerList)
                 return@runOnUiThread
             }
             if (itemCount > 0) {
@@ -61,7 +63,8 @@ class ServerRecyclerViewAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ServerRecyclerViewHolder {
-        return ServerRecyclerViewHolder(Button(parent.context))
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.server_list_element, parent, false) as Button
+        return ServerRecyclerViewHolder(view)
     }
 
     override fun getItemCount(): Int {

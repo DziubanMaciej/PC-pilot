@@ -91,7 +91,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:background="@color/primaryGray"
+        android:background="@drawable/server_list_background"
         app:layout_constraintBottom_toTopOf="@+id/guidelineHorizontalServerListBottom"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -106,16 +106,28 @@
             android:textSize="24sp" />
 
         <android.support.v7.widget.RecyclerView
+            android:padding="8dp"
             android:id="@+id/serverList"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <Button
-            android:id="@+id/buttonDisconnect"
+        <LinearLayout
+            android:id="@+id/disconnectServerList"
+            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:onClick="onClickDisconnect"
-            android:text="@string/disconnect" />
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/buttonDisconnect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onClickDisconnect"
+                android:padding="30dp"
+                android:text="@string/disconnect"
+                android:textSize="24sp" />
+        </LinearLayout>
+
     </com.paijan.pcpilot.custom_ui.SwapView>
 
 </android.support.constraint.ConstraintLayout>
