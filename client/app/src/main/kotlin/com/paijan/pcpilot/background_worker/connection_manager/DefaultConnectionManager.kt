@@ -176,20 +176,19 @@ class DefaultConnectionManager(
                     val message = connectionManagerMessages.poll(waitTimeNs, TimeUnit.NANOSECONDS)
                     waitTimeNs -= System.nanoTime() - timeStart
 
-                    if (message.address != getConnectedAddress()) {
-                        continue@waitLoop
-                    }
-
-                    when (message) {
-                        null -> {
+                    when {
+                        message == null -> {
                             shouldDisconnect = true
                             break@waitLoop
                         }
-                        is ConnectionManagerDisconnectRequestMessage -> {
+                        message.address != getConnectedAddress() -> {
+                            continue@waitLoop
+                        }
+                        message is ConnectionManagerDisconnectRequestMessage -> {
                             shouldDisconnect = true
                             break@waitLoop
                         }
-                        is ConnectionManagerKeepAliveMessage -> {
+                        message is ConnectionManagerKeepAliveMessage -> {
                             shouldDisconnect = false
                             break@waitLoop
                         }
