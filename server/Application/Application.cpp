@@ -13,10 +13,10 @@ Application::~Application() {
 	joinThreads();
 }
 
-void Application::run(SocketContext &socketContext, InputSimulator &inputSimulator) {
+void Application::run(SocketContext &socketContext, InputSimulator &inputSimulator, uint16_t port) {
 	validateIfFirstRun();
 	clearQueues();
-	createSockets(socketContext);
+	createSockets(socketContext, port);
 	startThreads(inputSimulator);
 	handleInputs();
 }
@@ -33,8 +33,8 @@ void Application::clearQueues() {
 	this->receivedMessages.clear();
 }
 
-void Application::createSockets(SocketContext &socketContext) {
-	this->address = InetAddress::createFromString(socketContext.getInetAddresses(true, false, false)[0], 9999);
+void Application::createSockets(SocketContext &socketContext, uint16_t port) {
+	this->address = InetAddress::createFromString(socketContext.getInetAddresses(true, false, false)[0], port);
 	this->receiveSocket = socketContext.getInetSocket(*this->address, true, false);
 	this->transmitSocket = socketContext.getInetSocket(*this->address, true, true);
 	Logger::log("Sockets established on ", this->address->toString(true));

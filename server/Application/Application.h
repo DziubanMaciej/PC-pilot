@@ -19,13 +19,13 @@ public:
 	Application();
 	Application(const Application&) = delete;
 	~Application();
-	void run(SocketContext &socketContext, InputSimulator &inputSimulator);
+	void run(SocketContext &socketContext, InputSimulator &inputSimulator, uint16_t port);
 
 private:
 	// run() submethods
 	void validateIfFirstRun();
 	void clearQueues();
-	void createSockets(SocketContext &socketContext);
+	void createSockets(SocketContext &socketContext, uint16_t port);
 	void startThreads(InputSimulator &inputSimulator);
 	void handleInputs();
 
