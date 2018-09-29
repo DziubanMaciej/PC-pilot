@@ -93,7 +93,8 @@ public:
         LeftRelease = 5,
         RightPress = 6,
         RightRelease = 7,
-        ErrorType = 8
+        KeyPress = 8,
+        ErrorType = 9
     };
 
     Type getType() {
@@ -174,6 +175,18 @@ public:
             .setPreamble()
             .setField<Byte, 7>(static_cast<Byte>(Type::RightRelease))
         );
+    }
+
+    // --- --- --- KeyPress
+    static ServerMessage createMessageKeyPress(const InetAddress &address, char16_t unicode) {
+        return std::move(ServerMessage(address)
+            .setPreamble()
+            .setField<Byte, 7>(static_cast<Byte>(Type::KeyPress))
+            .setField<char16_t, 8>(unicode)
+        );
+    }
+    char16_t getMessageKeyPressUnicode() {
+        return getField<char16_t, 8>();
     }
 };
 

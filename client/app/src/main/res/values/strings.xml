@@ -4,4 +4,5 @@
     <string name="disconnect">Disconnect</string>
     <string name="no_servers_message">No servers available :(</string>
     <string name="establishing_connection">Establishing connection...</string>
+    <string name="keyboard_toggle">Keyboard toggle</string>
 </resources>

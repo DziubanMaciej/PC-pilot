@@ -1,11 +1,15 @@
 package com.paijan.pcpilot.activity
 
 import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
+import android.util.Log
+import android.view.KeyEvent
 import android.view.View
-import android.widget.Button
+import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 import com.paijan.pcpilot.R
 import com.paijan.pcpilot.background_worker.Processor
 import com.paijan.pcpilot.background_worker.Receiver
@@ -158,5 +162,24 @@ class MainActivity : Activity() {
         connectionManager!!.apply {
             notifyDisconnect(getConnectedAddress())
         }
+    }
+
+    @Suppress("UNUSED_PARAMETER")
+    fun onKeyboardToggle(v: View?) {
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_IMPLICIT_ONLY)
+
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        // TODO unsafe implementation
+        val unicode = event?.unicodeChar
+        if (unicode != null && unicode > 0) {
+            Log.i("SENDING: ", unicode.toString())
+            toSendMessages.add(ServerMessage.createMessageKeyPress(connectionManager!!.getConnectedAddress(), unicode))
+            return true
+        }
+        return super.onKeyDown(keyCode, event)
     }
 }

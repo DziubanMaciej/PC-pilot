@@ -18,6 +18,7 @@ class Types:
     Byte = Type(1, name='Byte')
     Preamble = Type(len(preamble_value), name='Preamble')
     IntArray = Type(-1, name_cpp="std::vector<int>", name_kt="List<Int>")
+    UnicodeChar = Type(2, name_cpp="char16_t", name_kt="Int")
 
 class Field:
     def __init__(self, field_name, field_type):
