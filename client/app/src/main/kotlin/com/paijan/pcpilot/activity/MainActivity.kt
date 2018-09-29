@@ -1,14 +1,11 @@
 package com.paijan.pcpilot.activity
 
 import android.app.Activity
-import android.content.Context
 import android.os.Bundle
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.view.KeyEvent
 import android.view.View
-import android.view.WindowManager
-import android.view.inputmethod.InputMethodManager
 import com.paijan.pcpilot.R
 import com.paijan.pcpilot.background_worker.Processor
 import com.paijan.pcpilot.background_worker.Receiver
@@ -26,6 +23,7 @@ class MainActivity : Activity() {
     private val receivedMessages = LinkedBlockingQueue<ClientMessage>()
     private val toSendMessages = LinkedBlockingQueue<ServerMessage>()
 
+    private val keyboard = Keyboard(this)
     private val applicationImpl get() = (application as ApplicationImpl)
     private lateinit var serverRecyclerViewAdapter: ServerRecyclerViewAdapter
 
@@ -157,34 +155,10 @@ class MainActivity : Activity() {
 
     @Suppress("UNUSED_PARAMETER")
     fun onKeyboardToggle(v: View?) {
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_IMPLICIT_ONLY)
-
-    }
-
-    private fun getMessageCreateFunction(event: KeyEvent): MessageCreateFunction? {
-        return when {
-            event.keyCode == KeyEvent.KEYCODE_ENTER -> {
-                { ServerMessage.createMessageKeyPressEnter(it) }
-            }
-            event.keyCode == KeyEvent.KEYCODE_DEL -> {
-                { ServerMessage.createMessageKeyPressBackspace(it) }
-            }
-            event.unicodeChar > 0 -> {
-                { ServerMessage.createMessageKeyPress(it, event.unicodeChar) }
-            }
-            else -> {
-                null
-            }
-        }
+        keyboard.toggleShow()
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        val messageCreateFunction = getMessageCreateFunction(event!!)
-        if (messageCreateFunction != null) {
-            MessageSendTask.createAndExecute(messageCreateFunction, connectionManager, toSendMessages)
-        }
-        return super.onKeyDown(keyCode, event)
+        return keyboard.onKeyDown(event, connectionManager, toSendMessages) || super.onKeyDown(keyCode, event)
     }
 }
