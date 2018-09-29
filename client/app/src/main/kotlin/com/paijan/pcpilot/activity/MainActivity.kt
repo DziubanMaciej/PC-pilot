@@ -5,7 +5,6 @@ import android.content.Context
 import android.os.Bundle
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
-import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
@@ -17,13 +16,9 @@ import com.paijan.pcpilot.background_worker.ServerListClearer
 import com.paijan.pcpilot.background_worker.Transmitter
 import com.paijan.pcpilot.background_worker.connection_manager.ConnectionManager
 import com.paijan.pcpilot.background_worker.connection_manager.DefaultConnectionManager
-import com.paijan.pcpilot.utils.ActivityEnder
-import com.paijan.pcpilot.utils.ClientMessage
-import com.paijan.pcpilot.utils.ServerMessage
-import com.paijan.pcpilot.utils.ServerRecyclerViewAdapter
+import com.paijan.pcpilot.utils.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.view.*
-import java.net.InetSocketAddress
 import java.util.concurrent.LinkedBlockingQueue
 
 class MainActivity : Activity() {
@@ -50,21 +45,12 @@ class MainActivity : Activity() {
     }
 
     private fun setupTouchPad() {
-        fun sendMessage(createMessage: (InetSocketAddress) -> ServerMessage) {
-            connectionManager?.takeIf { it.isConnected() }?.let {
-                toSendMessages.add(createMessage(it.getConnectedAddress()))
-            }
-        }
         root.apply {
-            touchPadButtonLeft.onTouchDown = { sendMessage { ServerMessage.createMessageLeftPress(it) } }
-            touchPadButtonLeft.onTouchUp = { sendMessage { ServerMessage.createMessageLeftRelease(it) } }
-            touchPadButtonRight.onTouchDown = { sendMessage { ServerMessage.createMessageRightPress(it) } }
-            touchPadButtonRight.onTouchUp = { sendMessage { ServerMessage.createMessageRightRelease(it) } }
-            touchPad.onSendCursorMoveCallback = { x, y ->
-                connectionManager?.takeIf { it.isConnected() }?.let {
-                    toSendMessages.add(ServerMessage.createMessageMoveCursor(it.getConnectedAddress(), x, y))
-                }
-            }
+            touchPadButtonLeft.onTouchDown = { MessageSendTask.createAndExecute({ ServerMessage.createMessageLeftPress(it) }, connectionManager, toSendMessages) }
+            touchPadButtonLeft.onTouchUp = { MessageSendTask.createAndExecute({ ServerMessage.createMessageLeftRelease(it) }, connectionManager, toSendMessages) }
+            touchPadButtonRight.onTouchDown = { MessageSendTask.createAndExecute({ ServerMessage.createMessageRightPress(it) }, connectionManager, toSendMessages) }
+            touchPadButtonRight.onTouchUp = { MessageSendTask.createAndExecute({ ServerMessage.createMessageRightRelease(it) }, connectionManager, toSendMessages) }
+            touchPad.onSendCursorMoveCallback = { x, y -> MessageSendTask.createAndExecute({ ServerMessage.createMessageMoveCursor(it, x, y) }, connectionManager, toSendMessages) }
         }
     }
 
@@ -173,11 +159,9 @@ class MainActivity : Activity() {
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        // TODO unsafe implementation
-        val unicode = event?.unicodeChar
-        if (unicode != null && unicode > 0) {
-            Log.i("SENDING: ", unicode.toString())
-            toSendMessages.add(ServerMessage.createMessageKeyPress(connectionManager!!.getConnectedAddress(), unicode))
+        val unicode = event!!.unicodeChar
+        if (unicode > 0) {
+            MessageSendTask.createAndExecute({ ServerMessage.createMessageKeyPress(it, unicode) }, connectionManager, toSendMessages)
             return true
         }
         return super.onKeyDown(keyCode, event)

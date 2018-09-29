@@ -1,6 +1,7 @@
 package com.paijan.pcpilot.background_worker.connection_manager
 
 import java.net.InetSocketAddress
+import java.util.concurrent.locks.ReentrantReadWriteLock
 
 /**
  * Object managing connection with server over connectionless protocol
@@ -21,6 +22,7 @@ interface ConnectionManager {
     fun run()
     fun interrupt()
     fun join()
+    val lock : ReentrantReadWriteLock
 
     // State getters
     fun isConnected() : Boolean

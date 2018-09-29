@@ -21,7 +21,7 @@ class DefaultConnectionManager(
         private val onThreadEnd: ThreadEndCallback
 ) : ConnectionManager {
     private val connectionManagerMessages: BlockingQueue<ConnectionManagerMessage> = LinkedBlockingQueue()
-    private val lock = ReentrantReadWriteLock()
+    override val lock = ReentrantReadWriteLock()
 
     private var running = false
     private var _connectedAddress: InetSocketAddress? = null
