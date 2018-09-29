@@ -163,26 +163,21 @@ class MainActivity : Activity() {
 
     }
 
-    private fun getUnicode(event: KeyEvent) : Int {
-        when (event.keyCode) {
-            KeyEvent.KEYCODE_DEL -> {
-                return '\b'.toInt()
+    private fun getMessageCreateFunction(event: KeyEvent): MessageCreateFunction? {
+        return when {
+            event.keyCode == KeyEvent.KEYCODE_ENTER -> {
+                { ServerMessage.createMessageKeyPressEnter(it) }
+            }
+            event.keyCode == KeyEvent.KEYCODE_DEL -> {
+                { ServerMessage.createMessageKeyPressBackspace(it) }
+            }
+            event.unicodeChar > 0 -> {
+                { ServerMessage.createMessageKeyPress(it, event.unicodeChar) }
+            }
+            else -> {
+                null
             }
         }
-        return event.unicodeChar
-    }
-
-    private fun getMessageCreateFunction(event: KeyEvent) : MessageCreateFunction? {
-        if (event.keyCode == KeyEvent.KEYCODE_ENTER) {
-            return { ServerMessage.createMessageKeyPressEnter(it)}
-        }
-
-        val unicode = getUnicode(event)
-        if (unicode > 0) {
-            return { ServerMessage.createMessageKeyPress(it, unicode) }
-        }
-
-        return null
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {

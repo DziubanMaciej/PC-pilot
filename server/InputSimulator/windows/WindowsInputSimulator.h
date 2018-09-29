@@ -12,7 +12,9 @@ public:
 	bool moveCursorBy(int x, int y) override;
 	bool pressButtonUnicode(char16_t unicode) override;
 	bool pressButtonEnter() override;
+	bool pressButtonBackspace() override;
 
 protected:
 	bool sendInput(tagINPUT& input);
+	bool pressButtonVk(uint16_t vk);
 };

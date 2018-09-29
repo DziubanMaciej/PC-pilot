@@ -95,7 +95,8 @@ public:
         RightRelease = 7,
         KeyPress = 8,
         KeyPressEnter = 9,
-        ErrorType = 10
+        KeyPressBackspace = 10,
+        ErrorType = 11
     };
 
     Type getType() {
@@ -195,6 +196,14 @@ public:
         return std::move(ServerMessage(address)
             .setPreamble()
             .setField<Byte, 7>(static_cast<Byte>(Type::KeyPressEnter))
+        );
+    }
+
+    // --- --- --- KeyPressBackspace
+    static ServerMessage createMessageKeyPressBackspace(const InetAddress &address) {
+        return std::move(ServerMessage(address)
+            .setPreamble()
+            .setField<Byte, 7>(static_cast<Byte>(Type::KeyPressBackspace))
         );
     }
 };

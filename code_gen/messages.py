@@ -18,6 +18,7 @@ serverMessage = MessageClass("ServerMessage",
         Field('unicode', Types.UnicodeChar)
     ),
     Message('KeyPressEnter'),
+    Message('KeyPressBackspace'),
 )
 
 clientMessage = MessageClass("ClientMessage",

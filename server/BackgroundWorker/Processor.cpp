@@ -40,5 +40,8 @@ void Processor::onUpdate(BlockingQueue<ServerMessage> &receivedMessages, Blockin
 		case ServerMessage::Type::KeyPressEnter:
 			inputSimulator.pressButtonEnter();
 			break;
+		case ServerMessage::Type::KeyPressBackspace:
+			inputSimulator.pressButtonBackspace();
+			break;
 	}
 }
