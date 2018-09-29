@@ -163,8 +163,20 @@ class MainActivity : Activity() {
 
     }
 
+    private fun getUnicode(event: KeyEvent) : Int {
+        when (event.keyCode) {
+            KeyEvent.KEYCODE_DEL -> {
+                return '\b'.toInt()
+            }
+            KeyEvent.KEYCODE_ENTER -> {
+                return '\n'.toInt()
+            }
+        }
+        return event.unicodeChar
+    }
+
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        val unicode = event!!.unicodeChar
+        val unicode = getUnicode(event!!)
         if (unicode > 0) {
             MessageSendTask.createAndExecute({ ServerMessage.createMessageKeyPress(it, unicode) }, connectionManager, toSendMessages)
             return true
